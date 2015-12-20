@@ -1,0 +1,22 @@
+﻿Build started 2015/12/20 星期日 下午 5:11:35.
+     1>Project "C:\Users\ji\Desktop\DIRECTX\Chapter 6 Drawing in Direct3D\Skull\tinyxml\tinyxml_lib.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W4 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _LIB /D _VC80_UPGRADE=0x0600 /D _MBCS /Gm /EHsc /RTC1 /MTd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"C:\Users\ji\Desktop\DIRECTX\Chapter 6 Drawing in Direct3D\Skull\Debugtinyxml\\" /Fd"C:\Users\ji\Desktop\DIRECTX\Chapter 6 Drawing in Direct3D\Skull\Debugtinyxml\vc100.pdb" /FR"C:\Users\ji\Desktop\DIRECTX\Chapter 6 Drawing in Direct3D\Skull\Debugtinyxml\\" /Gd /TP /analyze- /errorReport:prompt tinystr.cpp tinyxml.cpp tinyxmlerror.cpp tinyxmlparser.cpp
+         tinyxmlparser.cpp
+         tinyxmlerror.cpp
+         tinyxml.cpp
+         tinystr.cpp
+         Generating Code...
+       Lib:
+         D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\Lib.exe /OUT:"C:\Users\ji\Desktop\DIRECTX\Chapter 6 Drawing in Direct3D\Skull\Debugtinyxml\tinyxml.lib" /NOLOGO "C:\Users\ji\Desktop\DIRECTX\Chapter 6 Drawing in Direct3D\Skull\Debugtinyxml\tinystr.obj"
+         "C:\Users\ji\Desktop\DIRECTX\Chapter 6 Drawing in Direct3D\Skull\Debugtinyxml\tinyxml.obj"
+         "C:\Users\ji\Desktop\DIRECTX\Chapter 6 Drawing in Direct3D\Skull\Debugtinyxml\tinyxmlerror.obj"
+         "C:\Users\ji\Desktop\DIRECTX\Chapter 6 Drawing in Direct3D\Skull\Debugtinyxml\tinyxmlparser.obj"
+         tinyxml_lib.vcxproj -> C:\Users\ji\Desktop\DIRECTX\Chapter 6 Drawing in Direct3D\Skull\Debugtinyxml\tinyxml.lib
+       BscMake:
+         D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\bscmake.exe /nologo /o"C:\Users\ji\Desktop\DIRECTX\Chapter 6 Drawing in Direct3D\Skull\Debugtinyxml\tinyxml.bsc" "C:\Users\ji\Desktop\DIRECTX\Chapter 6 Drawing in Direct3D\Skull\Debugtinyxml\tinystr.sbr" "C:\Users\ji\Desktop\DIRECTX\Chapter 6 Drawing in Direct3D\Skull\Debugtinyxml\tinyxml.sbr" "C:\Users\ji\Desktop\DIRECTX\Chapter 6 Drawing in Direct3D\Skull\Debugtinyxml\tinyxmlerror.sbr" "C:\Users\ji\Desktop\DIRECTX\Chapter 6 Drawing in Direct3D\Skull\Debugtinyxml\tinyxmlparser.sbr"
+     1>Done Building Project "C:\Users\ji\Desktop\DIRECTX\Chapter 6 Drawing in Direct3D\Skull\tinyxml\tinyxml_lib.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:02.06
