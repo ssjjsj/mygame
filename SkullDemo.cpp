@@ -240,8 +240,7 @@ void SkullApp::BuildGeometryBuffers()
 	OrgeMeshPaser p;
 	vector<ModelData> datas = p.parseMesh("Cat.MESH.xml");
 
-	UINT vcount = datas[0].vertexs.size();
-	UINT tcount = datas[0].indexs.size();
+
 
 	std::vector<Vertex> vertices = datas[0].vertexs;
 
@@ -252,6 +251,9 @@ void SkullApp::BuildGeometryBuffers()
 		indices.push_back((UINT)datas[0].indexs[i][1]);
 		indices.push_back((UINT)datas[0].indexs[i][2]);
 	}
+
+	UINT vcount = vertices.size();
+	UINT tcount = indices.size();
 
     D3D11_BUFFER_DESC vbd;
     vbd.Usage = D3D11_USAGE_IMMUTABLE;
@@ -269,7 +271,7 @@ void SkullApp::BuildGeometryBuffers()
 
 	D3D11_BUFFER_DESC ibd;
     ibd.Usage = D3D11_USAGE_IMMUTABLE;
-	ibd.ByteWidth = sizeof(UINT) * mSkullIndexCount;
+	ibd.ByteWidth = sizeof(UINT) * tcount;
     ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
     ibd.CPUAccessFlags = 0;
     ibd.MiscFlags = 0;
@@ -303,12 +305,14 @@ void SkullApp::BuildVertexLayout()
 	D3D11_INPUT_ELEMENT_DESC vertexDesc[] =
 	{
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0}
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{"COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{ "TEXCOORD0", 0, DXGI_FORMAT_R16G16B16A16_FLOAT, 0, 40, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
 	// Create the input layout
     D3DX11_PASS_DESC passDesc;
     mTech->GetPassByIndex(0)->GetDesc(&passDesc);
-	HR(md3dDevice->CreateInputLayout(vertexDesc, 2, passDesc.pIAInputSignature, 
+	HR(md3dDevice->CreateInputLayout(vertexDesc, 4, passDesc.pIAInputSignature, 
 		passDesc.IAInputSignatureSize, &mInputLayout));
 }

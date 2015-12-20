@@ -12,7 +12,9 @@ cbuffer cbPerObject
 struct VertexIn
 {
 	float3 Pos   : POSITION;
+	float3 Nor :	NORMAL;
     float4 Color : COLOR;
+	float2 UV : TEXCOORD0;
 };
 
 struct VertexOut
