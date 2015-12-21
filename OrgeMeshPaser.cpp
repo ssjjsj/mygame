@@ -40,11 +40,12 @@ vector<ModelData> OrgeMeshPaser::parseMesh(string fileName)
 		for (TiXmlNode *curVertexNode = vertexRootElement->FirstChild(); curVertexNode != NULL; curVertexNode = curVertexNode->NextSibling())
 		{
 			Vertex v;
+			v.Color = XMFLOAT4(1.0f, 10.f, 0.0f, 0.0f);
 			TiXmlElement *curPosElememt = (TiXmlElement*)curVertexNode->FirstChildElement();
 
 			float x = atof(curPosElememt->Attribute("x"));
 			float y = atof(curPosElememt->Attribute("y"));
-			float z = atof(curPosElememt->Attribute("z"));
+			float z = atof(curPosElememt->Attribute("z")) * (-1.0f);
 
 			TiXmlElement *curNormalElement = (TiXmlElement*)curPosElememt->NextSibling();
 			float nx = atof(curNormalElement->Attribute("x"));
