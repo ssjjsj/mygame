@@ -37,6 +37,7 @@ private:
 	void BuildGeometryBuffers();
 	void BuildFX();
 	void BuildVertexLayout();
+	void BuildTexture();
 
 private:
 	ID3D11Buffer* mVB;
@@ -45,6 +46,8 @@ private:
 	ID3DX11Effect* mFX;
 	ID3DX11EffectTechnique* mTech;
 	ID3DX11EffectMatrixVariable* mfxWorldViewProj;
+	ID3DX11EffectShaderResourceVariable *diffuseMap;
+	ID3D11ShaderResourceView* mDiffuseMapSRV;
 
 	ID3D11InputLayout* mInputLayout;
 
@@ -96,7 +99,7 @@ SkullApp::SkullApp(HINSTANCE hInstance)
 	XMStoreFloat4x4(&mView, I);
 	XMStoreFloat4x4(&mProj, I);
 
-	XMMATRIX T = XMMatrixTranslation(0.0f, -2.0f, 0.0f);
+	XMMATRIX T = XMMatrixScaling(5.0f, 5.0f, 5.0f);
 	XMStoreFloat4x4(&mSkullWorld, T);
 }
 
@@ -114,6 +117,7 @@ bool SkullApp::Init()
 	if(!D3DApp::Init())
 		return false;
 
+	BuildTexture();
 	BuildGeometryBuffers();
 	BuildFX();
 	BuildVertexLayout();
@@ -162,7 +166,7 @@ void SkullApp::DrawScene()
 	md3dImmediateContext->IASetInputLayout(mInputLayout);
     md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	md3dImmediateContext->RSSetState(mWireframeRS);
+	//md3dImmediateContext->RSSetState(mWireframeRS);
  
 	UINT stride = sizeof(Vertex);
     UINT offset = 0;
@@ -177,6 +181,7 @@ void SkullApp::DrawScene()
 	XMMATRIX worldViewProj = world*view*proj;
  
 	mfxWorldViewProj->SetMatrix(reinterpret_cast<float*>(&worldViewProj));
+	diffuseMap->SetResource(mDiffuseMapSRV);
 
     D3DX11_TECHNIQUE_DESC techDesc;
     mTech->GetDesc( &techDesc );
@@ -238,7 +243,7 @@ void SkullApp::BuildGeometryBuffers()
 {
 
 	OrgeMeshPaser p;
-	vector<ModelData> datas = p.parseMesh("Cat.MESH.xml");
+	vector<ModelData> datas = p.parseMesh("cat.MESH.xml");
 
 
 
@@ -298,6 +303,12 @@ void SkullApp::BuildFX()
 
 	mTech    = mFX->GetTechniqueByName("ColorTech");
 	mfxWorldViewProj = mFX->GetVariableByName("gWorldViewProj")->AsMatrix();
+	diffuseMap = mFX->GetVariableByName("gDiffuseMap")->AsShaderResource();
+}
+
+void SkullApp::BuildTexture()
+{
+	D3DX11CreateShaderResourceViewFromFile(md3dDevice, L"cat_pet.dds", NULL, NULL, &mDiffuseMapSRV, NULL);
 }
 
 void SkullApp::BuildVertexLayout()
@@ -308,7 +319,7 @@ void SkullApp::BuildVertexLayout()
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
 		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{"COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{ "TEXCOORD", 0, DXGI_FORMAT_R16G16B16A16_FLOAT, 0, 40, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 40, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
 	// Create the input layout

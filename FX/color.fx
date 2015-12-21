@@ -9,18 +9,31 @@ cbuffer cbPerObject
 	float4x4 gWorldViewProj; 
 };
 
+SamplerState samAnisotropic
+{
+	//Filter = ANISOTROPIC;
+	////MaxAnisotropy = 4;
+
+	Filter = MIN_MAG_MIP_LINEAR;
+
+	AddressU = WRAP;
+	AddressV = WRAP;
+};
+Texture2D gDiffuseMap;
+
 struct VertexIn
 {
 	float3 Pos   : POSITION;
-	float3 Nor :	NORMAL;
-    float4 Color : COLOR;
+	//float3 Nor :	NORMAL;
+ //   float4 Color : COLOR;
 	float2 UV : TEXCOORD0;
 };
 
 struct VertexOut
 {
 	float4 PosH  : SV_POSITION;
-    float4 Color : COLOR;
+    //float4 Color : COLOR;
+	float2 UV : TEXCOORD0;
 };
 
 VertexOut VS(VertexIn vin)
@@ -31,14 +44,16 @@ VertexOut VS(VertexIn vin)
 	vout.PosH = mul(float4(vin.Pos, 1.0f), gWorldViewProj);
 	
 	// Just pass vertex color into the pixel shader.
-    vout.Color = vin.Color;
+    //vout.Color = vin.Color;
+	vout.UV = vin.UV;
     
     return vout;
 }
 
 float4 PS(VertexOut pin) : SV_Target
 {
-    return pin.Color;
+	//return float4(1.0f, 0.0f, 0.0f, 1.0f);
+	return gDiffuseMap.Sample(samAnisotropic, pin.UV);
 }
 
 technique11 ColorTech
