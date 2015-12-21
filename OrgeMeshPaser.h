@@ -9,7 +9,13 @@ using namespace std;
 
 class OrgeMeshPaser
 {
+private:
+	static OrgeMeshPaser paser;
 public:
+	static OrgeMeshPaser Instance()
+	{
+		return paser;
+	}
 	vector<ModelData> parseMesh(string fileName);
 	vector<ModelData> parseMeshUseShardedVertex(string filename);
 };

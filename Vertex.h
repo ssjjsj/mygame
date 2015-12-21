@@ -2,6 +2,7 @@
 #define VERTEX_H
 #include "d3dApp.h"
 #include <vector>
+#include "BoneVertexAssignment.h"
 using namespace std;
 
 struct Vertex
@@ -18,5 +19,6 @@ struct ModelData
 	vector<Vertex> vertexs;
 	vector<vector<int>> indexs;
 	string textureName;
+	vector<BoneVertexAssignment> boneVertexAssigns;
 };
 #endif

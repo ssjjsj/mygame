@@ -141,6 +141,18 @@ vector<ModelData> OrgeMeshPaser::parseMesh(string filename)
 			i++;
 		}
 
+		TiXmlNode *boneVertexAssignRootNode = geometryRootNode->NextSibling();
+		for (TiXmlNode *curBoneVertexNode = boneVertexAssignRootNode->FirstChild();
+			curBoneVertexNode != NULL; curBoneVertexNode = curBoneVertexNode->NextSibling())
+		{
+			BoneVertexAssignment ass;
+			TiXmlElement *curBoneVertexElement = (TiXmlElement*)(curBoneVertexNode);
+			ass.vertexIndex = atoi(curBoneVertexElement->Attribute("vertexindex"));
+			ass.boneIndex = atoi(curBoneVertexElement->Attribute("boneindex"));
+			ass.weight = atof(curBoneVertexElement->Attribute("weight"));
+			model.boneVertexAssigns.push_back(ass);
+		}
+
 		modelDatas.push_back(model);
 	}
 
