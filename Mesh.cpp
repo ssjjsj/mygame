@@ -9,3 +9,9 @@ void Mesh::loadFile(string filename)
 {
 	subMeshAry = OrgeMeshPaser::Instance().parseMesh(filename);
 }
+
+
+void DrawSubMesh()
+{
+
+}

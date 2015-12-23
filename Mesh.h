@@ -18,6 +18,8 @@ private:
 
 public:
 	void Draw();
+private:
+	void DrawSubMesh();
 
 private:
 	vector<ModelData> subMeshAry;

@@ -5,20 +5,23 @@
 #include "BoneVertexAssignment.h"
 using namespace std;
 
-struct Vertex
+namespace MyVertex
 {
-	XMFLOAT3 Pos;
-	XMFLOAT3 Nor;
-	XMFLOAT4 Color;
-	XMFLOAT2 UV;
-};
+	struct Vertex
+	{
+		XMFLOAT3 Pos;
+		XMFLOAT3 Nor;
+		XMFLOAT4 Color;
+		XMFLOAT2 UV;
+	};
 
 
-struct ModelData
-{
-	vector<Vertex> vertexs;
-	vector<vector<int>> indexs;
-	string textureName;
-	vector<BoneVertexAssignment> boneVertexAssigns;
+	struct ModelData
+	{
+		vector<Vertex> vertexs;
+		vector<vector<int>> indexs;
+		string textureName;
+		vector<BoneVertexAssignment> boneVertexAssigns;
+	};
 };
 #endif
