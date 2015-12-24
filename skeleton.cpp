@@ -1,6 +1,4 @@
 #include "skeleton.h"
-#include "tinyxml\tinystr.h"
-#include "tinyxml\tinyxml.h"
 
 
 Skeleton::Skeleton()
@@ -74,4 +72,11 @@ Skeleton::Bone* Skeleton::GetBone(string name)
 	}
 
 	return NULL;
+}
+
+
+
+Skeleton::Bone* Skeleton::GetBone(int id)
+{
+	return &bones[id];
 }

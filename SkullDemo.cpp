@@ -168,7 +168,7 @@ void SkullApp::DrawScene()
 
 	//md3dImmediateContext->RSSetState(mWireframeRS);
  
-	UINT stride = sizeof(Vertex);
+	UINT stride = sizeof(MyVertex::Vertex);
     UINT offset = 0;
     md3dImmediateContext->IASetVertexBuffers(0, 1, &mVB, &stride, &offset);
 	md3dImmediateContext->IASetIndexBuffer(mIB, DXGI_FORMAT_R32_UINT, 0);
@@ -241,13 +241,9 @@ void SkullApp::OnMouseMove(WPARAM btnState, int x, int y)
  
 void SkullApp::BuildGeometryBuffers()
 {
+	 vector<MyVertex::ModelData> datas = OrgeMeshPaser::parseMesh("cat.MESH.xml");
 
-	OrgeMeshPaser p;
-	vector<ModelData> datas = p.parseMesh("cat.MESH.xml");
-
-
-
-	std::vector<Vertex> vertices = datas[0].vertexs;
+	std::vector<MyVertex::Vertex> vertices = datas[0].vertexs;
 
 	std::vector<UINT> indices;
 	for (int i = 0; i < datas[0].indexs.size(); i++)
@@ -263,7 +259,7 @@ void SkullApp::BuildGeometryBuffers()
 
     D3D11_BUFFER_DESC vbd;
     vbd.Usage = D3D11_USAGE_IMMUTABLE;
-	vbd.ByteWidth = sizeof(Vertex) * vcount;
+	vbd.ByteWidth = sizeof(MyVertex::Vertex) * vcount;
     vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     vbd.CPUAccessFlags = 0;
     vbd.MiscFlags = 0;

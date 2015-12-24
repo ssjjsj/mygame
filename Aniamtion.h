@@ -24,9 +24,18 @@ public:
 	Animation(string fileName);
 	void loadFile(string fileName);
 	void update(float time);
-	void updateAllMatrix(map<string, XMMATRIX&>& matrixMap);
-	void updateChildrenMatrix(Skeleton::Bone* bone, map<string, XMMATRIX&>& localMatrixMap);
+	void updateAllMatrix(map<string, XMMATRIX>& matrixMap);
+	void updateChildrenMatrix(Skeleton::Bone* bone, map<string, XMMATRIX>& localMatrixMap);
 	map<string, XMMATRIX>& GetPosMatrix();
+	Skeleton* GetSkeleton()
+	{
+		return &skeleton;
+	}
+
+	string GetName()
+	{
+		return animationName;
+	}
 private:
 	void loadAnimations(TiXmlNode *rootNode);
 	vector<KeyFrame*> findTwoKeyframes(float time, Track &t);

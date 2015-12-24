@@ -2,6 +2,7 @@
 #include "tinyxml\tinystr.h"
 #include "tinyxml\tinyxml.h"
 #include "skeleton.h"
+#include "MathHelp.h"
 
 Animation::Animation()
 {
@@ -79,7 +80,7 @@ void Animation::loadAnimations(TiXmlNode *rootNode)
 
 void Animation::update(float time)
 {
-	map<string, XMMATRIX&> boneMatrixMap;
+	map<string, XMMATRIX> boneMatrixMap;
 	for (int i = 0; i < tracks.size(); i++)
 	{
 		Track &t = tracks[i];
@@ -96,7 +97,7 @@ void Animation::update(float time)
 }
 
 
-void Animation::updateAllMatrix(map<string, XMMATRIX&>& matrixMap)
+void Animation::updateAllMatrix(map<string, XMMATRIX>& matrixMap)
 {
 	posMatrix.clear();
 	Skeleton::Bone *rootBone = skeleton.GetBone("Root");
@@ -104,7 +105,7 @@ void Animation::updateAllMatrix(map<string, XMMATRIX&>& matrixMap)
 }
 
 
-void Animation::updateChildrenMatrix(Skeleton::Bone* bone, map<string, XMMATRIX&>& localMatrixMap)
+void Animation::updateChildrenMatrix(Skeleton::Bone* bone, map<string, XMMATRIX>& localMatrixMap)
 {
 	XMMATRIX m;
 	if (localMatrixMap.count(bone->name))
@@ -129,35 +130,14 @@ XMMATRIX Animation::getPosMatrix(float time, KeyFrame *leftFrame, KeyFrame *righ
 {
 	XMMATRIX m = XMMatrixIdentity();
 
-	XMFLOAT3 translate = lerpFloat3(leftFrame->translate, rightFrame->translate, leftFrame->startTime, time, rightFrame->startTime);
-	XMVECTOR quaternion = XMVectorLerp(axisAngleToQuaternion(leftFrame->axis, leftFrame->angle), 
-		axisAngleToQuaternion(rightFrame->axis, rightFrame->angle), (time-leftFrame->startTime)/(rightFrame->startTime-leftFrame->startTime));
+	XMFLOAT3 translate = MathUntil::lerpFloat3(leftFrame->translate, rightFrame->translate, leftFrame->startTime, time, rightFrame->startTime);
+	XMVECTOR quaternion = XMVectorLerp(MathUntil::axisAngleToQuaternion(leftFrame->axis, leftFrame->angle),
+		MathUntil::axisAngleToQuaternion(rightFrame->axis, rightFrame->angle), (time - leftFrame->startTime) / (rightFrame->startTime - leftFrame->startTime));
 
 	XMMATRIX m1 = XMMatrixTranslation(translate.x, translate.y, translate.z);
 	XMMATRIX m2 = XMMatrixRotationQuaternion(quaternion);
 
 	return m*m1*m2;
-}
-
-XMVECTOR axisAngleToQuaternion(XMFLOAT3 axis, float angle)
-{
-	XMVECTOR vAxis = XMLoadFloat3(&axis);
-	return XMQuaternionRotationAxis(vAxis, angle);
-}
-
-XMFLOAT3 lerpFloat3(XMFLOAT3 left, XMFLOAT3 right, float v1, float v2, float v3)
-{
-	XMFLOAT3 value;
-	value.x = lerp(left.x, right.x, v1, v2, v3);
-	value.y = lerp(left.y, right.y, v1, v2, v3);
-	value.z = lerp(left.z, right.z, v1, v2, v3);
-
-	return value;
-}
-
-float lerp(float left, float right, float v1, float v2, float v3)
-{
-	float value = left + (right - left)*(v2 - v1) / (v3 - v1);
 }
 
 vector<Animation::KeyFrame*> Animation::findTwoKeyframes(float time, Track &t)

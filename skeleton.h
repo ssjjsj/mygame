@@ -1,6 +1,8 @@
 #ifndef SKLETON_H
 #define SKLETON_H
 #include <string>
+#include "tinyxml\tinystr.h"
+#include "tinyxml\tinyxml.h"
 #include "Common\MathHelper.h"
 #include <vector>
 #include <string>
@@ -26,6 +28,7 @@ public:
 	TiXmlNode* loadFile(TiXmlNode *bonesRootNode);
 	void buildHierarchy();
 	Bone* GetBone(string name);
+	Bone* GetBone(int id);
 
 private:
 	vector<Bone> bones;
