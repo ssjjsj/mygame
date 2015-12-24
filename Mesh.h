@@ -21,10 +21,11 @@ private:
 public:
 	void Draw();
 	void update(float deltaTime);
+	vector<MyVertex::ModelData>& getModelData();
+	void playAnimation(string animationName);
 private:
 	void DrawSubMesh();
 	void skin();
-	void playAnimation(string animationName);
 
 private:
 	vector<MyVertex::ModelData> subMeshAry;

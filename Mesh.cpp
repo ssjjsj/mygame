@@ -3,6 +3,11 @@ using namespace MyVertex;
 #include <map>
 using namespace std;
 
+Mesh::Mesh()
+{
+
+}
+
 Mesh::Mesh(string filename)
 {
 	loadFile(filename);
@@ -83,4 +88,13 @@ void Mesh::skin()
 void DrawSubMesh()
 {
 
+}
+
+
+vector<MyVertex::ModelData>& Mesh::getModelData()
+{
+	if (curAnimation != NULL)
+		return skinedMeshAry;
+	else
+		return subMeshAry;
 }

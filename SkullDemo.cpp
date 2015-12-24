@@ -15,6 +15,7 @@
 #include "MathHelper.h"
 #include "Vertex.h"
 #include "OrgeMeshPaser.h"
+#include "Mesh.h"
  
 
 
@@ -241,7 +242,10 @@ void SkullApp::OnMouseMove(WPARAM btnState, int x, int y)
  
 void SkullApp::BuildGeometryBuffers()
 {
-	 vector<MyVertex::ModelData> datas = OrgeMeshPaser::parseMesh("cat.MESH.xml");
+	Mesh m= Mesh("cat.MESH.xml");
+	m.playAnimation("");
+	m.update(1.2f);
+	vector<MyVertex::ModelData>& datas = m.getModelData();
 
 	std::vector<MyVertex::Vertex> vertices = datas[0].vertexs;
 
