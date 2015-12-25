@@ -57,29 +57,41 @@ void Mesh::update(float deltaTime)
 
 void Mesh::skin()
 {
-	map<string, XMMATRIX> matrixMap;
+	map<string, XMMATRIX> matrixMap = curAnimation->GetPosMatrix();
 	skinedMeshAry = subMeshAry;
 
 	for (int indexSubMesh = 0; indexSubMesh < subMeshAry.size(); indexSubMesh++)
 	{
 		ModelData &modelData = subMeshAry[indexSubMesh];
 		map<int, XMFLOAT3> posMap;
+		for (map<int, XMFLOAT3>::iterator it = posMap.begin(); it != posMap.end(); it++)
+		{
+			it->second = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		}
 		for (int indexBoneAssign = 0; indexBoneAssign < modelData.boneVertexAssigns.size(); indexBoneAssign++)
 		{
 			BoneVertexAssignment &ass = modelData.boneVertexAssigns[indexBoneAssign];
 			Vertex &v = subMeshAry[indexSubMesh].vertexs[ass.vertexIndex];
 			Skeleton::Bone *bone = curAnimation->GetSkeleton()->GetBone(ass.boneIndex);
-			XMVECTOR partV =	 XMVector3Transform(XMLoadFloat3(&v.Pos), matrixMap[bone->name]);
+			XMMATRIX originInverseMatrix = curAnimation->GetSkeleton()->GetOriginInverseMatrix(bone->name);
+			XMMATRIX boneMatrix = matrixMap[bone->name];
+			XMMATRIX m = originInverseMatrix*boneMatrix;
+			XMVECTOR posV = XMLoadFloat3(&v.Pos);
+			XMVECTOR partV =	 XMVector3Transform(posV, m);
 			XMFLOAT3 partPos;
 			XMStoreFloat3(&partPos, partV);
-			posMap[ass.vertexIndex].x += partPos.x;
-			posMap[ass.vertexIndex].y += partPos.y;
-			posMap[ass.vertexIndex].z += partPos.z;
+			partPos.x += partPos.x*ass.weight;
+			partPos.y += partPos.y*ass.weight;
+			partPos.z += partPos.z*ass.weight;
+			posMap[ass.vertexIndex] = partPos;
+
+			int i = 0;
 		}
 
 		for (map<int, XMFLOAT3>::iterator it = posMap.begin(); it != posMap.end(); it++)
 		{
-			skinedMeshAry[indexSubMesh].vertexs[it->first].Pos = it->second;
+			XMFLOAT3 pos = it->second;
+			skinedMeshAry[indexSubMesh].vertexs[it->first].Pos = pos;
 		}
 	}
 }

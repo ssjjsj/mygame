@@ -39,7 +39,8 @@ public:
 private:
 	void loadAnimations(TiXmlNode *rootNode);
 	vector<KeyFrame*> findTwoKeyframes(float time, Track &t);
-	XMMATRIX getPosMatrix(float time, KeyFrame *leftFrame, KeyFrame *rightFrame);
+	XMMATRIX computePosMatrix(float time, KeyFrame *leftFrame, KeyFrame *rightFrame);
+	XMMATRIX computePosMatrix(KeyFrame *frame);
 private:
 	Skeleton skeleton;
 	string animationName;

@@ -21,6 +21,8 @@ namespace MathUntil
 
 	float lerp(float left, float right, float v1, float v2, float v3)
 	{
+		if (v3 - v1 < 0.0001f)
+			return left;
 		float value = left + (right - left)*(v2 - v1) / (v3 - v1);
 		return value;
 	}

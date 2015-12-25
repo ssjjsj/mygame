@@ -10,8 +10,9 @@ Animation::Animation()
 }
 
 
-Animation::Animation(string fileName)
+Animation::Animation(string animationName)
 {
+	string fileName = animationName + ".SKELETON.xml";
 	loadFile(fileName);
 }
 
@@ -38,42 +39,41 @@ void Animation::loadFile(string fileName)
 
 void Animation::loadAnimations(TiXmlNode *rootNode)
 {
-	for (TiXmlNode *curAnimationNode = rootNode->FirstChild(); curAnimationNode != NULL; curAnimationNode = curAnimationNode->NextSibling())
+	TiXmlNode *curAnimationNode = rootNode->FirstChild();
+	TiXmlElement *curAnimationElement = (TiXmlElement*)(curAnimationNode);
+	animationName = curAnimationElement->Attribute("name");
+	timeLength = atof(curAnimationElement->Attribute("length"));
+
+	TiXmlNode *trackRootNode = curAnimationElement->FirstChild();
+	for (TiXmlNode *curTrackNode = trackRootNode->FirstChild();
+		curTrackNode != NULL; curTrackNode = curTrackNode->NextSibling())
 	{
-		TiXmlElement *curAnimationElement = (TiXmlElement*)(curAnimationNode);
-		animationName = curAnimationElement->Attribute("name");
-		timeLength = atof(curAnimationElement->Attribute("length"));
-
-		TiXmlNode *trackRootNode = curAnimationElement->FirstChild();
-		for (TiXmlNode *curTrackNode = trackRootNode->FirstChild();
-			curTrackNode != NULL; curTrackNode->NextSibling())
+		Track t;
+		TiXmlElement *curTrackElement = (TiXmlElement*)(curTrackNode);
+		t.BoneName = curTrackElement->Attribute("bone");
+		TiXmlNode *keyframesRootNode = curTrackElement->FirstChild();
+		for (TiXmlNode *curKeyframeNode = keyframesRootNode->FirstChild();
+			curKeyframeNode != NULL; curKeyframeNode = curKeyframeNode->NextSibling())
 		{
-			Track t;
-			TiXmlElement *curTrackElement = (TiXmlElement*)(curTrackNode);
-			t.BoneName = curTrackElement->Attribute("bone");
-			TiXmlNode *keyframesRootNode = curTrackElement->FirstChild();
-			for (TiXmlNode *curKeyframeNode = keyframesRootNode->FirstChild();
-				curKeyframeNode != NULL; curKeyframeNode = curKeyframeNode->NextSibling())
-			{
-				KeyFrame k;
-				TiXmlElement *curKeyframeElement = (TiXmlElement*)(curKeyframeNode);
+			KeyFrame k;
+			TiXmlElement *curKeyframeElement = (TiXmlElement*)(curKeyframeNode);
+			k.startTime = atof(curKeyframeElement->Attribute("time"));
 
-				TiXmlElement *translateElemnt = curKeyframeElement->FirstChildElement();
-				k.translate.x = atof(translateElemnt->Attribute("x"));
-				k.translate.y = atof(translateElemnt->Attribute("y"));
-				k.translate.z = atof(translateElemnt->Attribute("z"));
+			TiXmlElement *translateElemnt = curKeyframeElement->FirstChildElement();
+			k.translate.x = atof(translateElemnt->Attribute("x"));
+			k.translate.y = atof(translateElemnt->Attribute("y"));
+			k.translate.z = atof(translateElemnt->Attribute("z"));
 
-				TiXmlElement *rotateElement = (TiXmlElement*)translateElemnt->NextSibling();
-				k.angle = atof(rotateElement->Attribute("angle"));
-				TiXmlElement *axisElement = rotateElement->FirstChildElement();
-				k.axis.x = atof(axisElement->Attribute("x"));
-				k.axis.y = atof(axisElement->Attribute("y"));
-				k.axis.z = atof(axisElement->Attribute("z"));
+			TiXmlElement *rotateElement = (TiXmlElement*)translateElemnt->NextSibling();
+			k.angle = atof(rotateElement->Attribute("angle"));
+			TiXmlElement *axisElement = rotateElement->FirstChildElement();
+			k.axis.x = atof(axisElement->Attribute("x"));
+			k.axis.y = atof(axisElement->Attribute("y"));
+			k.axis.z = atof(axisElement->Attribute("z"));
 
-				t.keyFrames.push_back(k);
-			}
-			tracks.push_back(t);
+			t.keyFrames.push_back(k);
 		}
+		tracks.push_back(t);
 	}
 }
 
@@ -90,7 +90,10 @@ void Animation::update(float time)
 
 		if (leftFrame != NULL && rightFrame != NULL)
 		{
-			boneMatrixMap[t.BoneName] = getPosMatrix(time, leftFrame, rightFrame);
+			if (leftFrame == rightFrame)
+				boneMatrixMap[t.BoneName] = computePosMatrix(leftFrame);
+			else
+				boneMatrixMap[t.BoneName] = computePosMatrix(time, leftFrame, rightFrame);
 		}
 	}
 	updateAllMatrix(boneMatrixMap);
@@ -116,7 +119,10 @@ void Animation::updateChildrenMatrix(Skeleton::Bone* bone, map<string, XMMATRIX>
 	{
 		m = XMMatrixIdentity();
 	}
-	posMatrix[bone->name] = posMatrix[bone->parent->name] * m;
+	if (bone->name == "Root")
+		posMatrix[bone->name] = m;
+	else
+		posMatrix[bone->name] = posMatrix[bone->parent->name] * m;
 
 	for (int i = 0; i < bone->children.size(); i++)
 	{
@@ -126,7 +132,7 @@ void Animation::updateChildrenMatrix(Skeleton::Bone* bone, map<string, XMMATRIX>
 
 
 
-XMMATRIX Animation::getPosMatrix(float time, KeyFrame *leftFrame, KeyFrame *rightFrame)
+XMMATRIX Animation::computePosMatrix(float time, KeyFrame *leftFrame, KeyFrame *rightFrame)
 {
 	XMMATRIX m = XMMatrixIdentity();
 
@@ -137,6 +143,14 @@ XMMATRIX Animation::getPosMatrix(float time, KeyFrame *leftFrame, KeyFrame *righ
 	XMMATRIX m1 = XMMatrixTranslation(translate.x, translate.y, translate.z);
 	XMMATRIX m2 = XMMatrixRotationQuaternion(quaternion);
 
+	return m*m1*m2;
+}
+
+XMMATRIX Animation::computePosMatrix(KeyFrame *frame)
+{
+	XMMATRIX m = XMMatrixIdentity();
+	XMMATRIX m1 = XMMatrixTranslation(frame->translate.x, frame->translate.y, frame->translate.z);
+	XMMATRIX m2 = XMMatrixRotationQuaternion(MathUntil::axisAngleToQuaternion(frame->axis, frame->angle));
 	return m*m1*m2;
 }
 

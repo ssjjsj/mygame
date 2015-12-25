@@ -243,8 +243,8 @@ void SkullApp::OnMouseMove(WPARAM btnState, int x, int y)
 void SkullApp::BuildGeometryBuffers()
 {
 	Mesh m= Mesh("cat.MESH.xml");
-	m.playAnimation("");
-	m.update(1.2f);
+	m.playAnimation("Attack1");
+	m.update(0.1f);
 	vector<MyVertex::ModelData>& datas = m.getModelData();
 
 	std::vector<MyVertex::Vertex> vertices = datas[0].vertexs;

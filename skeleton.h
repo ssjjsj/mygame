@@ -14,7 +14,7 @@ class Skeleton
 public:
 	struct Bone
 	{
-		Bone *parent;
+		Bone *parent = NULL;
 		string name;
 		int id;
 		XMFLOAT3 pos;
@@ -27,12 +27,15 @@ public:
 	Skeleton();
 	TiXmlNode* loadFile(TiXmlNode *bonesRootNode);
 	void buildHierarchy();
+	void buildOriginInverseMatrix();
+	XMMATRIX& GetOriginInverseMatrix(string boneName);
 	Bone* GetBone(string name);
 	Bone* GetBone(int id);
 
 private:
-	vector<Bone> bones;
+	vector<Bone*> bones;
 	map<string, Bone*> boneNameMap;
+	map<string, XMMATRIX> boneOriginInverseMatrix;
 };
 
 #endif
