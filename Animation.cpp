@@ -14,10 +14,16 @@ Animation::Animation(string animationName)
 {
 	string fileName = animationName + ".SKELETON.xml";
 	loadFile(fileName);
+
+	string skeletonFileName = "Cat.SKELETON.xml";
+	TiXmlDocument doc = TiXmlDocument(skeletonFileName.c_str());
+	doc.LoadFile();
+	TiXmlNode *skeletonRoot = doc.RootElement()->FirstChild();
+	skeleton.loadFile(skeletonRoot);
 }
 
 
-map<string, XMMATRIX>& Animation::GetPosMatrix()
+map<string, XMFLOAT4X4>& Animation::GetPosMatrix()
 {
 	return posMatrix;
 }
@@ -29,9 +35,7 @@ void Animation::loadFile(string fileName)
 	doc.LoadFile();
 
 	TiXmlElement *skeletonRoot = doc.RootElement();
-	TiXmlNode *bonesRootNode = skeletonRoot->FirstChild();
-
-	TiXmlNode *animationRootNode = skeleton.loadFile(bonesRootNode);
+	TiXmlNode *animationRootNode = skeletonRoot->FirstChild()->NextSibling()->NextSibling();
 
 	loadAnimations(animationRootNode);
 }
@@ -80,7 +84,7 @@ void Animation::loadAnimations(TiXmlNode *rootNode)
 
 void Animation::update(float time)
 {
-	map<string, XMMATRIX> boneMatrixMap;
+	map<string, XMFLOAT4X4> boneMatrixMap;
 	for (int i = 0; i < tracks.size(); i++)
 	{
 		Track &t = tracks[i];
@@ -100,7 +104,7 @@ void Animation::update(float time)
 }
 
 
-void Animation::updateAllMatrix(map<string, XMMATRIX>& matrixMap)
+void Animation::updateAllMatrix(map<string, XMFLOAT4X4>& matrixMap)
 {
 	posMatrix.clear();
 	Skeleton::Bone *rootBone = skeleton.GetBone("Root");
@@ -108,21 +112,25 @@ void Animation::updateAllMatrix(map<string, XMMATRIX>& matrixMap)
 }
 
 
-void Animation::updateChildrenMatrix(Skeleton::Bone* bone, map<string, XMMATRIX>& localMatrixMap)
+void Animation::updateChildrenMatrix(Skeleton::Bone* bone, map<string, XMFLOAT4X4>& localMatrixMap)
 {
 	XMMATRIX m;
+	XMMATRIX localMatrix;
 	if (localMatrixMap.count(bone->name))
 	{
-		m = localMatrixMap[bone->name];
+		m = XMLoadFloat4x4(&localMatrixMap[bone->name]);
 	}
 	else
 	{
 		m = XMMatrixIdentity();
 	}
 	if (bone->name == "Root")
-		posMatrix[bone->name] = m;
+		XMStoreFloat4x4(&posMatrix[bone->name], m);
 	else
-		posMatrix[bone->name] = posMatrix[bone->parent->name] * m;
+	{
+		XMMATRIX result = XMLoadFloat4x4(&posMatrix[bone->parent->name]) * m;
+		XMStoreFloat4x4(&posMatrix[bone->name], result);
+	}
 
 	for (int i = 0; i < bone->children.size(); i++)
 	{
@@ -132,26 +140,34 @@ void Animation::updateChildrenMatrix(Skeleton::Bone* bone, map<string, XMMATRIX>
 
 
 
-XMMATRIX Animation::computePosMatrix(float time, KeyFrame *leftFrame, KeyFrame *rightFrame)
+XMFLOAT4X4 Animation::computePosMatrix(float time, KeyFrame *leftFrame, KeyFrame *rightFrame)
 {
-	XMMATRIX m = XMMatrixIdentity();
-
 	XMFLOAT3 translate = MathUntil::lerpFloat3(leftFrame->translate, rightFrame->translate, leftFrame->startTime, time, rightFrame->startTime);
-	XMVECTOR quaternion = XMVectorLerp(MathUntil::axisAngleToQuaternion(leftFrame->axis, leftFrame->angle),
-		MathUntil::axisAngleToQuaternion(rightFrame->axis, rightFrame->angle), (time - leftFrame->startTime) / (rightFrame->startTime - leftFrame->startTime));
+	XMVECTOR leftV = XMLoadFloat3(&leftFrame->axis);
+	XMVECTOR leftQ = XMQuaternionRotationAxis(leftV, leftFrame->angle);
+
+	XMVECTOR rightV = XMLoadFloat3(&rightFrame->axis);
+	XMVECTOR rightQ = XMQuaternionRotationAxis(rightV, rightFrame->angle);
+
+	XMVECTOR quaternion = XMVectorLerp(leftQ, rightQ, (time - leftFrame->startTime) / (rightFrame->startTime - leftFrame->startTime));
 
 	XMMATRIX m1 = XMMatrixTranslation(translate.x, translate.y, translate.z);
 	XMMATRIX m2 = XMMatrixRotationQuaternion(quaternion);
 
-	return m*m1*m2;
+	XMFLOAT4X4 result;
+	XMStoreFloat4x4(&result, m2*m1);
+	return result;
 }
 
-XMMATRIX Animation::computePosMatrix(KeyFrame *frame)
+XMFLOAT4X4 Animation::computePosMatrix(KeyFrame *frame)
 {
-	XMMATRIX m = XMMatrixIdentity();
 	XMMATRIX m1 = XMMatrixTranslation(frame->translate.x, frame->translate.y, frame->translate.z);
-	XMMATRIX m2 = XMMatrixRotationQuaternion(MathUntil::axisAngleToQuaternion(frame->axis, frame->angle));
-	return m*m1*m2;
+	XMVECTOR v = XMLoadFloat3(&frame->axis);
+	XMVECTOR q = XMQuaternionRotationAxis(v, frame->angle);
+	XMMATRIX m2 = XMMatrixRotationQuaternion(q);
+	XMFLOAT4X4 result;
+	XMStoreFloat4x4(&result, m2*m1);
+	return result;
 }
 
 vector<Animation::KeyFrame*> Animation::findTwoKeyframes(float time, Track &t)

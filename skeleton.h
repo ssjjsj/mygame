@@ -17,9 +17,7 @@ public:
 		Bone *parent = NULL;
 		string name;
 		int id;
-		XMFLOAT3 pos;
-		float angle;
-		XMFLOAT3 axis;
+		XMFLOAT4X4 inverseM;
 		vector<Bone*> children;
 	};
 
@@ -27,15 +25,13 @@ public:
 	Skeleton();
 	TiXmlNode* loadFile(TiXmlNode *bonesRootNode);
 	void buildHierarchy();
-	void buildOriginInverseMatrix();
-	XMMATRIX& GetOriginInverseMatrix(string boneName);
+	void buildInverseMatrix(Bone *b);
 	Bone* GetBone(string name);
 	Bone* GetBone(int id);
 
 private:
 	vector<Bone*> bones;
 	map<string, Bone*> boneNameMap;
-	map<string, XMMATRIX> boneOriginInverseMatrix;
 };
 
 #endif

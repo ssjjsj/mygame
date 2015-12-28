@@ -3,12 +3,6 @@
 
 namespace MathUntil
 {
-	XMVECTOR axisAngleToQuaternion(XMFLOAT3 axis, float angle)
-	{
-		XMVECTOR vAxis = XMLoadFloat3(&axis);
-		return XMQuaternionRotationAxis(vAxis, angle);
-	}
-
 	XMFLOAT3 lerpFloat3(XMFLOAT3 left, XMFLOAT3 right, float v1, float v2, float v3)
 	{
 		XMFLOAT3 value;
@@ -25,5 +19,16 @@ namespace MathUntil
 			return left;
 		float value = left + (right - left)*(v2 - v1) / (v3 - v1);
 		return value;
+	}
+
+	XMFLOAT4X4 GetTransformMatrix(XMFLOAT3 translate, XMFLOAT3 axis, float angle)
+	{
+		XMMATRIX m1 = XMMatrixTranslation(translate.x, translate.y, translate.z);
+		XMMATRIX m2 = XMMatrixRotationAxis(XMLoadFloat3(&axis), angle);
+
+		XMFLOAT4X4 result;
+		XMStoreFloat4x4(&result, m1*m2);
+		
+		return result;
 	}
 }

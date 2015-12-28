@@ -1,4 +1,5 @@
 #include "skeleton.h"
+#include "MathHelp.h"
 
 
 Skeleton::Skeleton()
@@ -18,16 +19,23 @@ TiXmlNode * Skeleton::loadFile(TiXmlNode *bonesRootNode)
 		b->name = curBoneElement->Attribute("name");
 		
 		TiXmlElement *posElement = curBoneElement->FirstChildElement();
-		b->pos.x = atof(posElement->Attribute("x"));
-		b->pos.y = atof(posElement->Attribute("y"));
-		b->pos.z = atof(posElement->Attribute("z"));
+		XMFLOAT3 pos;
+		pos.x = atof(posElement->Attribute("x"));
+		pos.y = atof(posElement->Attribute("y"));
+		pos.z = atof(posElement->Attribute("z"));
 
 		TiXmlElement *rotationElement = (TiXmlElement*)posElement->NextSibling();
-		b->angle = atof(rotationElement->Attribute("angle"));
+		float angle = atof(rotationElement->Attribute("angle"));
 		TiXmlElement *axisElement = (TiXmlElement*)rotationElement->FirstChild();
-		b->axis.x = atof(axisElement->Attribute("x"));
-		b->axis.y = atof(axisElement->Attribute("y"));
-		b->axis.z = atof(axisElement->Attribute("z"));
+		XMFLOAT3 axis;
+		axis.x = atof(axisElement->Attribute("x"));
+		axis.y = atof(axisElement->Attribute("y"));
+		axis.z = atof(axisElement->Attribute("z"));
+		
+		XMFLOAT4X4 temp = MathUntil::GetTransformMatrix(pos, axis, angle);
+		XMMATRIX m = XMLoadFloat4x4(&temp);
+		XMMATRIX tempM = XMMatrixInverse(&XMMatrixDeterminant(m), m);
+		XMStoreFloat4x4(&b->inverseM, tempM);
 
 		bones.push_back(b);
 		boneNameMap[b->name] = b;
@@ -44,7 +52,6 @@ TiXmlNode * Skeleton::loadFile(TiXmlNode *bonesRootNode)
 	}
 
 	buildHierarchy();
-	buildOriginInverseMatrix();
 
 	return boneHierarchyRoot->NextSibling();
 }
@@ -64,6 +71,8 @@ void Skeleton::buildHierarchy()
 			boneNameMap[parentName]->children.push_back(b);
 		}
 	}
+
+	buildInverseMatrix(GetBone("Root"));
 }
 
 
@@ -84,20 +93,20 @@ Skeleton::Bone* Skeleton::GetBone(int id)
 	return bones[id];
 }
 
-
-void Skeleton::buildOriginInverseMatrix()
+void Skeleton::buildInverseMatrix(Bone *b)
 {
-	for (int i = 0; i < bones.size(); i++)
+	if (b->name != "Root")
 	{
-		Bone *b = bones[i];
-		XMMATRIX m = XMMatrixRotationAxis(XMLoadFloat3(&b->axis), b->angle);
-		boneOriginInverseMatrix[b->name] = m;
-		//boneOriginInverseMatrix[b->name] = XMMatrixInverse(&XMMatrixDeterminant(m), m);
+		XMMATRIX curM = XMLoadFloat4x4(&b->inverseM);
+		XMMATRIX parentM = XMLoadFloat4x4(&b->parent->inverseM);
+
+		XMMATRIX m = parentM*curM;
+
+		XMStoreFloat4x4(&b->inverseM, m);
 	}
-}
 
-
-XMMATRIX& Skeleton::GetOriginInverseMatrix(string boneName)
-{
-	return boneOriginInverseMatrix[boneName];
+	for (int i = 0; i < b->children.size(); i++)
+	{
+		buildInverseMatrix(b->children[i]);
+	}
 }
