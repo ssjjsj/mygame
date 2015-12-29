@@ -134,7 +134,7 @@ namespace OrgeMeshPaser
 
 				float x = atof(curPosElememt->Attribute("x"));
 				float y = atof(curPosElememt->Attribute("y"));
-				float z = (-1.0f)*atof(curPosElememt->Attribute("z"));
+				float z = atof(curPosElememt->Attribute("z"));
 
 				TiXmlElement *curNormalElement = (TiXmlElement*)curPosElememt->NextSibling();
 				float nx = atof(curNormalElement->Attribute("x"));
@@ -155,8 +155,8 @@ namespace OrgeMeshPaser
 			for (TiXmlNode* curUVNode = uvRootNode->FirstChild(); curUVNode != NULL; curUVNode = curUVNode->NextSibling())
 			{
 				TiXmlElement *uvElement = curUVNode->FirstChildElement();
-				model.vertexs[i].UV.x = atof(uvElement->Attribute("v"));
-				model.vertexs[i].UV.y = atof(uvElement->Attribute("u"));
+				model.vertexs[i].UV.x = atof(uvElement->Attribute("u"));
+				model.vertexs[i].UV.y = atof(uvElement->Attribute("v"));
 				i++; 
 			}
 

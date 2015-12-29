@@ -22,15 +22,15 @@ TiXmlNode * Skeleton::loadFile(TiXmlNode *bonesRootNode)
 		XMFLOAT3 pos;
 		pos.x = atof(posElement->Attribute("x"));
 		pos.y = atof(posElement->Attribute("y"));
-		pos.z = (-1.0f)*atof(posElement->Attribute("z"));
+		pos.z = atof(posElement->Attribute("z"));
 
 		TiXmlElement *rotationElement = (TiXmlElement*)posElement->NextSibling();
-		float angle = (-1.0f)*atof(rotationElement->Attribute("angle"));
+		float angle = atof(rotationElement->Attribute("angle"));
 		TiXmlElement *axisElement = (TiXmlElement*)rotationElement->FirstChild();
 		XMFLOAT3 axis;
 		axis.x = atof(axisElement->Attribute("x"));
 		axis.y = atof(axisElement->Attribute("y"));
-		axis.z = (-1.0f)*atof(axisElement->Attribute("z"));
+		axis.z = atof(axisElement->Attribute("z"));
 		
 		XMFLOAT4X4 temp = MathUntil::GetTransformMatrix(pos, axis, angle);
 		XMMATRIX m = XMLoadFloat4x4(&temp);
