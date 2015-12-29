@@ -35,7 +35,7 @@ void Animation::loadFile(string fileName)
 	doc.LoadFile();
 
 	TiXmlElement *skeletonRoot = doc.RootElement();
-	TiXmlNode *animationRootNode = skeletonRoot->FirstChild()->NextSibling()->NextSibling();
+	TiXmlNode* animationRootNode = skeleton.loadFile(skeletonRoot->FirstChild());
 
 	loadAnimations(animationRootNode);
 }
@@ -66,14 +66,14 @@ void Animation::loadAnimations(TiXmlNode *rootNode)
 			TiXmlElement *translateElemnt = curKeyframeElement->FirstChildElement();
 			k.translate.x = atof(translateElemnt->Attribute("x"));
 			k.translate.y = atof(translateElemnt->Attribute("y"));
-			k.translate.z = atof(translateElemnt->Attribute("z"));
+			k.translate.z = (-1.0f)*atof(translateElemnt->Attribute("z"));
 
 			TiXmlElement *rotateElement = (TiXmlElement*)translateElemnt->NextSibling();
-			k.angle = atof(rotateElement->Attribute("angle"));
+			k.angle = (-1.0f)*atof(rotateElement->Attribute("angle"));
 			TiXmlElement *axisElement = rotateElement->FirstChildElement();
 			k.axis.x = atof(axisElement->Attribute("x"));
 			k.axis.y = atof(axisElement->Attribute("y"));
-			k.axis.z = atof(axisElement->Attribute("z"));
+			k.axis.z = (-1.0f)*atof(axisElement->Attribute("z"));
 
 			t.keyFrames.push_back(k);
 		}
@@ -107,7 +107,7 @@ void Animation::update(float time)
 void Animation::updateAllMatrix(map<string, XMFLOAT4X4>& matrixMap)
 {
 	posMatrix.clear();
-	Skeleton::Bone *rootBone = skeleton.GetBone("Root");
+	Skeleton::Bone *rootBone = skeleton.GetBone("root");
 	updateChildrenMatrix(rootBone, matrixMap);
 }
 
@@ -124,11 +124,11 @@ void Animation::updateChildrenMatrix(Skeleton::Bone* bone, map<string, XMFLOAT4X
 	{
 		m = XMMatrixIdentity();
 	}
-	if (bone->name == "Root")
+	if (bone->IsRootBone())
 		XMStoreFloat4x4(&posMatrix[bone->name], m);
 	else
 	{
-		XMMATRIX result = XMLoadFloat4x4(&posMatrix[bone->parent->name]) * m;
+		XMMATRIX result = XMLoadFloat4x4(&posMatrix[bone->parent->name])*m;
 		XMStoreFloat4x4(&posMatrix[bone->name], result);
 	}
 

@@ -77,8 +77,8 @@ void Mesh::skin()
 			
 			XMMATRIX originInverseMatrix = XMLoadFloat4x4(&bone->inverseM);
 			XMMATRIX boneMatrix = XMLoadFloat4x4(&matrixMap[bone->name]);
-			
-			XMMATRIX m = originInverseMatrix;
+
+			XMMATRIX m = originInverseMatrix*boneMatrix;
 			XMVECTOR posV = XMLoadFloat3(&v.Pos);
 			XMVECTOR partV =	 XMVector3Transform(posV, m);
 			

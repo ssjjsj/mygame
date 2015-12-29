@@ -19,6 +19,11 @@ public:
 		int id;
 		XMFLOAT4X4 inverseM;
 		vector<Bone*> children;
+
+		bool IsRootBone()
+		{
+			return name == "root" || name == "Root";
+		}
 	};
 
 public:

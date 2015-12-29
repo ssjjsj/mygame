@@ -31,20 +31,25 @@ namespace OrgeMeshPaser
 			float ny = atof(curNormalElement->Attribute("y"));
 			float nz = atof(curNormalElement->Attribute("z"));
 
-			TiXmlElement *uvElement = (TiXmlElement*)curNormalElement->NextSibling();
-			float fu = atof(uvElement->Attribute("u"));
-			float fv = atof(uvElement->Attribute("v"));
-
 			v.Pos.x = x;
 			v.Pos.y = y;
 			v.Pos.z = z;
 			v.Nor.x = nx;
 			v.Nor.y = ny;
 			v.Nor.z = nz;
-			v.UV.x = fu;
-			v.UV.y = fv;
 			vertexs.push_back(v);
 		}
+
+		TiXmlNode *uvRootNode = vertexbufferNode->NextSibling();
+		int i = 0;
+		for (TiXmlNode* curUVNode = uvRootNode->FirstChild(); curUVNode != NULL; curUVNode = curUVNode->NextSibling())
+		{
+			TiXmlElement *uvElement = curUVNode->FirstChildElement();
+			vertexs[i].UV.x = atof(uvElement->Attribute("v"));
+			vertexs[i].UV.y = atof(uvElement->Attribute("u"));
+			i++;
+		}
+
 
 		TiXmlNode * subMeshRootNode = sharedgeometryNode->NextSibling();
 
@@ -67,6 +72,18 @@ namespace OrgeMeshPaser
 				model.indexs.push_back(indexs);
 			}
 			modelDatas.push_back(model);
+		}
+
+		TiXmlNode *boneVertexAssignRootNode = sharedgeometryNode->NextSibling()->NextSibling()->NextSibling();
+		for (TiXmlNode *curBoneVertexNode = boneVertexAssignRootNode->FirstChild();
+			curBoneVertexNode != NULL; curBoneVertexNode = curBoneVertexNode->NextSibling())
+		{
+			BoneVertexAssignment ass;
+			TiXmlElement *curBoneVertexElement = (TiXmlElement*)(curBoneVertexNode);
+			ass.vertexIndex = atoi(curBoneVertexElement->Attribute("vertexindex"));
+			ass.boneIndex = atoi(curBoneVertexElement->Attribute("boneindex"));
+			ass.weight = atof(curBoneVertexElement->Attribute("weight"));
+			modelDatas[0].boneVertexAssigns.push_back(ass);
 		}
 
 		return modelDatas;
@@ -117,7 +134,7 @@ namespace OrgeMeshPaser
 
 				float x = atof(curPosElememt->Attribute("x"));
 				float y = atof(curPosElememt->Attribute("y"));
-				float z = atof(curPosElememt->Attribute("z"));
+				float z = (-1.0f)*atof(curPosElememt->Attribute("z"));
 
 				TiXmlElement *curNormalElement = (TiXmlElement*)curPosElememt->NextSibling();
 				float nx = atof(curNormalElement->Attribute("x"));
@@ -138,9 +155,9 @@ namespace OrgeMeshPaser
 			for (TiXmlNode* curUVNode = uvRootNode->FirstChild(); curUVNode != NULL; curUVNode = curUVNode->NextSibling())
 			{
 				TiXmlElement *uvElement = curUVNode->FirstChildElement();
-				model.vertexs[i].UV.x = atof(uvElement->Attribute("u"));
-				model.vertexs[i].UV.y = atof(uvElement->Attribute("v"));
-				i++;
+				model.vertexs[i].UV.x = atof(uvElement->Attribute("v"));
+				model.vertexs[i].UV.y = atof(uvElement->Attribute("u"));
+				i++; 
 			}
 
 			TiXmlNode *boneVertexAssignRootNode = geometryRootNode->NextSibling();

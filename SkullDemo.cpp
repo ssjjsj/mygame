@@ -244,8 +244,10 @@ void SkullApp::BuildGeometryBuffers()
 {
 	Mesh m= Mesh("cat.MESH.xml");
 	m.playAnimation("Attack1");
-	m.update(0.1f);
+	m.update(0.1f); 
 	vector<MyVertex::ModelData>& datas = m.getModelData();
+
+	//vector<MyVertex::ModelData>& datas = OrgeMeshPaser::parseMeshUseShardedVertex("box.MESH.xml");
 
 	std::vector<MyVertex::Vertex> vertices = datas[0].vertexs;
 
@@ -309,6 +311,7 @@ void SkullApp::BuildFX()
 void SkullApp::BuildTexture()
 {
 	D3DX11CreateShaderResourceViewFromFile(md3dDevice, L"cat_pet.dds", NULL, NULL, &mDiffuseMapSRV, NULL);
+	//D3DX11CreateShaderResourceViewFromFile(md3dDevice, L"box.dds", NULL, NULL, &mDiffuseMapSRV, NULL);
 }
 
 void SkullApp::BuildVertexLayout()

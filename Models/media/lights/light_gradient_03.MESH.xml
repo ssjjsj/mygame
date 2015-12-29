@@ -1,0 +1,44 @@
+<mesh>
+	<sharedgeometry vertexcount="6">
+		<vertexbuffer positions="true" normals="true" colours_diffuse="false" texture_coords="1" texture_coords_dimensions_0="2">
+			<vertex>
+				<position x="2" y="9.53674e-007" z="-2"/>
+				<normal x="0" y="1" z="-0"/>
+				<texcoord u="0.25" v="-7.5"/>
+			</vertex>
+			<vertex>
+				<position x="-2" y="9.53674e-007" z="-2"/>
+				<normal x="0" y="1" z="-0"/>
+				<texcoord u="0" v="-7.5"/>
+			</vertex>
+			<vertex>
+				<position x="-2" y="9.53674e-007" z="2"/>
+				<normal x="0" y="1" z="-0"/>
+				<texcoord u="0" v="-7.25"/>
+			</vertex>
+			<vertex>
+				<position x="-2" y="9.53674e-007" z="2"/>
+				<normal x="0" y="1" z="-0"/>
+				<texcoord u="0" v="-7.25"/>
+			</vertex>
+			<vertex>
+				<position x="2" y="9.53674e-007" z="2"/>
+				<normal x="0" y="1" z="-0"/>
+				<texcoord u="0.25" v="-7.25"/>
+			</vertex>
+			<vertex>
+				<position x="2" y="9.53674e-007" z="-2"/>
+				<normal x="0" y="1" z="-0"/>
+				<texcoord u="0.25" v="-7.5"/>
+			</vertex>
+		</vertexbuffer>
+	</sharedgeometry>
+	<submeshes>
+		<submesh material="light_mat" usesharedvertices="true" use32bitindexes="false">
+			<faces count="2">
+				<face v1="0" v2="1" v3="2"/>
+				<face v1="3" v2="4" v3="5"/>
+			</faces>
+		</submesh>
+	</submeshes>
+</mesh>
