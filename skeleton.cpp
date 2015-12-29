@@ -115,6 +115,17 @@ void Skeleton::buildInverseMatrix(Bone *b)
 		XMMATRIX m = curM*parentM;
 
 		XMStoreFloat4x4(&b->inverseM, m);
+
+		XMMATRIX curposM = XMLoadFloat4x4(&b->inverseM);
+		XMMATRIX parentposM = XMLoadFloat4x4(&matrixMap[b->parent->name]);
+		XMMATRIX posM = parentposM*XMMatrixInverse(&XMMatrixDeterminant(curposM), curposM);
+		XMStoreFloat4x4(&matrixMap[b->name], posM);
+	}
+	else
+	{
+		XMMATRIX curM = XMLoadFloat4x4(&b->inverseM);
+		XMMATRIX posM = XMMatrixInverse(&XMMatrixDeterminant(curM), curM);
+		XMStoreFloat4x4(&matrixMap[b->name], posM);
 	}
 
 	for (int i = 0; i < b->children.size(); i++)

@@ -33,6 +33,11 @@ public:
 	void buildInverseMatrix(Bone *b);
 	Bone* GetBone(string name);
 	Bone* GetBone(int id);
+	vector<Bone*> GetBones()
+	{
+		return bones;
+	}
+	map<string, XMFLOAT4X4> matrixMap;
 
 private:
 	vector<Bone*> bones;

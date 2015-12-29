@@ -79,11 +79,11 @@ void Mesh::skin()
 			XMMATRIX boneMatrix = XMLoadFloat4x4(&matrixMap[bone->name]);
 
 			XMMATRIX m = originInverseMatrix*boneMatrix;
-			XMVECTOR posV = XMLoadFloat3(&v.Pos);
-			XMVECTOR partV =	 XMVector3Transform(posV, m);
+			XMVECTOR posV = XMLoadFloat4(&XMFLOAT4(v.Pos.x, v.Pos.y, v.Pos.z, 1.0f));
+			XMVECTOR partV =	 XMVector4Transform(posV, m);
 			
-			XMFLOAT3 partPos;
-			XMStoreFloat3(&partPos, partV);
+			XMFLOAT4 partPos;
+			XMStoreFloat4(&partPos, partV);
 
 			XMFLOAT3 curPos = posMap[ass.vertexIndex];
 			curPos.x += partPos.x*ass.weight;
@@ -115,4 +115,40 @@ vector<MyVertex::ModelData>& Mesh::getModelData()
 		return skinedMeshAry;
 	else
 		return subMeshAry;
+}
+
+
+vector<MyVertex::ModelData> Mesh::getSkeletonModelData()
+{
+	vector < MyVertex::ModelData > modelAry;
+	MyVertex::ModelData data;
+
+	for (int i = 0; i < curAnimation->GetSkeleton()->GetBones().size(); i++)
+	{
+		Skeleton::Bone* b = curAnimation->GetSkeleton()->GetBone(i);
+		XMFLOAT4 v = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+		XMMATRIX posMatrix = XMLoadFloat4x4(&curAnimation->GetSkeleton()->matrixMap[b->name]);
+		XMVECTOR vecto = XMVector4Transform(XMLoadFloat4(&v), posMatrix);
+		XMFLOAT4 pos;
+		XMStoreFloat4(&pos, vecto);
+		MyVertex::Vertex vertex;
+		vertex.Pos = XMFLOAT3(pos.x, pos.y, pos.z);
+		data.vertexs.push_back(vertex);
+
+		if (b->IsRootBone() || b->parent->IsRootBone() || b->parent->parent->IsRootBone())
+		{
+			for (int j = 0; j < b->children.size(); j++)
+			{
+				Skeleton::Bone *c = b->children[j];
+				vector<int> ary;
+				ary.push_back(b->id);
+				ary.push_back(c->id);
+				data.indexs.push_back(ary);
+			}
+		}
+	}
+
+	modelAry.push_back(data);
+
+	return modelAry;
 }

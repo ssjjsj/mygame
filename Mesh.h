@@ -22,6 +22,7 @@ public:
 	void Draw();
 	void update(float deltaTime);
 	vector<MyVertex::ModelData>& getModelData();
+	vector<MyVertex::ModelData> getSkeletonModelData();
 	void playAnimation(string animationName);
 private:
 	void DrawSubMesh();

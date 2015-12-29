@@ -165,7 +165,7 @@ void SkullApp::DrawScene()
 	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	md3dImmediateContext->IASetInputLayout(mInputLayout);
-    md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
 	//md3dImmediateContext->RSSetState(mWireframeRS);
  
@@ -245,7 +245,7 @@ void SkullApp::BuildGeometryBuffers()
 	Mesh m= Mesh("cat.MESH.xml");
 	m.playAnimation("Attack1");
 	m.update(0.1f); 
-	vector<MyVertex::ModelData>& datas = m.getModelData();
+	vector<MyVertex::ModelData>& datas = m.getSkeletonModelData();
 
 	//vector<MyVertex::ModelData>& datas = OrgeMeshPaser::parseMeshUseShardedVertex("box.MESH.xml");
 
@@ -256,7 +256,7 @@ void SkullApp::BuildGeometryBuffers()
 	{
 		indices.push_back((UINT)datas[0].indexs[i][0]);
 		indices.push_back((UINT)datas[0].indexs[i][1]);
-		indices.push_back((UINT)datas[0].indexs[i][2]);
+		//indices.push_back((UINT)datas[0].indexs[i][2]);
 	}
 
 	UINT vcount = vertices.size();

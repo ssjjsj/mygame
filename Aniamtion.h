@@ -3,6 +3,7 @@
 #include "skeleton.h"
 #include <string>
 #include <vector>
+#include "Vertex.h"
 using namespace::std;
 
 class Animation
