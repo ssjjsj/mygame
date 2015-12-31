@@ -135,7 +135,7 @@ vector<MyVertex::ModelData> Mesh::getSkeletonModelData()
 		vertex.Pos = XMFLOAT3(pos.x, pos.y, pos.z);
 		data.vertexs.push_back(vertex);
 
-		if (b->IsRootBone() || b->parent->IsRootBone() || b->parent->parent->IsRootBone())
+		if (b->IsRootBone() || b->parent->IsRootBone() || b->parent->parent->IsRootBone() || true)
 		{
 			for (int j = 0; j < b->children.size(); j++)
 			{

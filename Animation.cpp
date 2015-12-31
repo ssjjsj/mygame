@@ -155,7 +155,7 @@ XMFLOAT4X4 Animation::computePosMatrix(float time, KeyFrame *leftFrame, KeyFrame
 	XMMATRIX m2 = XMMatrixRotationQuaternion(quaternion);
 
 	XMFLOAT4X4 result;
-	XMStoreFloat4x4(&result, m2*m1);
+	XMStoreFloat4x4(&result, m1*m2);
 	return result;
 }
 
@@ -166,7 +166,7 @@ XMFLOAT4X4 Animation::computePosMatrix(KeyFrame *frame)
 	XMVECTOR q = XMQuaternionRotationAxis(v, frame->angle);
 	XMMATRIX m2 = XMMatrixRotationQuaternion(q);
 	XMFLOAT4X4 result;
-	XMStoreFloat4x4(&result, m2*m1);
+	XMStoreFloat4x4(&result, m1*m2);
 	return result;
 }
 

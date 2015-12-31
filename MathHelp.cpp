@@ -27,7 +27,7 @@ namespace MathUntil
 		XMMATRIX m2 = XMMatrixRotationAxis(XMLoadFloat3(&axis), angle);
 
 		XMFLOAT4X4 result;
-		XMStoreFloat4x4(&result, m1*m2);
+		XMStoreFloat4x4(&result, m2*m1);
 		
 		return result;
 	}
