@@ -17,20 +17,31 @@ public:
 		Bone *parent = NULL;
 		string name;
 		int id;
-		XMFLOAT4X4 inverseM;
+		XMFLOAT4 loaclQuaternion;
+		XMFLOAT3 localTranslate;
+		XMFLOAT4 globalQuaternion;
+		XMFLOAT3 globalTranslate;
+		XMFLOAT4 inverseQuaternion;
+		XMFLOAT3 inverseTranslate;
 		vector<Bone*> children;
+
+		XMFLOAT4X4 posMatrix;
 
 		bool IsRootBone()
 		{
 			return name == "root" || name == "Root";
 		}
+
+		void updateTransform();
+		void computePosMatrix();
+		void reset();
 	};
 
 public:
 	Skeleton();
 	TiXmlNode* loadFile(TiXmlNode *bonesRootNode);
 	void buildHierarchy();
-	void buildInverseMatrix(Bone *b);
+	void buildInverseMatrix();
 	Bone* GetBone(string name);
 	Bone* GetBone(int id);
 	vector<Bone*> GetBones()

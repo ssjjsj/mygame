@@ -244,7 +244,7 @@ void SkullApp::BuildGeometryBuffers()
 {
 	Mesh m= Mesh("cat.MESH.xml");
 	m.playAnimation("Attack1");
-	m.update(0.1f); 
+	m.update(1.0f); 
 	vector<MyVertex::ModelData>& datas = m.getModelData();
 
 	std::vector<MyVertex::Vertex> vertices = datas[0].vertexs;
@@ -254,7 +254,7 @@ void SkullApp::BuildGeometryBuffers()
 	{
 		indices.push_back((UINT)datas[0].indexs[i][0]);
 		indices.push_back((UINT)datas[0].indexs[i][1]);
-		//indices.push_back((UINT)datas[0].indexs[i][2]);
+		indices.push_back((UINT)datas[0].indexs[i][2]);
 	}
 
 	UINT vcount = vertices.size();

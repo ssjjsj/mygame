@@ -31,11 +31,10 @@ TiXmlNode * Skeleton::loadFile(TiXmlNode *bonesRootNode)
 		axis.x = atof(axisElement->Attribute("x"));
 		axis.y = atof(axisElement->Attribute("y"));
 		axis.z = atof(axisElement->Attribute("z"));
-		
-		XMFLOAT4X4 temp = MathUntil::GetTransformMatrix(pos, axis, angle);
-		XMMATRIX m = XMLoadFloat4x4(&temp);
-		XMMATRIX tempM = XMMatrixInverse(&XMMatrixDeterminant(m), m);
-		XMStoreFloat4x4(&b->inverseM, tempM);
+
+		b->localTranslate = pos;
+		XMVECTOR v = XMQuaternionRotationAxis(XMLoadFloat3(&axis), angle);
+		XMStoreFloat4(&b->loaclQuaternion, v);
 
 		bones.push_back(b);
 		boneNameMap[b->name] = b;
@@ -72,7 +71,7 @@ void Skeleton::buildHierarchy()
 		}
 	}
 
-	buildInverseMatrix(GetBone("Root"));
+	buildInverseMatrix();
 }
 
 
@@ -105,31 +104,97 @@ Skeleton::Bone* Skeleton::GetBone(int id)
 	return bones[id];
 }
 
-void Skeleton::buildInverseMatrix(Bone *b)
+void Skeleton::Bone::computePosMatrix()
 {
-	if (!b->IsRootBone())
+	XMVECTOR locRotate = XMQuaternionMultiply(XMLoadFloat4(&inverseQuaternion), XMLoadFloat4(&globalQuaternion));
+	XMMATRIX m = XMMatrixRotationQuaternion(locRotate);
+	XMVECTOR translate = XMVector3Transform(XMLoadFloat3(&inverseTranslate), m);
+	XMFLOAT3 translatef;
+
+	XMStoreFloat3(&translatef, translate);
+	translatef.x += globalTranslate.x;
+	translatef.y += globalTranslate.y;
+	translatef.z += globalTranslate.z;
+
+	XMStoreFloat4x4(&posMatrix, m);
+	posMatrix._41 = translatef.x;
+	posMatrix._42 = translatef.y; 
+	posMatrix._43 = translatef.z;
+
+	for (int i = 0; i < children.size(); i++)
 	{
-		XMMATRIX curM = XMLoadFloat4x4(&b->inverseM);
-		XMMATRIX parentM = XMLoadFloat4x4(&b->parent->inverseM);
+		Bone *b = children[i];
+		b->computePosMatrix();
+	}
+}
 
-		XMMATRIX m = curM*parentM;
 
-		XMStoreFloat4x4(&b->inverseM, m);
+void Skeleton::Bone::reset()
+{
+	loaclQuaternion.x = 0.0f;
+	loaclQuaternion.y = 0.0f;
+	loaclQuaternion.z = 0.0f;
+	loaclQuaternion.w = 1.0f;
 
-		//XMMATRIX curposM = XMLoadFloat4x4(&b->inverseM);
-		//XMMATRIX parentposM = XMLoadFloat4x4(&matrixMap[b->parent->name]);
-		//XMMATRIX posM = parentposM*XMMatrixInverse(&XMMatrixDeterminant(curposM), curposM);
-		//XMStoreFloat4x4(&matrixMap[b->name], posM);
+	localTranslate.x = 0.0f;
+	localTranslate.y = 0.0f;
+	localTranslate.z = 0.0f;
+
+	for (int i = 0; i < children.size(); i++)
+	{
+		Bone *b = children[i];
+		b->reset();
+	}
+}
+
+void Skeleton::Bone::updateTransform()
+{
+	if (parent != NULL)
+	{
+		XMVECTOR v = XMVectorMultiply(XMLoadFloat4(&parent->globalQuaternion), XMLoadFloat4(&loaclQuaternion));
+		XMStoreFloat4(&globalQuaternion, v);
+
+		XMMATRIX m = XMMatrixRotationQuaternion(XMLoadFloat4(&parent->globalQuaternion));
+		XMVECTOR t = XMVector3Transform(XMLoadFloat3(&localTranslate), m);
+		XMFLOAT3 translate;
+		XMStoreFloat3(&translate, t);
+
+		globalTranslate.x = parent->globalTranslate.x + translate.x;
+		globalTranslate.y = parent->globalTranslate.y + translate.y;
+		globalTranslate.z = parent->globalTranslate.z + translate.z;
+
+		if (globalQuaternion.x == 0.0f && globalQuaternion.y == 0.0f && globalQuaternion.z == 0.0f)
+		{
+			globalQuaternion.w = 1.0f;
+		}
 	}
 	else
 	{
-		//XMMATRIX curM = XMLoadFloat4x4(&b->inverseM);
-		//XMMATRIX posM = XMMatrixInverse(&XMMatrixDeterminant(curM), curM);
-		//XMStoreFloat4x4(&matrixMap[b->name], posM);
+		globalQuaternion = loaclQuaternion;
+		globalTranslate = localTranslate;
 	}
 
-	for (int i = 0; i < b->children.size(); i++)
+	for (int i = 0; i < children.size(); i++)
 	{
-		buildInverseMatrix(b->children[i]);
+		Bone *b = children[i];
+		b->updateTransform();
+	}
+}
+
+void Skeleton::buildInverseMatrix()
+{
+	Bone *root = GetBone("root");
+	root->updateTransform();
+
+	for (int i = 0; i < bones.size(); i++)
+	{
+		Bone *b = bones[i];
+		XMVECTOR q = XMLoadFloat4(&b->globalQuaternion);
+		XMVECTOR inverseQ = XMQuaternionInverse(q);
+		XMStoreFloat4(&b->inverseQuaternion, inverseQ);
+
+		b->inverseTranslate.x = -b->globalTranslate.x;
+		b->inverseTranslate.y = -b->globalTranslate.y;
+		b->inverseTranslate.z = -b->globalTranslate.z;
 	}
 }

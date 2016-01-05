@@ -74,11 +74,8 @@ void Mesh::skin()
 			BoneVertexAssignment &ass = modelData.boneVertexAssigns[indexBoneAssign];
 			Vertex &v = subMeshAry[indexSubMesh].vertexs[ass.vertexIndex];
 			Skeleton::Bone *bone = curAnimation->GetSkeleton()->GetBone(ass.boneIndex);
-			
-			XMMATRIX originInverseMatrix = XMLoadFloat4x4(&bone->inverseM);
-			XMMATRIX boneMatrix = XMLoadFloat4x4(&matrixMap[bone->name]);
 
-			XMMATRIX m = originInverseMatrix*boneMatrix;
+			XMMATRIX m = XMLoadFloat4x4(&bone->posMatrix);
 			XMVECTOR posV = XMLoadFloat4(&XMFLOAT4(v.Pos.x, v.Pos.y, v.Pos.z, 1.0f));
 			XMVECTOR partV =	 XMVector4Transform(posV, m);
 			

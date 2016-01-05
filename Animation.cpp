@@ -84,6 +84,9 @@ void Animation::loadAnimations(TiXmlNode *rootNode)
 
 void Animation::update(float time)
 {
+	Skeleton::Bone *rootBone = skeleton.GetBone("root");
+	rootBone->reset();
+
 	map<string, XMFLOAT4X4> boneMatrixMap;
 	for (int i = 0; i < tracks.size(); i++)
 	{
@@ -95,9 +98,9 @@ void Animation::update(float time)
 		if (leftFrame != NULL && rightFrame != NULL)
 		{
 			if (leftFrame == rightFrame)
-				boneMatrixMap[t.BoneName] = computePosMatrix(leftFrame);
+				computePosMatrix(leftFrame, skeleton.GetBone(t.BoneName));
 			else
-				boneMatrixMap[t.BoneName] = computePosMatrix(time, leftFrame, rightFrame);
+				computePosMatrix(time, leftFrame, rightFrame, skeleton.GetBone(t.BoneName));
 		}
 	}
 	updateAllMatrix(boneMatrixMap);
@@ -106,9 +109,9 @@ void Animation::update(float time)
 
 void Animation::updateAllMatrix(map<string, XMFLOAT4X4>& matrixMap)
 {
-	posMatrix.clear();
 	Skeleton::Bone *rootBone = skeleton.GetBone("root");
-	updateChildrenMatrix(rootBone, matrixMap);
+	rootBone->updateTransform();
+	rootBone->computePosMatrix();
 }
 
 
@@ -140,7 +143,7 @@ void Animation::updateChildrenMatrix(Skeleton::Bone* bone, map<string, XMFLOAT4X
 
 
 
-XMFLOAT4X4 Animation::computePosMatrix(float time, KeyFrame *leftFrame, KeyFrame *rightFrame)
+void Animation::computePosMatrix(float time, KeyFrame *leftFrame, KeyFrame *rightFrame, Skeleton::Bone *b)
 {
 	XMFLOAT3 translate = MathUntil::lerpFloat3(leftFrame->translate, rightFrame->translate, leftFrame->startTime, time, rightFrame->startTime);
 	XMVECTOR leftV = XMLoadFloat3(&leftFrame->axis);
@@ -151,23 +154,17 @@ XMFLOAT4X4 Animation::computePosMatrix(float time, KeyFrame *leftFrame, KeyFrame
 
 	XMVECTOR quaternion = XMVectorLerp(leftQ, rightQ, (time - leftFrame->startTime) / (rightFrame->startTime - leftFrame->startTime));
 
-	XMMATRIX m1 = XMMatrixTranslation(translate.x, translate.y, translate.z);
-	XMMATRIX m2 = XMMatrixRotationQuaternion(quaternion);
-
-	XMFLOAT4X4 result;
-	XMStoreFloat4x4(&result, m1*m2);
-	return result;
+	b->localTranslate = translate;
+	XMStoreFloat4(&b->loaclQuaternion, quaternion);
 }
 
-XMFLOAT4X4 Animation::computePosMatrix(KeyFrame *frame)
+void Animation::computePosMatrix(KeyFrame *frame, Skeleton::Bone *b)
 {
-	XMMATRIX m1 = XMMatrixTranslation(frame->translate.x, frame->translate.y, frame->translate.z);
 	XMVECTOR v = XMLoadFloat3(&frame->axis);
 	XMVECTOR q = XMQuaternionRotationAxis(v, frame->angle);
-	XMMATRIX m2 = XMMatrixRotationQuaternion(q);
-	XMFLOAT4X4 result;
-	XMStoreFloat4x4(&result, m1*m2);
-	return result;
+
+	b->localTranslate = frame->translate;
+	XMStoreFloat4(&b->loaclQuaternion, q);
 }
 
 vector<Animation::KeyFrame*> Animation::findTwoKeyframes(float time, Track &t)
