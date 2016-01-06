@@ -37,6 +37,11 @@ public:
 	{
 		return animationName;
 	}
+
+	float GetAnimationLength()
+	{
+		return timeLength;
+	}
 private:
 	void loadAnimations(TiXmlNode *rootNode);
 	vector<KeyFrame*> findTwoKeyframes(float time, Track &t);
@@ -48,5 +53,6 @@ private:
 	float timeLength;
 	vector<Track> tracks;
 	map<string, XMFLOAT4X4> posMatrix;
+	float curTime;
 };
 #endif

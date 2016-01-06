@@ -39,6 +39,7 @@ private:
 	void BuildFX();
 	void BuildVertexLayout();
 	void BuildTexture();
+	void UpdateGeometryBuffers();
 
 private:
 	ID3D11Buffer* mVB;
@@ -65,6 +66,8 @@ private:
 	float mTheta;
 	float mPhi;
 	float mRadius;
+
+	Mesh *m;
 
 	POINT mLastMousePos;
 };
@@ -111,6 +114,7 @@ SkullApp::~SkullApp()
 	ReleaseCOM(mFX);
 	ReleaseCOM(mInputLayout);
 	ReleaseCOM(mWireframeRS);
+	delete m;
 }
 
 bool SkullApp::Init()
@@ -157,10 +161,18 @@ void SkullApp::UpdateScene(float dt)
 
 	XMMATRIX V = XMMatrixLookAtLH(pos, target, up);
 	XMStoreFloat4x4(&mView, V);
+
+	if (m != NULL)
+	{
+		if (!m->IsPlayAnimation())
+			m->playAnimation("Attack1");
+		m->update(0.01f);
+	}
 }
 
 void SkullApp::DrawScene()
 {
+	UpdateGeometryBuffers();
 	md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::LightSteelBlue));
 	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
 
@@ -239,13 +251,48 @@ void SkullApp::OnMouseMove(WPARAM btnState, int x, int y)
 	mLastMousePos.x = x;
 	mLastMousePos.y = y;
 }
+
+
+void SkullApp::UpdateGeometryBuffers()
+{
+	vector<MyVertex::ModelData>& datas = m->getModelData();
+
+	std::vector<MyVertex::Vertex> vertices = datas[0].vertexs;
+
+	std::vector<UINT> indices;
+	for (int i = 0; i < datas[0].indexs.size(); i++)
+	{
+		indices.push_back((UINT)datas[0].indexs[i][0]);
+		indices.push_back((UINT)datas[0].indexs[i][1]);
+		indices.push_back((UINT)datas[0].indexs[i][2]);
+	}
+
+	UINT vcount = vertices.size();
+	UINT tcount = indices.size();
+	mSkullIndexCount = tcount;
+	D3D11_MAPPED_SUBRESOURCE resource;
+	HRESULT hResult = md3dImmediateContext->Map(mVB, 0,
+		D3D11_MAP_WRITE_DISCARD, 0, &resource);
+
+	resource.pData = &vertices[0];
+
+	md3dImmediateContext->Unmap(mVB, 0);
+
+	//
+	// Pack the indices of all the meshes into one index buffer.
+	//
+	md3dImmediateContext->Map(mIB, 0,
+		D3D11_MAP_WRITE_DISCARD, 0, &resource);
+
+	resource.pData = &indices[0];
+
+	md3dImmediateContext->Unmap(mIB, 0);
+}
  
 void SkullApp::BuildGeometryBuffers()
 {
-	Mesh m= Mesh("cat.MESH.xml");
-	m.playAnimation("Attack1");
-	m.update(1.0f); 
-	vector<MyVertex::ModelData>& datas = m.getModelData();
+	m= new Mesh("cat.MESH.xml");
+	vector<MyVertex::ModelData>& datas = m->getModelData();
 
 	std::vector<MyVertex::Vertex> vertices = datas[0].vertexs;
 

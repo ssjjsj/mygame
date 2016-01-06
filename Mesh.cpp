@@ -11,6 +11,7 @@ Mesh::Mesh()
 Mesh::Mesh(string filename)
 {
 	loadFile(filename);
+	curAnimation = NULL;
 }
 
 Mesh::~Mesh()

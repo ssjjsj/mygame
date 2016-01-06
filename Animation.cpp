@@ -20,6 +20,8 @@ Animation::Animation(string animationName)
 	doc.LoadFile();
 	TiXmlNode *skeletonRoot = doc.RootElement()->FirstChild();
 	skeleton.loadFile(skeletonRoot);
+
+	curTime = 0.0f;
 }
 
 
@@ -82,8 +84,11 @@ void Animation::loadAnimations(TiXmlNode *rootNode)
 }
 
 
-void Animation::update(float time)
+void Animation::update(float deltaTime)
 {
+ 	curTime += deltaTime;
+ 	if (curTime > timeLength)
+		curTime = 0.0f;
 	Skeleton::Bone *rootBone = skeleton.GetBone("root");
 	rootBone->reset();
 
@@ -91,7 +96,7 @@ void Animation::update(float time)
 	for (int i = 0; i < tracks.size(); i++)
 	{
 		Track &t = tracks[i];
-		vector<KeyFrame*> twoKeyFrame = findTwoKeyframes(time, t);
+		vector<KeyFrame*> twoKeyFrame = findTwoKeyframes(curTime, t);
 		KeyFrame *leftFrame = twoKeyFrame[0];
 		KeyFrame *rightFrame = twoKeyFrame[1];
 
@@ -100,7 +105,7 @@ void Animation::update(float time)
 			if (leftFrame == rightFrame)
 				computePosMatrix(leftFrame, skeleton.GetBone(t.BoneName));
 			else
-				computePosMatrix(time, leftFrame, rightFrame, skeleton.GetBone(t.BoneName));
+				computePosMatrix(curTime, leftFrame, rightFrame, skeleton.GetBone(t.BoneName));
 		}
 	}
 	updateAllMatrix(boneMatrixMap);

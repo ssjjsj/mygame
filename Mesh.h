@@ -24,6 +24,10 @@ public:
 	vector<MyVertex::ModelData>& getModelData();
 	vector<MyVertex::ModelData> getSkeletonModelData();
 	void playAnimation(string animationName);
+	bool IsPlayAnimation()
+	{
+		return curAnimation != NULL;
+	}
 private:
 	void DrawSubMesh();
 	void skin();
