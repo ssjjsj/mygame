@@ -115,12 +115,16 @@ SkullApp::~SkullApp()
 	ReleaseCOM(mInputLayout);
 	ReleaseCOM(mWireframeRS);
 	delete m;
+	FreeConsole();
 }
 
 bool SkullApp::Init()
 {
 	if(!D3DApp::Init())
 		return false;
+
+	AllocConsole();
+	freopen("CONOUT$", "w+t", stdout);
 
 	BuildTexture();
 	BuildGeometryBuffers();
@@ -165,8 +169,8 @@ void SkullApp::UpdateScene(float dt)
 	if (m != NULL)
 	{
 		if (!m->IsPlayAnimation())
-			m->playAnimation("Attack1");
-		m->update(0.01f);
+			m->playAnimation("idle");
+		m->update(dt);
 	}
 }
 
@@ -257,6 +261,9 @@ void SkullApp::UpdateGeometryBuffers()
 {
 	vector<MyVertex::ModelData>& datas = m->getModelData();
 
+	if (datas.size() == 0)
+		return;
+
 	std::vector<MyVertex::Vertex> vertices = datas[0].vertexs;
 
 	std::vector<UINT> indices;
@@ -270,23 +277,22 @@ void SkullApp::UpdateGeometryBuffers()
 	UINT vcount = vertices.size();
 	UINT tcount = indices.size();
 	mSkullIndexCount = tcount;
-	D3D11_MAPPED_SUBRESOURCE resource;
+	D3D11_MAPPED_SUBRESOURCE vResource;
 	HRESULT hResult = md3dImmediateContext->Map(mVB, 0,
-		D3D11_MAP_WRITE_DISCARD, 0, &resource);
+		D3D11_MAP_WRITE_DISCARD, 0, &vResource);
 
-	resource.pData = &vertices[0];
+	if (FAILED(hResult))
+	{
+		int i = 0;
+	}
+
+	MyVertex::Vertex* v = (MyVertex::Vertex*)(vResource.pData);
+	for (int i = 0; i < vertices.size(); i++)
+	{
+		v[i] = vertices[i];
+	}
 
 	md3dImmediateContext->Unmap(mVB, 0);
-
-	//
-	// Pack the indices of all the meshes into one index buffer.
-	//
-	md3dImmediateContext->Map(mIB, 0,
-		D3D11_MAP_WRITE_DISCARD, 0, &resource);
-
-	resource.pData = &indices[0];
-
-	md3dImmediateContext->Unmap(mIB, 0);
 }
  
 void SkullApp::BuildGeometryBuffers()
@@ -309,10 +315,10 @@ void SkullApp::BuildGeometryBuffers()
 	mSkullIndexCount = tcount;
 
     D3D11_BUFFER_DESC vbd;
-    vbd.Usage = D3D11_USAGE_IMMUTABLE;
+	vbd.Usage = D3D11_USAGE_DYNAMIC;
 	vbd.ByteWidth = sizeof(MyVertex::Vertex) * vcount;
     vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    vbd.CPUAccessFlags = 0;
+	vbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
     vbd.MiscFlags = 0;
     D3D11_SUBRESOURCE_DATA vinitData;
     vinitData.pSysMem = &vertices[0];

@@ -1,6 +1,7 @@
 #include "Mesh.h"
 using namespace MyVertex;
 #include <map>
+#include "MathHelp.h"
 using namespace std;
 
 Mesh::Mesh()
@@ -75,13 +76,8 @@ void Mesh::skin()
 			BoneVertexAssignment &ass = modelData.boneVertexAssigns[indexBoneAssign];
 			Vertex &v = subMeshAry[indexSubMesh].vertexs[ass.vertexIndex];
 			Skeleton::Bone *bone = curAnimation->GetSkeleton()->GetBone(ass.boneIndex);
-
-			XMMATRIX m = XMLoadFloat4x4(&bone->posMatrix);
-			XMVECTOR posV = XMLoadFloat4(&XMFLOAT4(v.Pos.x, v.Pos.y, v.Pos.z, 1.0f));
-			XMVECTOR partV =	 XMVector4Transform(posV, m);
 			
-			XMFLOAT4 partPos;
-			XMStoreFloat4(&partPos, partV);
+			XMFLOAT4 partPos = MathUntil::vectorMupilyMatrix(XMFLOAT4(v.Pos.x, v.Pos.y, v.Pos.z, 1.0f), bone->posMatrix);
 
 			XMFLOAT3 curPos = posMap[ass.vertexIndex];
 			curPos.x += partPos.x*ass.weight;
@@ -110,7 +106,15 @@ void DrawSubMesh()
 vector<MyVertex::ModelData>& Mesh::getModelData()
 {
 	if (curAnimation != NULL)
-		return skinedMeshAry;
+	{
+		if (curAnimation->HasDataChanged())
+			return skinedMeshAry;
+		else
+		{
+			vector < MyVertex::ModelData > m;
+			return m;
+		}
+	}
 	else
 		return subMeshAry;
 }
@@ -125,7 +129,7 @@ vector<MyVertex::ModelData> Mesh::getSkeletonModelData()
 	{
 		Skeleton::Bone* b = curAnimation->GetSkeleton()->GetBone(i);
 		XMFLOAT4 v = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
-		XMMATRIX posMatrix = XMLoadFloat4x4(&curAnimation->GetSkeleton()->matrixMap[b->name]);
+		XMMATRIX posMatrix = XMLoadFloat4x4(&b->posMatrix);
 		XMVECTOR vecto = XMVector4Transform(XMLoadFloat4(&v), posMatrix);
 		XMFLOAT4 pos;
 		XMStoreFloat4(&pos, vecto);

@@ -3,6 +3,8 @@
 #include "tinyxml\tinyxml.h"
 #include "skeleton.h"
 #include "MathHelp.h"
+#include <stdio.h>
+using namespace std;
 
 Animation::Animation()
 {
@@ -15,13 +17,16 @@ Animation::Animation(string animationName)
 	string fileName = animationName + ".SKELETON.xml";
 	loadFile(fileName);
 
-	string skeletonFileName = "Cat.SKELETON.xml";
-	TiXmlDocument doc = TiXmlDocument(skeletonFileName.c_str());
-	doc.LoadFile();
-	TiXmlNode *skeletonRoot = doc.RootElement()->FirstChild();
-	skeleton.loadFile(skeletonRoot);
+	//string skeletonFileName = "Cat.SKELETON.xml";
+	//TiXmlDocument doc = TiXmlDocument(skeletonFileName.c_str());
+	//doc.LoadFile();
+	//TiXmlNode *skeletonRoot = doc.RootElement()->FirstChild();
+	//skeleton.loadFile(skeletonRoot);
 
 	curTime = 0.0f;
+	curLeftFrame = NULL;
+	curRightFrame = NULL;
+	dataChanged = false;
 }
 
 
@@ -68,7 +73,7 @@ void Animation::loadAnimations(TiXmlNode *rootNode)
 			TiXmlElement *translateElemnt = curKeyframeElement->FirstChildElement();
 			k.translate.x = atof(translateElemnt->Attribute("x"));
 			k.translate.y = atof(translateElemnt->Attribute("y"));
-			k.translate.z = atof(translateElemnt->Attribute("z"));
+			k.translate.z =-atof(translateElemnt->Attribute("z"));
 
 			TiXmlElement *rotateElement = (TiXmlElement*)translateElemnt->NextSibling();
 			k.angle = atof(rotateElement->Attribute("angle"));
@@ -86,13 +91,14 @@ void Animation::loadAnimations(TiXmlNode *rootNode)
 
 void Animation::update(float deltaTime)
 {
+	dataChanged = false;
  	curTime += deltaTime;
  	if (curTime > timeLength)
 		curTime = 0.0f;
 	Skeleton::Bone *rootBone = skeleton.GetBone("root");
 	rootBone->reset();
 
-	map<string, XMFLOAT4X4> boneMatrixMap;
+	curTime = 0.01f;
 	for (int i = 0; i < tracks.size(); i++)
 	{
 		Track &t = tracks[i];
@@ -102,17 +108,24 @@ void Animation::update(float deltaTime)
 
 		if (leftFrame != NULL && rightFrame != NULL)
 		{
-			if (leftFrame == rightFrame)
-				computePosMatrix(leftFrame, skeleton.GetBone(t.BoneName));
-			else
-				computePosMatrix(curTime, leftFrame, rightFrame, skeleton.GetBone(t.BoneName));
+			if (leftFrame != curLeftFrame || rightFrame != curLeftFrame)
+			{
+				if (leftFrame == rightFrame || true)
+					computePosMatrix(leftFrame, skeleton.GetBone(t.BoneName));
+				else
+					computePosMatrix(curTime, leftFrame, rightFrame, skeleton.GetBone(t.BoneName));
+
+				curLeftFrame = leftFrame;
+				curRightFrame = rightFrame;
+				dataChanged = true;
+			}
 		}
 	}
-	updateAllMatrix(boneMatrixMap);
+	updateAllMatrix();
 }
 
 
-void Animation::updateAllMatrix(map<string, XMFLOAT4X4>& matrixMap)
+void Animation::updateAllMatrix()
 {
 	Skeleton::Bone *rootBone = skeleton.GetBone("root");
 	rootBone->updateTransform();
@@ -153,11 +166,13 @@ void Animation::computePosMatrix(float time, KeyFrame *leftFrame, KeyFrame *righ
 	XMFLOAT3 translate = MathUntil::lerpFloat3(leftFrame->translate, rightFrame->translate, leftFrame->startTime, time, rightFrame->startTime);
 	XMVECTOR leftV = XMLoadFloat3(&leftFrame->axis);
 	XMVECTOR leftQ = XMQuaternionRotationAxis(leftV, leftFrame->angle);
+	//leftQ = XMQuaternionNormalize(leftQ);
 
 	XMVECTOR rightV = XMLoadFloat3(&rightFrame->axis);
 	XMVECTOR rightQ = XMQuaternionRotationAxis(rightV, rightFrame->angle);
+	//rightQ = XMQuaternionNormalize(rightQ);
 
-	XMVECTOR quaternion = XMVectorLerp(leftQ, rightQ, (time - leftFrame->startTime) / (rightFrame->startTime - leftFrame->startTime));
+	XMVECTOR quaternion = XMQuaternionSlerp(leftQ, rightQ, (time - leftFrame->startTime) / (rightFrame->startTime - leftFrame->startTime));
 
 	b->localTranslate = translate;
 	XMStoreFloat4(&b->loaclQuaternion, quaternion);
@@ -177,7 +192,7 @@ vector<Animation::KeyFrame*> Animation::findTwoKeyframes(float time, Track &t)
 	KeyFrame *leftFrame = NULL;
 	KeyFrame *rightFrame = NULL;
 
-	for (int i = 1; i < t.keyFrames.size(); i++)
+	for (int i = 0; i < t.keyFrames.size(); i++)
 	{
 		KeyFrame& k = t.keyFrames[i];
 

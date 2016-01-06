@@ -25,7 +25,7 @@ public:
 	Animation(string fileName);
 	void loadFile(string fileName);
 	void update(float time);
-	void updateAllMatrix(map<string, XMFLOAT4X4>& matrixMap);
+	void updateAllMatrix();
 	void updateChildrenMatrix(Skeleton::Bone* bone, map<string, XMFLOAT4X4>& localMatrixMap);
 	map<string, XMFLOAT4X4>& GetPosMatrix();
 	Skeleton* GetSkeleton()
@@ -42,6 +42,11 @@ public:
 	{
 		return timeLength;
 	}
+
+	bool HasDataChanged()
+	{
+		return dataChanged;
+	}
 private:
 	void loadAnimations(TiXmlNode *rootNode);
 	vector<KeyFrame*> findTwoKeyframes(float time, Track &t);
@@ -54,5 +59,9 @@ private:
 	vector<Track> tracks;
 	map<string, XMFLOAT4X4> posMatrix;
 	float curTime;
+
+	KeyFrame *curLeftFrame;
+	KeyFrame *curRightFrame;
+	bool dataChanged;
 };
 #endif

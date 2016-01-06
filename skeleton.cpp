@@ -34,6 +34,7 @@ TiXmlNode * Skeleton::loadFile(TiXmlNode *bonesRootNode)
 
 		b->localTranslate = pos;
 		XMVECTOR v = XMQuaternionRotationAxis(XMLoadFloat3(&axis), angle);
+		v=XMQuaternionNormalize(v);
 		XMStoreFloat4(&b->loaclQuaternion, v);
 
 		bones.push_back(b);
@@ -106,20 +107,34 @@ Skeleton::Bone* Skeleton::GetBone(int id)
 
 void Skeleton::Bone::computePosMatrix()
 {
-	XMVECTOR locRotate = XMQuaternionMultiply(XMLoadFloat4(&inverseQuaternion), XMLoadFloat4(&globalQuaternion));
-	XMMATRIX m = XMMatrixRotationQuaternion(locRotate);
-	XMVECTOR translate = XMVector3Transform(XMLoadFloat3(&inverseTranslate), m);
-	XMFLOAT3 translatef;
+	XMFLOAT4 q = MathUntil::QuaternionMupilyQuaternion(globalQuaternion, inverseQuaternion);
+	XMFLOAT3 translatef = MathUntil::quaternionVector(q, inverseTranslate);
 
-	XMStoreFloat3(&translatef, translate);
 	translatef.x += globalTranslate.x;
 	translatef.y += globalTranslate.y;
 	translatef.z += globalTranslate.z;
 
-	XMStoreFloat4x4(&posMatrix, m);
-	posMatrix._41 = translatef.x;
-	posMatrix._42 = translatef.y; 
-	posMatrix._43 = translatef.z;
+	XMFLOAT3X3 rot3x3 = MathUntil::QuaternionToRotationMatrix(q);
+
+	posMatrix._11 = rot3x3._11;
+	posMatrix._12 = rot3x3._12;
+	posMatrix._13 = rot3x3._13;
+	posMatrix._14 = translatef.x;
+	
+	posMatrix._21 = rot3x3._21;
+	posMatrix._22 = rot3x3._22;
+	posMatrix._23 = rot3x3._23;
+	posMatrix._24 = translatef.y;
+	
+	posMatrix._31 = rot3x3._31;
+	posMatrix._32 = rot3x3._32;
+	posMatrix._33 = rot3x3._33;
+	posMatrix._34 = translatef.z;
+
+	posMatrix._41 = 0.0f;
+	posMatrix._42 = 0.0f;
+	posMatrix._43 = 0.0f;
+	posMatrix._44 = 0.0f;
 
 	for (int i = 0; i < children.size(); i++)
 	{
@@ -151,22 +166,13 @@ void Skeleton::Bone::updateTransform()
 {
 	if (parent != NULL)
 	{
-		XMVECTOR v = XMVectorMultiply(XMLoadFloat4(&parent->globalQuaternion), XMLoadFloat4(&loaclQuaternion));
-		XMStoreFloat4(&globalQuaternion, v);
+		globalQuaternion = MathUntil::QuaternionMupilyQuaternion(parent->globalQuaternion, loaclQuaternion);
 
-		XMMATRIX m = XMMatrixRotationQuaternion(XMLoadFloat4(&parent->globalQuaternion));
-		XMVECTOR t = XMVector3Transform(XMLoadFloat3(&localTranslate), m);
-		XMFLOAT3 translate;
-		XMStoreFloat3(&translate, t);
+		XMFLOAT3 translate = MathUntil::quaternionVector(parent->globalQuaternion, localTranslate);
 
 		globalTranslate.x = parent->globalTranslate.x + translate.x;
 		globalTranslate.y = parent->globalTranslate.y + translate.y;
 		globalTranslate.z = parent->globalTranslate.z + translate.z;
-
-		if (globalQuaternion.x == 0.0f && globalQuaternion.y == 0.0f && globalQuaternion.z == 0.0f)
-		{
-			globalQuaternion.w = 1.0f;
-		}
 	}
 	else
 	{
