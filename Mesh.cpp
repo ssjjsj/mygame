@@ -125,19 +125,45 @@ vector<MyVertex::ModelData> Mesh::getSkeletonModelData()
 	vector < MyVertex::ModelData > modelAry;
 	MyVertex::ModelData data;
 
+	if (!curAnimation->HasDataChanged())
+		modelAry;
+
 	for (int i = 0; i < curAnimation->GetSkeleton()->GetBones().size(); i++)
 	{
 		Skeleton::Bone* b = curAnimation->GetSkeleton()->GetBone(i);
-		XMFLOAT4 v = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
-		XMMATRIX posMatrix = XMLoadFloat4x4(&b->posMatrix);
-		XMVECTOR vecto = XMVector4Transform(XMLoadFloat4(&v), posMatrix);
-		XMFLOAT4 pos;
-		XMStoreFloat4(&pos, vecto);
+		XMFLOAT4 v = XMFLOAT4(-5.0f, 0.0f, 1.0f, 1.0f);
+
+		XMFLOAT3X3 rot3x3 = MathUntil::QuaternionToRotationMatrix(b->globalQuaternion);
+
+		XMFLOAT4X4 posMatrix;
+		posMatrix._11 = rot3x3._11;
+		posMatrix._12 = rot3x3._12;
+		posMatrix._13 = rot3x3._13;
+		posMatrix._14 = b->globalTranslate.x;
+
+		posMatrix._21 = rot3x3._21;
+		posMatrix._22 = rot3x3._22;
+		posMatrix._23 = rot3x3._23;
+		posMatrix._24 = b->globalTranslate.y;
+
+		posMatrix._31 = rot3x3._31;
+		posMatrix._32 = rot3x3._32;
+		posMatrix._33 = rot3x3._33;
+		posMatrix._34 = b->globalTranslate.z;
+
+		posMatrix._41 = 0.0f;
+		posMatrix._42 = 0.0f;
+		posMatrix._43 = 0.0f;
+		posMatrix._44 = 0.0f;
+
+		XMFLOAT4 pos = MathUntil::vectorMupilyMatrix(v, posMatrix);
+
 		MyVertex::Vertex vertex;
 		vertex.Pos = XMFLOAT3(pos.x, pos.y, pos.z);
 		data.vertexs.push_back(vertex);
 
-		if (b->IsRootBone() || b->parent->IsRootBone() || b->parent->parent->IsRootBone() || true)
+		Skeleton::Bone *root = curAnimation->GetSkeleton()->GetBone("root");
+		if (b == root || b->parent == root || true)
 		{
 			for (int j = 0; j < b->children.size(); j++)
 			{

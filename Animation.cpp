@@ -76,7 +76,7 @@ void Animation::loadAnimations(TiXmlNode *rootNode)
 			k.translate.z =-atof(translateElemnt->Attribute("z"));
 
 			TiXmlElement *rotateElement = (TiXmlElement*)translateElemnt->NextSibling();
-			k.angle = atof(rotateElement->Attribute("angle"));
+			k.angle = -atof(rotateElement->Attribute("angle"));
 			TiXmlElement *axisElement = rotateElement->FirstChildElement();
 			k.axis.x = atof(axisElement->Attribute("x"));
 			k.axis.y = atof(axisElement->Attribute("y"));
@@ -96,9 +96,8 @@ void Animation::update(float deltaTime)
  	if (curTime > timeLength)
 		curTime = 0.0f;
 	Skeleton::Bone *rootBone = skeleton.GetBone("root");
-	rootBone->reset();
+	//rootBone->reset();
 
-	curTime = 0.01f;
 	for (int i = 0; i < tracks.size(); i++)
 	{
 		Track &t = tracks[i];
