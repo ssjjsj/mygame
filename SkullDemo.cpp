@@ -42,14 +42,15 @@ private:
 	void UpdateGeometryBuffers();
 
 private:
-	ID3D11Buffer* mVB;
-	ID3D11Buffer* mIB;
+	vector<ID3D11Buffer*> mVB;
+	vector<ID3D11Buffer*> mIB;
 
 	ID3DX11Effect* mFX;
 	ID3DX11EffectTechnique* mTech;
 	ID3DX11EffectMatrixVariable* mfxWorldViewProj;
 	ID3DX11EffectShaderResourceVariable *diffuseMap;
-	ID3D11ShaderResourceView* mDiffuseMapSRV;
+	map<string, ID3D11ShaderResourceView*> mDiffuseMap;
+	vector<Matrial> matrialList;
 
 	ID3D11InputLayout* mInputLayout;
 
@@ -109,13 +110,16 @@ SkullApp::SkullApp(HINSTANCE hInstance)
 
 SkullApp::~SkullApp()
 {
-	ReleaseCOM(mVB);
-	ReleaseCOM(mIB);
+	for (int i = 0; i < mVB.size(); i++)
+	{
+		ReleaseCOM(mVB[i]);
+		ReleaseCOM(mIB[i]);
+	}
 	ReleaseCOM(mFX);
 	ReleaseCOM(mInputLayout);
 	ReleaseCOM(mWireframeRS);
 	delete m;
-	FreeConsole();
+	//FreeConsole();
 }
 
 bool SkullApp::Init()
@@ -123,8 +127,38 @@ bool SkullApp::Init()
 	if(!D3DApp::Init())
 		return false;
 
-	AllocConsole();
-	freopen("CONOUT$", "w+t", stdout);
+	//AllocConsole();
+	//freopen("CONOUT$", "w+t", stdout);
+
+	Matrial m;
+	m.matrialName = "Sinbad/Body";
+	m.texName = L"sinbad_body.dds";
+	matrialList.push_back(m);
+
+	m.matrialName = "Sinbad/Gold";
+	m.texName = L"sinbad_clothes.dds";
+	matrialList.push_back(m);
+
+	m.matrialName = "Sinbad/Teeth";
+	m.texName = L"sinbad_body.dds";
+	matrialList.push_back(m);
+
+	m.matrialName = "Sinbad/Sheaths";
+	m.texName = L"sinbad_sword.dds";
+	matrialList.push_back(m);
+
+	m.matrialName = "Sinbad/Clothes";
+	m.texName = L"sinbad_clothes.dds";
+	matrialList.push_back(m);
+
+	m.matrialName = "Sinbad/Eyes";
+	m.texName = L"sinbad_body.dds";
+	matrialList.push_back(m);
+
+	
+	m.matrialName = "Cat";
+	m.texName = L"cat_pet.dds";
+	matrialList.push_back(m);
 
 	BuildTexture();
 	BuildGeometryBuffers();
@@ -166,12 +200,7 @@ void SkullApp::UpdateScene(float dt)
 	XMMATRIX V = XMMatrixLookAtLH(pos, target, up);
 	XMStoreFloat4x4(&mView, V);
 
-	if (m != NULL)
-	{
-		if (!m->IsPlayAnimation())
-			m->playAnimation("idle");
-		m->update(dt);
-	}
+	m->update(dt);
 }
 
 void SkullApp::DrawScene()
@@ -184,29 +213,34 @@ void SkullApp::DrawScene()
 	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	//md3dImmediateContext->RSSetState(mWireframeRS);
- 
-	UINT stride = sizeof(MyVertex::Vertex);
-    UINT offset = 0;
-    md3dImmediateContext->IASetVertexBuffers(0, 1, &mVB, &stride, &offset);
-	md3dImmediateContext->IASetIndexBuffer(mIB, DXGI_FORMAT_R32_UINT, 0);
 
 	// Set constants
-	
-	XMMATRIX view  = XMLoadFloat4x4(&mView);
-	XMMATRIX proj  = XMLoadFloat4x4(&mProj);
+
+	XMMATRIX view = XMLoadFloat4x4(&mView);
+	XMMATRIX proj = XMLoadFloat4x4(&mProj);
 	XMMATRIX world = XMLoadFloat4x4(&mSkullWorld);
 	XMMATRIX worldViewProj = world*view*proj;
- 
 	mfxWorldViewProj->SetMatrix(reinterpret_cast<float*>(&worldViewProj));
-	diffuseMap->SetResource(mDiffuseMapSRV);
+ 
+	vector<MyVertex::ModelData>& datas = m->getModelData();
+	for (int i = 0; i <mVB.size(); i++)
+	{
+		mSkullIndexCount = datas[i].indexs.size();
+		UINT stride = sizeof(MyVertex::Vertex);
+		UINT offset = 0;
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mVB[i], &stride, &offset);
+		md3dImmediateContext->IASetIndexBuffer(mIB[i], DXGI_FORMAT_R32_UINT, 0);
 
-    D3DX11_TECHNIQUE_DESC techDesc;
-    mTech->GetDesc( &techDesc );
-    for(UINT p = 0; p < techDesc.Passes; ++p)
-    {
-		mTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
-		md3dImmediateContext->DrawIndexed(mSkullIndexCount, 0, 0);
-    }
+		diffuseMap->SetResource(mDiffuseMap[datas[i].materialName]);
+
+		D3DX11_TECHNIQUE_DESC techDesc;
+		mTech->GetDesc(&techDesc);
+		for (UINT p = 0; p < techDesc.Passes; ++p)
+		{
+			mTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+			md3dImmediateContext->DrawIndexed(mSkullIndexCount, 0, 0);
+		}
+	}
 
 	HR(mSwapChain->Present(0, 0));
 }
@@ -259,84 +293,94 @@ void SkullApp::OnMouseMove(WPARAM btnState, int x, int y)
 
 void SkullApp::UpdateGeometryBuffers()
 {
-	vector<MyVertex::ModelData>& datas = m->getModelData();
+	//vector<MyVertex::ModelData>& datas = m->getSkeletonModelData();
 
-	if (datas.size() == 0)
-		return;
+	//if (datas.size() == 0)
+	//	return;
 
-	std::vector<MyVertex::Vertex> vertices = datas[0].vertexs;
+	//std::vector<MyVertex::Vertex> vertices = datas[0].vertexs;
 
-	std::vector<UINT> indices;
-	for (int i = 0; i < datas[0].indexs.size(); i++)
-	{
-		indices.push_back((UINT)datas[0].indexs[i][0]);
-		indices.push_back((UINT)datas[0].indexs[i][1]);
-		indices.push_back((UINT)datas[0].indexs[i][2]);
-	}
+	//std::vector<UINT> indices;
+	//for (int i = 0; i < datas[0].indexs.size(); i++)
+	//{
+	//	indices.push_back((UINT)datas[0].indexs[i][0]);
+	//	indices.push_back((UINT)datas[0].indexs[i][1]);
+	//	//indices.push_back((UINT)datas[0].indexs[i][2]);
+	//}
 
-	UINT vcount = vertices.size();
-	UINT tcount = indices.size();
-	mSkullIndexCount = tcount;
-	D3D11_MAPPED_SUBRESOURCE vResource;
-	HRESULT hResult = md3dImmediateContext->Map(mVB, 0,
-		D3D11_MAP_WRITE_DISCARD, 0, &vResource);
+	//UINT vcount = vertices.size();
+	//UINT tcount = indices.size();
+	//mSkullIndexCount = tcount;
+	//D3D11_MAPPED_SUBRESOURCE vResource;
+	//HRESULT hResult = md3dImmediateContext->Map(mVB, 0,
+	//	D3D11_MAP_WRITE_DISCARD, 0, &vResource);
 
-	if (FAILED(hResult))
-	{
-		int i = 0;
-	}
+	//if (FAILED(hResult))
+	//{
+	//	int i = 0;
+	//}
 
-	MyVertex::Vertex* v = (MyVertex::Vertex*)(vResource.pData);
-	for (int i = 0; i < vertices.size(); i++)
-	{
-		v[i] = vertices[i];
-	}
+	//MyVertex::Vertex* v = (MyVertex::Vertex*)(vResource.pData);
+	//for (int i = 0; i < vertices.size(); i++)
+	//{
+	//	v[i] = vertices[i];
+	//}
 
-	md3dImmediateContext->Unmap(mVB, 0);
+	//md3dImmediateContext->Unmap(mVB, 0);
 }
  
 void SkullApp::BuildGeometryBuffers()
 {
-	m= new Mesh("cat.MESH.xml");
+	m= new Mesh("Cat.MESH.xml");
+	//m->playAnimation("Sinbad");
 	vector<MyVertex::ModelData>& datas = m->getModelData();
 
-	std::vector<MyVertex::Vertex> vertices = datas[0].vertexs;
 
-	std::vector<UINT> indices;
-	for (int i = 0; i < datas[0].indexs.size(); i++)
+
+	for (int i = 0; i < datas.size(); i++)
 	{
-		indices.push_back((UINT)datas[0].indexs[i][0]);
-		indices.push_back((UINT)datas[0].indexs[i][1]);
-		indices.push_back((UINT)datas[0].indexs[i][2]);
+
+		std::vector<UINT> indices;
+		for (int j = 0; j < datas[i].indexs.size(); j++)
+		{
+			indices.push_back((UINT)datas[i].indexs[j][0]);
+			indices.push_back((UINT)datas[i].indexs[j][1]);
+			indices.push_back((UINT)datas[i].indexs[j][2]);
+		}
+
+		std::vector<MyVertex::Vertex> vertices = datas[i].vertexs;
+		UINT vcount = vertices.size();
+		UINT tcount = indices.size();
+		mSkullIndexCount = tcount;
+
+		ID3D11Buffer *VB;
+		D3D11_BUFFER_DESC vbd;
+		vbd.Usage = D3D11_USAGE_DYNAMIC;
+		vbd.ByteWidth = sizeof(MyVertex::Vertex) * vcount;
+		vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		vbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		vbd.MiscFlags = 0;
+		D3D11_SUBRESOURCE_DATA vinitData;
+		vinitData.pSysMem = &vertices[0];
+		HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &VB));
+		mVB.push_back(VB);
+
+		//
+		// Pack the indices of all the meshes into one index buffer.
+		//
+
+		ID3D11Buffer *IB;
+		D3D11_BUFFER_DESC ibd;
+		ibd.Usage = D3D11_USAGE_IMMUTABLE;
+		ibd.ByteWidth = sizeof(UINT) * tcount;
+		ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+		ibd.CPUAccessFlags = 0;
+		ibd.MiscFlags = 0;
+		D3D11_SUBRESOURCE_DATA iinitData;
+		iinitData.pSysMem = &indices[0];
+		HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &IB));
+		mIB.push_back(IB);
 	}
-
-	UINT vcount = vertices.size();
-	UINT tcount = indices.size();
-	mSkullIndexCount = tcount;
-
-    D3D11_BUFFER_DESC vbd;
-	vbd.Usage = D3D11_USAGE_DYNAMIC;
-	vbd.ByteWidth = sizeof(MyVertex::Vertex) * vcount;
-    vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    vbd.MiscFlags = 0;
-    D3D11_SUBRESOURCE_DATA vinitData;
-    vinitData.pSysMem = &vertices[0];
-    HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mVB));
-
-	//
-	// Pack the indices of all the meshes into one index buffer.
-	//
-
-	D3D11_BUFFER_DESC ibd;
-    ibd.Usage = D3D11_USAGE_IMMUTABLE;
-	ibd.ByteWidth = sizeof(UINT) * tcount;
-    ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-    ibd.CPUAccessFlags = 0;
-    ibd.MiscFlags = 0;
-    D3D11_SUBRESOURCE_DATA iinitData;
-	iinitData.pSysMem = &indices[0];
-    HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mIB));
 }
  
 void SkullApp::BuildFX()
@@ -361,8 +405,12 @@ void SkullApp::BuildFX()
 
 void SkullApp::BuildTexture()
 {
-	D3DX11CreateShaderResourceViewFromFile(md3dDevice, L"cat_pet.dds", NULL, NULL, &mDiffuseMapSRV, NULL);
-	//D3DX11CreateShaderResourceViewFromFile(md3dDevice, L"box.dds", NULL, NULL, &mDiffuseMapSRV, NULL);
+	for (int i = 0; i < matrialList.size(); i++)
+	{
+		ID3D11ShaderResourceView *tex;
+		D3DX11CreateShaderResourceViewFromFile(md3dDevice, matrialList[i].texName, NULL, NULL, &tex, NULL);
+		mDiffuseMap[matrialList[i].matrialName] = tex;
+	}
 }
 
 void SkullApp::BuildVertexLayout()

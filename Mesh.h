@@ -9,6 +9,14 @@
 #include "Aniamtion.h"
 using namespace std;
 
+
+class Matrial
+{
+public:
+	string matrialName;
+	LPCWSTR texName;
+};
+
 class Mesh
 {
 public:

@@ -20,7 +20,7 @@ namespace MyVertex
 	{
 		vector<Vertex> vertexs;
 		vector<vector<int>> indexs;
-		string textureName;
+		string materialName;
 		vector<BoneVertexAssignment> boneVertexAssigns;
 	};
 };

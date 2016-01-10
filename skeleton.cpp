@@ -25,7 +25,7 @@ TiXmlNode * Skeleton::loadFile(TiXmlNode *bonesRootNode)
 		pos.z = atof(posElement->Attribute("z"));
 
 		TiXmlElement *rotationElement = (TiXmlElement*)posElement->NextSibling();
-		float angle = -atof(rotationElement->Attribute("angle"));
+		float angle = atof(rotationElement->Attribute("angle"));
 		TiXmlElement *axisElement = (TiXmlElement*)rotationElement->FirstChild();
 		XMFLOAT3 axis;
 		axis.x = atof(axisElement->Attribute("x"));
@@ -188,7 +188,9 @@ void Skeleton::Bone::updateTransform()
 	{
 		if (parent != NULL && parent->name == "Root")
 			int i = 3;
-		globalQuaternion = MathUntil::QuaternionMupilyQuaternion(parent->globalQuaternion, loaclQuaternion);
+		XMVECTOR q = XMQuaternionMultiply(XMLoadFloat4(&parent->globalQuaternion), XMLoadFloat4(&loaclQuaternion));
+		//globalQuaternion = MathUntil::QuaternionMupilyQuaternion(parent->globalQuaternion, loaclQuaternion);
+		XMStoreFloat4(&globalQuaternion, q);
 
 		//XMFLOAT3 translate = MathUntil::quaternionVector(parent->globalQuaternion, localTranslate);
 		XMVECTOR v;

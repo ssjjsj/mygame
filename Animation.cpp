@@ -73,10 +73,10 @@ void Animation::loadAnimations(TiXmlNode *rootNode)
 			TiXmlElement *translateElemnt = curKeyframeElement->FirstChildElement();
 			k.translate.x = atof(translateElemnt->Attribute("x"));
 			k.translate.y = atof(translateElemnt->Attribute("y"));
-			k.translate.z =-atof(translateElemnt->Attribute("z"));
+			k.translate.z = atof(translateElemnt->Attribute("z"));
 
 			TiXmlElement *rotateElement = (TiXmlElement*)translateElemnt->NextSibling();
-			k.angle = -atof(rotateElement->Attribute("angle"));
+			k.angle = atof(rotateElement->Attribute("angle"));
 			TiXmlElement *axisElement = rotateElement->FirstChildElement();
 			k.axis.x = atof(axisElement->Attribute("x"));
 			k.axis.y = atof(axisElement->Attribute("y"));
