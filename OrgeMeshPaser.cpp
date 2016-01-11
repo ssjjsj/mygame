@@ -26,11 +26,9 @@ namespace OrgeMeshPaser
 			for (TiXmlNode *curFaceNode = rootFaceNode->FirstChild(); curFaceNode != NULL; curFaceNode = curFaceNode->NextSibling())
 			{
 				TiXmlElement *curFaceElement = (TiXmlElement*)(curFaceNode);
-				vector<int> indexs;
-				indexs.push_back(atoi(curFaceElement->Attribute("v3")));
-				indexs.push_back(atoi(curFaceElement->Attribute("v2")));
-				indexs.push_back(atoi(curFaceElement->Attribute("v1")));
-				model.indexs.push_back(indexs);
+				model.indexs.push_back(atoi(curFaceElement->Attribute("v1")));
+				model.indexs.push_back(atoi(curFaceElement->Attribute("v2")));
+				model.indexs.push_back(atoi(curFaceElement->Attribute("v3")));
 			}
 
 			TiXmlNode *sharedgeometryNode = rootFaceNode->NextSibling();
@@ -111,11 +109,9 @@ namespace OrgeMeshPaser
 			for (TiXmlNode *curFaceNode = rootFaceNode->FirstChild(); curFaceNode != NULL; curFaceNode = curFaceNode->NextSibling())
 			{
 				TiXmlElement *curFaceElement = (TiXmlElement*)(curFaceNode);
-				vector<int> indexs;
-				indexs.push_back(atoi(curFaceElement->Attribute("v1")));
-				indexs.push_back(atoi(curFaceElement->Attribute("v2")));
-				indexs.push_back(atoi(curFaceElement->Attribute("v3")));
-				model.indexs.push_back(indexs);
+				model.indexs.push_back(atoi(curFaceElement->Attribute("v1")));
+				model.indexs.push_back(atoi(curFaceElement->Attribute("v2")));
+				model.indexs.push_back(atoi(curFaceElement->Attribute("v3")));
 			}
 
 			TiXmlNode *geometryRootNode = rootFaceNode->NextSibling();

@@ -152,10 +152,8 @@ vector<MyVertex::ModelData> Mesh::getSkeletonModelData()
 			for (int j = 0; j < b->children.size(); j++)
 			{
 				Skeleton::Bone *c = b->children[j];
-				vector<int> ary;
-				ary.push_back(b->id);
-				ary.push_back(c->id);
-				data.indexs.push_back(ary);
+				data.indexs.push_back(b->id);
+				data.indexs.push_back(c->id);
 			}
 		}
 	}

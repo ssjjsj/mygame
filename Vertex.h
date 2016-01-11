@@ -19,7 +19,7 @@ namespace MyVertex
 	struct ModelData
 	{
 		vector<Vertex> vertexs;
-		vector<vector<int>> indexs;
+		vector<UINT> indexs;
 		string materialName;
 		vector<BoneVertexAssignment> boneVertexAssigns;
 	};

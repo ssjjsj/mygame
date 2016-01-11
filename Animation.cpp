@@ -96,7 +96,6 @@ void Animation::update(float deltaTime)
  	if (curTime > timeLength)
 		curTime = 0.0f;
 	Skeleton::Bone *rootBone = skeleton.GetBone("root");
-	//rootBone->reset();
 
 	for (int i = 0; i < tracks.size(); i++)
 	{
@@ -109,7 +108,7 @@ void Animation::update(float deltaTime)
 		{
 			if (leftFrame != curLeftFrame || rightFrame != curLeftFrame)
 			{
-				if (leftFrame == rightFrame || true)
+				if (leftFrame == rightFrame)
 					computePosMatrix(leftFrame, skeleton.GetBone(t.BoneName));
 				else
 					computePosMatrix(curTime, leftFrame, rightFrame, skeleton.GetBone(t.BoneName));

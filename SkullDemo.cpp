@@ -209,9 +209,6 @@ void SkullApp::DrawScene()
 	md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::LightSteelBlue));
 	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	md3dImmediateContext->IASetInputLayout(mInputLayout);
-	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
 	//md3dImmediateContext->RSSetState(mWireframeRS);
 
 	// Set constants
@@ -226,6 +223,9 @@ void SkullApp::DrawScene()
 	for (int i = 0; i <mVB.size(); i++)
 	{
 		mSkullIndexCount = datas[i].indexs.size();
+
+		md3dImmediateContext->IASetInputLayout(mInputLayout);
+		md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 		UINT stride = sizeof(MyVertex::Vertex);
 		UINT offset = 0;
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mVB[i], &stride, &offset);
@@ -331,22 +331,17 @@ void SkullApp::UpdateGeometryBuffers()
  
 void SkullApp::BuildGeometryBuffers()
 {
-	m= new Mesh("Cat.MESH.xml");
-	//m->playAnimation("Sinbad");
-	vector<MyVertex::ModelData>& datas = m->getModelData();
+	m= new Mesh("Sinbad.mesh.xml");
+	m->playAnimation("Sinbad");
+	m->update(0.1f);
+	vector<MyVertex::ModelData>& datas = m->getSkeletonModelData();
 
 
 
 	for (int i = 0; i < datas.size(); i++)
 	{
 
-		std::vector<UINT> indices;
-		for (int j = 0; j < datas[i].indexs.size(); j++)
-		{
-			indices.push_back((UINT)datas[i].indexs[j][0]);
-			indices.push_back((UINT)datas[i].indexs[j][1]);
-			indices.push_back((UINT)datas[i].indexs[j][2]);
-		}
+		std::vector<UINT> indices = datas[i].indexs;
 
 		std::vector<MyVertex::Vertex> vertices = datas[i].vertexs;
 		UINT vcount = vertices.size();
@@ -355,10 +350,10 @@ void SkullApp::BuildGeometryBuffers()
 
 		ID3D11Buffer *VB;
 		D3D11_BUFFER_DESC vbd;
-		vbd.Usage = D3D11_USAGE_DYNAMIC;
+		vbd.Usage = D3D11_USAGE_IMMUTABLE;
 		vbd.ByteWidth = sizeof(MyVertex::Vertex) * vcount;
 		vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		vbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		vbd.CPUAccessFlags = 0;
 		vbd.MiscFlags = 0;
 		D3D11_SUBRESOURCE_DATA vinitData;
 		vinitData.pSysMem = &vertices[0];
