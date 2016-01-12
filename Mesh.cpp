@@ -52,7 +52,7 @@ void Mesh::update(float deltaTime)
 	if (curAnimation != NULL)
 	{
 		curAnimation->update(deltaTime);
-		//skin();
+		skin();
 	}
 }
 
@@ -69,23 +69,19 @@ void Mesh::skin()
 		for (int indexBoneAssign = 0; indexBoneAssign < modelData.boneVertexAssigns.size(); indexBoneAssign++)
 		{
 			BoneVertexAssignment &ass = modelData.boneVertexAssigns[indexBoneAssign];
-			posMap[ass.vertexIndex] = XMFLOAT3(0.0f, 0.0f, 0.0f);
+			posMap[ass.vertexIndex] = subMeshAry[indexSubMesh].vertexs[ass.vertexIndex].Pos;
 		}
 		for (int indexBoneAssign = 0; indexBoneAssign < modelData.boneVertexAssigns.size(); indexBoneAssign++)
 		{
 			BoneVertexAssignment &ass = modelData.boneVertexAssigns[indexBoneAssign];
 			Vertex &v = subMeshAry[indexSubMesh].vertexs[ass.vertexIndex];
 			Skeleton::Bone *bone = curAnimation->GetSkeleton()->GetBone(ass.boneIndex);
-			
-			XMFLOAT4 partPos = MathUntil::vectorMupilyMatrix(XMFLOAT4(v.Pos.x, v.Pos.y, v.Pos.z, 1.0f), bone->posMatrix);
 
 			XMFLOAT3 curPos = posMap[ass.vertexIndex];
-			curPos.x += partPos.x*ass.weight;
-			curPos.y += partPos.y*ass.weight;
-			curPos.z += partPos.z*ass.weight;
+			curPos.x += bone->posTranslate.x*ass.weight;
+			curPos.y += bone->posTranslate.y*ass.weight;
+			curPos.z += bone->posTranslate.z*ass.weight;
 			posMap[ass.vertexIndex] = curPos;
-
-			int i = 0;
 		}
 
 		for (map<int, XMFLOAT3>::iterator it = posMap.begin(); it != posMap.end(); it++)
@@ -105,7 +101,7 @@ void DrawSubMesh()
 
 vector<MyVertex::ModelData>& Mesh::getModelData()
 {
-	if (curAnimation != NULL && false)
+	if (curAnimation != NULL)
 	{
 		if (curAnimation->HasDataChanged())
 			return skinedMeshAry;
@@ -125,7 +121,7 @@ vector<MyVertex::ModelData> Mesh::getSkeletonModelData()
 	vector < MyVertex::ModelData > modelAry;
 	MyVertex::ModelData data;
 
-	if (!curAnimation->HasDataChanged())
+	if (!IsPlayAnimation() || !curAnimation->HasDataChanged())
 		modelAry;
 
 	for (int i = 0; i < curAnimation->GetSkeleton()->GetBones().size(); i++)

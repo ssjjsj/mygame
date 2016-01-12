@@ -174,15 +174,47 @@ void Animation::computePosMatrix(float time, KeyFrame *leftFrame, KeyFrame *righ
 
 	b->localTranslate = translate;
 	XMStoreFloat4(&b->loaclQuaternion, quaternion);
+
+	if (b->loaclQuaternion.x == 0.0f  && b->loaclQuaternion.y == 0.0f && b->loaclQuaternion.z == 0.0f && b->localTranslate.x == 0.0f && b->localTranslate.y == 0.0f && b->localTranslate.z == 0.0f)
+		b->isStatic = true;
+
+
+	XMVECTOR initq = XMLoadFloat4(&b->initQuaternion);
+	XMVECTOR q = XMLoadFloat4(&b->loaclQuaternion);
+	XMVECTOR localq = XMQuaternionMultiply(initq, q);
+	XMStoreFloat4(&b->loaclQuaternion, localq);
+
+	XMMATRIX m = XMMatrixRotationQuaternion(XMLoadFloat4(&b->initQuaternion));
+	XMVECTOR v2 = XMLoadFloat3(&translate);
+	XMVECTOR v1 = XMVector3Transform(v2, m);
+	XMFLOAT3 translate1;
+	XMStoreFloat3(&translate1, v1);
+
+	b->localTranslate.x = b->initTranslate.x + translate1.x;
+	b->localTranslate.y = b->initTranslate.y + translate1.y;
+	b->localTranslate.z = b->initTranslate.z + translate1.z;
 }
 
 void Animation::computePosMatrix(KeyFrame *frame, Skeleton::Bone *b)
 {
 	XMVECTOR v = XMLoadFloat3(&frame->axis);
 	XMVECTOR q = XMQuaternionRotationAxis(v, frame->angle);
+	XMVECTOR initq = XMLoadFloat4(&b->initQuaternion);
+	XMVECTOR localq = XMQuaternionMultiply(initq, q);
+	XMStoreFloat4(&b->loaclQuaternion, localq);
 
-	b->localTranslate = frame->translate;
-	XMStoreFloat4(&b->loaclQuaternion, q);
+	XMMATRIX m = XMMatrixRotationQuaternion(XMLoadFloat4(&b->initQuaternion));
+	v = XMLoadFloat3(&frame->translate);
+	XMVECTOR v1 = XMVector3Transform(v, m);
+	XMFLOAT3 translate;
+	XMStoreFloat3(&translate, v1);
+
+	b->localTranslate.x = b->initTranslate.x+translate.x;
+	b->localTranslate.y = b->initTranslate.y + translate.y;
+	b->localTranslate.z = b->initTranslate.z + translate.z;
+
+	if (frame->angle == 0 && frame->translate.x == 0.0f && frame->translate.y == 0.0f && frame->translate.z == 0.0f)
+		b->isStatic = true;
 }
 
 vector<Animation::KeyFrame*> Animation::findTwoKeyframes(float time, Track &t)

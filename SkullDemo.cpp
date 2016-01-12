@@ -200,7 +200,12 @@ void SkullApp::UpdateScene(float dt)
 	XMMATRIX V = XMMatrixLookAtLH(pos, target, up);
 	XMStoreFloat4x4(&mView, V);
 
-	m->update(dt);
+	if (m != NULL)
+	{
+		if (!m->IsPlayAnimation())
+			m->playAnimation("Sinbad");
+		m->update(dt);
+	}
 }
 
 void SkullApp::DrawScene()
@@ -293,47 +298,40 @@ void SkullApp::OnMouseMove(WPARAM btnState, int x, int y)
 
 void SkullApp::UpdateGeometryBuffers()
 {
-	//vector<MyVertex::ModelData>& datas = m->getSkeletonModelData();
+	vector<MyVertex::ModelData>& datas = m->getSkeletonModelData();
 
-	//if (datas.size() == 0)
-	//	return;
+	if (datas.size() == 0)
+		return;
 
-	//std::vector<MyVertex::Vertex> vertices = datas[0].vertexs;
+	for (int i = 0; i < datas.size(); i++)
+	{
+		std::vector<MyVertex::Vertex>& vertices = datas[i].vertexs;
 
-	//std::vector<UINT> indices;
-	//for (int i = 0; i < datas[0].indexs.size(); i++)
-	//{
-	//	indices.push_back((UINT)datas[0].indexs[i][0]);
-	//	indices.push_back((UINT)datas[0].indexs[i][1]);
-	//	//indices.push_back((UINT)datas[0].indexs[i][2]);
-	//}
+		UINT vcount = vertices.size();
+		D3D11_MAPPED_SUBRESOURCE vResource;
+		HRESULT hResult = md3dImmediateContext->Map(mVB[i], 0,
+			D3D11_MAP_WRITE_DISCARD, 0, &vResource);
 
-	//UINT vcount = vertices.size();
-	//UINT tcount = indices.size();
-	//mSkullIndexCount = tcount;
-	//D3D11_MAPPED_SUBRESOURCE vResource;
-	//HRESULT hResult = md3dImmediateContext->Map(mVB, 0,
-	//	D3D11_MAP_WRITE_DISCARD, 0, &vResource);
+		if (FAILED(hResult))
+		{
+			int i = 0;
+		}
 
-	//if (FAILED(hResult))
-	//{
-	//	int i = 0;
-	//}
+		MyVertex::Vertex* v = (MyVertex::Vertex*)(vResource.pData);
+		for (int j = 0; j < vertices.size(); j++)
+		{
+			v[j] = vertices[j];
+		}
 
-	//MyVertex::Vertex* v = (MyVertex::Vertex*)(vResource.pData);
-	//for (int i = 0; i < vertices.size(); i++)
-	//{
-	//	v[i] = vertices[i];
-	//}
-
-	//md3dImmediateContext->Unmap(mVB, 0);
+		md3dImmediateContext->Unmap(mVB[i], 0);
+	}
 }
  
 void SkullApp::BuildGeometryBuffers()
 {
 	m= new Mesh("Sinbad.mesh.xml");
+	//m->update(1.0f);
 	m->playAnimation("Sinbad");
-	m->update(0.1f);
 	vector<MyVertex::ModelData>& datas = m->getSkeletonModelData();
 
 
@@ -350,10 +348,10 @@ void SkullApp::BuildGeometryBuffers()
 
 		ID3D11Buffer *VB;
 		D3D11_BUFFER_DESC vbd;
-		vbd.Usage = D3D11_USAGE_IMMUTABLE;
+		vbd.Usage = D3D11_USAGE_DYNAMIC;
 		vbd.ByteWidth = sizeof(MyVertex::Vertex) * vcount;
 		vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		vbd.CPUAccessFlags = 0;
+		vbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		vbd.MiscFlags = 0;
 		D3D11_SUBRESOURCE_DATA vinitData;
 		vinitData.pSysMem = &vertices[0];

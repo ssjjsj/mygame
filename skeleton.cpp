@@ -32,10 +32,13 @@ TiXmlNode * Skeleton::loadFile(TiXmlNode *bonesRootNode)
 		axis.y = atof(axisElement->Attribute("y"));
 		axis.z = atof(axisElement->Attribute("z"));
 
-		b->localTranslate = pos;
+		b->initTranslate = pos;
 		XMVECTOR v = XMQuaternionRotationAxis(XMLoadFloat3(&axis), angle);
 		v=XMQuaternionNormalize(v);
-		XMStoreFloat4(&b->loaclQuaternion, v);
+		XMStoreFloat4(&b->initQuaternion, v);
+
+		b->loaclQuaternion = b->initQuaternion;
+		b->localTranslate = b->initTranslate;
 
 		bones.push_back(b);
 		boneNameMap[b->name] = b;
@@ -107,41 +110,19 @@ Skeleton::Bone* Skeleton::GetBone(int id)
 
 void Skeleton::Bone::computePosMatrix()
 {
-	XMFLOAT4 q = MathUntil::QuaternionMupilyQuaternion(globalQuaternion, inverseQuaternion);
-	//XMFLOAT3 translatef = MathUntil::quaternionVector(q, inverseTranslate);
+	//XMVECTOR v;
+	//XMMATRIX m = XMMatrixRotationQuaternion(XMLoadFloat4(&inverseQuaternion));
+	//v = XMLoadFloat3(&globalTranslate);
+	//XMVECTOR v1 = XMVector3Transform(v, m);
+	//XMFLOAT3 translate;
+	//XMStoreFloat3(&translate, v1);
 
-	XMVECTOR v;
-	XMMATRIX m = XMMatrixRotationQuaternion(XMLoadFloat4(&q));
-	v = XMLoadFloat3(&inverseTranslate);
-	XMVECTOR v1 = XMVector3Transform(v, m);
-	XMFLOAT3 translatef;
-	XMStoreFloat3(&translatef, v1);
+	posTranslate.x = inverseTranslate.x + globalTranslate.x;
+	posTranslate.y = inverseTranslate.y + globalTranslate.y;
+	posTranslate.z = inverseTranslate.z + globalTranslate.z;
 
-	translatef.x += globalTranslate.x;
-	translatef.y += globalTranslate.y;
-	translatef.z += globalTranslate.z;
-
-	XMFLOAT3X3 rot3x3 = MathUntil::QuaternionToRotationMatrix(q);
-
-	posMatrix._11 = rot3x3._11;
-	posMatrix._12 = rot3x3._12;
-	posMatrix._13 = rot3x3._13;
-	posMatrix._14 = translatef.x;
-	
-	posMatrix._21 = rot3x3._21;
-	posMatrix._22 = rot3x3._22;
-	posMatrix._23 = rot3x3._23;
-	posMatrix._24 = translatef.y;
-	
-	posMatrix._31 = rot3x3._31;
-	posMatrix._32 = rot3x3._32;
-	posMatrix._33 = rot3x3._33;
-	posMatrix._34 = translatef.z;
-
-	posMatrix._41 = 0.0f;
-	posMatrix._42 = 0.0f;
-	posMatrix._43 = 0.0f;
-	posMatrix._44 = 0.0f;
+	if (isStatic)
+		int i = 0;
 
 	for (int i = 0; i < children.size(); i++)
 	{
@@ -153,33 +134,6 @@ void Skeleton::Bone::computePosMatrix()
 
 void Skeleton::Bone::reset()
 {
-	//loaclQuaternion.x = 0.0f;
-	//loaclQuaternion.y = 0.0f;
-	//loaclQuaternion.z = 0.0f;
-	//loaclQuaternion.w = 1.0f;
-
-	//////XMVECTOR q = XMQuaternionRotationAxis(XMLoadFloat3(&XMFLOAT3(0.0f, 1.0f, 0.0f)), 3.14f/2);
-	//////XMStoreFloat4(&loaclQuaternion, q);
-
-	////XMMATRIX m = XMMatrixRotationY(3.14f/2);
-	////XMVECTOR q = XMQuaternionRotationMatrix(m);
-	////XMStoreFloat4(&loaclQuaternion, q);
-
-	////XMVECTOR v;
-	////v = XMLoadFloat3(&XMFLOAT3(1.0f, 0.0f, 0.0f));
-	////XMVECTOR v1 = XMVector3Transform(v, m);
-	////XMFLOAT3 v2;
-	////XMStoreFloat3(&v2, v1);
-
-	//localTranslate.x = 0.0f;
-	//localTranslate.y = 0.0f;
-	//localTranslate.z = 0.0f;
-
-	//for (int i = 0; i < children.size(); i++)
-	//{
-	//	Bone *b = children[i];
-	//	b->reset();
-	//}
 }
 
 void Skeleton::Bone::updateTransform()

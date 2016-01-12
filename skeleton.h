@@ -19,13 +19,17 @@ public:
 		int id;
 		XMFLOAT4 loaclQuaternion;
 		XMFLOAT3 localTranslate;
+		XMFLOAT4 initQuaternion;
+		XMFLOAT3 initTranslate;
 		XMFLOAT4 globalQuaternion;
 		XMFLOAT3 globalTranslate;
 		XMFLOAT4 inverseQuaternion;
 		XMFLOAT3 inverseTranslate;
 		vector<Bone*> children;
 
-		XMFLOAT4X4 posMatrix;
+		XMFLOAT3 posTranslate;
+
+		bool isStatic = false;
 
 		bool IsRootBone()
 		{

@@ -109,9 +109,9 @@ namespace OrgeMeshPaser
 			for (TiXmlNode *curFaceNode = rootFaceNode->FirstChild(); curFaceNode != NULL; curFaceNode = curFaceNode->NextSibling())
 			{
 				TiXmlElement *curFaceElement = (TiXmlElement*)(curFaceNode);
-				model.indexs.push_back(atoi(curFaceElement->Attribute("v1")));
-				model.indexs.push_back(atoi(curFaceElement->Attribute("v2")));
 				model.indexs.push_back(atoi(curFaceElement->Attribute("v3")));
+				model.indexs.push_back(atoi(curFaceElement->Attribute("v2")));
+				model.indexs.push_back(atoi(curFaceElement->Attribute("v1")));
 			}
 
 			TiXmlNode *geometryRootNode = rootFaceNode->NextSibling();
@@ -138,7 +138,7 @@ namespace OrgeMeshPaser
 
 				v.Pos.x = x;
 				v.Pos.y = y;
-				v.Pos.z = z;
+				v.Pos.z = -z;
 				v.Nor.x = nx;
 				v.Nor.y = ny;
 				v.Nor.z = nz;
