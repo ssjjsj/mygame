@@ -11,9 +11,8 @@ class Animation
 	struct KeyFrame
 	{
 		float startTime;
+		XMFLOAT4 quaternion;
 		XMFLOAT3 translate;
-		XMFLOAT3 axis;
-		float angle;
 	};
 	struct Track
 	{

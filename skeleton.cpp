@@ -108,18 +108,36 @@ Skeleton::Bone* Skeleton::GetBone(int id)
 	return bones[id];
 }
 
+void Skeleton::Bone::computeInverseMatrix()
+{
+	XMMATRIX m0 = XMMatrixRotationQuaternion(XMLoadFloat4(&initQuaternion));
+	XMMATRIX m1 = XMMatrixTranslation(initTranslate.x, initTranslate.y, initTranslate.z);
+	XMMATRIX m3 = XMMatrixInverse(&XMMatrixDeterminant(m0*m1), m0*m1);
+	if (parent != NULL)
+	{
+		XMMATRIX iM = m3*XMLoadFloat4x4(&parent->inverseMatrix);
+		XMStoreFloat4x4(&inverseMatrix, iM);
+	}
+	else
+	{
+		XMStoreFloat4x4(&inverseMatrix, m3);
+	}
+
+
+	if (name == "Waist")
+		int i = 0;
+
+	for (int i = 0; i < children.size(); i++)
+	{
+		Bone *b = children[i];
+		b->computeInverseMatrix();
+	}
+}
+
 void Skeleton::Bone::computePosMatrix()
 {
-	//XMVECTOR v;
-	//XMMATRIX m = XMMatrixRotationQuaternion(XMLoadFloat4(&inverseQuaternion));
-	//v = XMLoadFloat3(&globalTranslate);
-	//XMVECTOR v1 = XMVector3Transform(v, m);
-	//XMFLOAT3 translate;
-	//XMStoreFloat3(&translate, v1);
-
-	posTranslate.x = inverseTranslate.x + globalTranslate.x;
-	posTranslate.y = inverseTranslate.y + globalTranslate.y;
-	posTranslate.z = inverseTranslate.z + globalTranslate.z;
+	XMMATRIX m = XMLoadFloat4x4(&inverseMatrix)*XMLoadFloat4x4(&globalMatrix);
+	XMStoreFloat4x4(&poseMatrix, m);
 
 	if (isStatic)
 		int i = 0;
@@ -140,28 +158,14 @@ void Skeleton::Bone::updateTransform()
 {
 	if (parent != NULL)
 	{
-		if (parent != NULL && parent->name == "Root")
-			int i = 3;
-		XMVECTOR q = XMQuaternionMultiply(XMLoadFloat4(&parent->globalQuaternion), XMLoadFloat4(&loaclQuaternion));
-		//globalQuaternion = MathUntil::QuaternionMupilyQuaternion(parent->globalQuaternion, loaclQuaternion);
-		XMStoreFloat4(&globalQuaternion, q);
+		XMMATRIX m1 = XMLoadFloat4x4(&parent->globalMatrix);
+		XMMATRIX m2 = XMLoadFloat4x4(&localMatrix);
 
-		//XMFLOAT3 translate = MathUntil::quaternionVector(parent->globalQuaternion, localTranslate);
-		XMVECTOR v;
-		XMMATRIX m = XMMatrixRotationQuaternion(XMLoadFloat4(&parent->globalQuaternion));
-		v = XMLoadFloat3(&localTranslate);
-		XMVECTOR v1 = XMVector3Transform(v, m);
-		XMFLOAT3 translate;
-		XMStoreFloat3(&translate, v1);
-
-		globalTranslate.x = parent->globalTranslate.x + translate.x;
-		globalTranslate.y = parent->globalTranslate.y + translate.y;
-		globalTranslate.z = parent->globalTranslate.z + translate.z;
+		XMStoreFloat4x4(&globalMatrix, m1*m2);
 	}
 	else
 	{
-		globalQuaternion = loaclQuaternion;
-		globalTranslate = localTranslate;
+		globalMatrix = localMatrix;
 	}
 
 	for (int i = 0; i < children.size(); i++)
@@ -171,20 +175,22 @@ void Skeleton::Bone::updateTransform()
 	}
 }
 
+
+
 void Skeleton::buildInverseMatrix()
 {
 	Bone *root = GetBone("root");
-	root->updateTransform();
+	root->computeInverseMatrix();
 
 	for (int i = 0; i < bones.size(); i++)
 	{
 		Bone *b = bones[i];
-		XMVECTOR q = XMLoadFloat4(&b->globalQuaternion);
-		XMVECTOR inverseQ = XMQuaternionInverse(q);
-		XMStoreFloat4(&b->inverseQuaternion, inverseQ);
 
-		b->inverseTranslate.x = -b->globalTranslate.x;
-		b->inverseTranslate.y = -b->globalTranslate.y;
-		b->inverseTranslate.z = -b->globalTranslate.z;
+		b->inverseMatrix._13 = -b->inverseMatrix._13;
+		b->inverseMatrix._23 = -b->inverseMatrix._23;
+		b->inverseMatrix._31 = -b->inverseMatrix._31;
+		b->inverseMatrix._32 = -b->inverseMatrix._32;
+		b->inverseMatrix._34 = -b->inverseMatrix._34;
+		b->inverseMatrix._43 = -b->inverseMatrix._43;
 	}
 }

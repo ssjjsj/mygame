@@ -210,7 +210,7 @@ void SkullApp::UpdateScene(float dt)
 
 void SkullApp::DrawScene()
 {
-	UpdateGeometryBuffers();
+	//UpdateGeometryBuffers();
 	md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::LightSteelBlue));
 	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
 
@@ -330,8 +330,8 @@ void SkullApp::UpdateGeometryBuffers()
 void SkullApp::BuildGeometryBuffers()
 {
 	m= new Mesh("Sinbad.mesh.xml");
-	//m->update(1.0f);
 	m->playAnimation("Sinbad");
+	m->update(1.0f);
 	vector<MyVertex::ModelData>& datas = m->getSkeletonModelData();
 
 

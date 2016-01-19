@@ -69,7 +69,7 @@ void Mesh::skin()
 		for (int indexBoneAssign = 0; indexBoneAssign < modelData.boneVertexAssigns.size(); indexBoneAssign++)
 		{
 			BoneVertexAssignment &ass = modelData.boneVertexAssigns[indexBoneAssign];
-			posMap[ass.vertexIndex] = subMeshAry[indexSubMesh].vertexs[ass.vertexIndex].Pos;
+			posMap[ass.vertexIndex] = XMFLOAT3(0.0f, 0.0f, 0.0f);
 		}
 		for (int indexBoneAssign = 0; indexBoneAssign < modelData.boneVertexAssigns.size(); indexBoneAssign++)
 		{
@@ -78,10 +78,20 @@ void Mesh::skin()
 			Skeleton::Bone *bone = curAnimation->GetSkeleton()->GetBone(ass.boneIndex);
 
 			XMFLOAT3 curPos = posMap[ass.vertexIndex];
-			curPos.x += bone->posTranslate.x*ass.weight;
-			curPos.y += bone->posTranslate.y*ass.weight;
-			curPos.z += bone->posTranslate.z*ass.weight;
+			XMFLOAT4 posTranslate;
+			XMFLOAT4 vPos = XMFLOAT4(v.Pos.x, v.Pos.y, v.Pos.z, 1.0f);
+			XMVECTOR vector = XMVector4Transform(XMLoadFloat4(&vPos), XMLoadFloat4x4(&bone->poseMatrix));
+			XMStoreFloat4(&posTranslate, vector);
+			curPos.x += posTranslate.x*ass.weight;
+			curPos.y += posTranslate.y*ass.weight;
+			curPos.z += posTranslate.z*ass.weight;
 			posMap[ass.vertexIndex] = curPos;
+
+
+			XMMATRIX m = XMMatrixRotationY(3.14f);
+			XMFLOAT4X4 mdata;
+			XMStoreFloat4x4(&mdata, m);
+			int ffjif = 0;
 		}
 
 		for (map<int, XMFLOAT3>::iterator it = posMap.begin(); it != posMap.end(); it++)
@@ -121,16 +131,19 @@ vector<MyVertex::ModelData> Mesh::getSkeletonModelData()
 	vector < MyVertex::ModelData > modelAry;
 	MyVertex::ModelData data;
 
-	if (!IsPlayAnimation() || !curAnimation->HasDataChanged())
-		modelAry;
+	//if (!IsPlayAnimation() || !curAnimation->HasDataChanged())
+	//	modelAry;
 
 	for (int i = 0; i < curAnimation->GetSkeleton()->GetBones().size(); i++)
 	{
 		Skeleton::Bone* b = curAnimation->GetSkeleton()->GetBone(i);
-		XMFLOAT4 v = XMFLOAT4(0.0f, 0.0f, 0.0f, 10.0f);
+		XMFLOAT4 v = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 
 		MyVertex::Vertex vertex;
-		vertex.Pos = XMFLOAT3(b->globalTranslate.x + v.x, b->globalTranslate.y + v.y, b->globalTranslate.z + v.z);
+		XMVECTOR vector = XMVector4Transform(XMLoadFloat4(&v), XMLoadFloat4x4(&b->globalMatrix));
+		XMFLOAT4 fdata;
+		XMStoreFloat4(&fdata, vector);
+		vertex.Pos = XMFLOAT3(fdata.x, fdata.y, fdata.z);
 		data.vertexs.push_back(vertex);
 
 		if (b->name == "Root")

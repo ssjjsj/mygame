@@ -29,6 +29,13 @@ public:
 
 		XMFLOAT3 posTranslate;
 
+		XMFLOAT4X4 globalMatrix;
+		XMFLOAT4X4 localMatrix;
+		XMFLOAT4X4 inverseMatrix;
+		XMFLOAT4X4 poseMatrix;
+
+		XMFLOAT4X4 localInverseMatrix;
+
 		bool isStatic = false;
 
 		bool IsRootBone()
@@ -39,6 +46,7 @@ public:
 		void updateTransform();
 		void computePosMatrix();
 		void reset();
+		void computeInverseMatrix();
 	};
 
 public:
