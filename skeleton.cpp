@@ -40,6 +40,20 @@ TiXmlNode * Skeleton::loadFile(TiXmlNode *bonesRootNode)
 		b->loaclQuaternion = b->initQuaternion;
 		b->localTranslate = b->initTranslate;
 
+		XMMATRIX m0 = XMMatrixRotationQuaternion(XMLoadFloat4(&b->initQuaternion));
+		XMMATRIX m1 = XMMatrixTranslation(b->initTranslate.x, b->initTranslate.y, b->initTranslate.z);
+		XMStoreFloat4x4(&b->localMatrix, m0*m1);
+
+		b->localMatrix._13 *= -1.0f;
+		b->localMatrix._23 *= -1.0f;
+		b->localMatrix._33 *= -1.0f;
+		b->localMatrix._43 *= -1.0f;
+
+		b->localMatrix._31 *= -1.0f;
+		b->localMatrix._32 *= -1.0f;
+		b->localMatrix._33 *= -1.0f;
+		b->localMatrix._34 *= -1.0f;
+
 		bones.push_back(b);
 		boneNameMap[b->name] = b;
 	}
@@ -161,7 +175,10 @@ void Skeleton::Bone::updateTransform()
 		XMMATRIX m1 = XMLoadFloat4x4(&parent->globalMatrix);
 		XMMATRIX m2 = XMLoadFloat4x4(&localMatrix);
 
-		XMStoreFloat4x4(&globalMatrix, m1*m2);
+		XMStoreFloat4x4(&globalMatrix, m2*m1);
+
+		if (name == "Waist")
+			int i = 0;
 	}
 	else
 	{
