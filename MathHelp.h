@@ -19,4 +19,6 @@ namespace MathUntil
 	XMFLOAT4 vectorMupilyMatrix(XMFLOAT4 v, XMFLOAT4X4 m);
 
 	XMFLOAT4 QuaternionMupilyQuaternion(const XMFLOAT4& lkQ, const XMFLOAT4& rkQ);
+
+	void printfMatrix(XMFLOAT4X4 m, FILE *fp);
 }

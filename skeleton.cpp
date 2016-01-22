@@ -129,7 +129,7 @@ void Skeleton::Bone::computeInverseMatrix()
 	XMMATRIX m3 = XMMatrixInverse(&XMMatrixDeterminant(m0*m1), m0*m1);
 	if (parent != NULL)
 	{
-		XMMATRIX iM = m3*XMLoadFloat4x4(&parent->inverseMatrix);
+		XMMATRIX iM = XMLoadFloat4x4(&parent->inverseMatrix)*m3;
 		XMStoreFloat4x4(&inverseMatrix, iM);
 	}
 	else
@@ -153,8 +153,10 @@ void Skeleton::Bone::computePosMatrix()
 	XMMATRIX m = XMLoadFloat4x4(&inverseMatrix)*XMLoadFloat4x4(&globalMatrix);
 	XMStoreFloat4x4(&poseMatrix, m);
 
-	if (isStatic)
+	if (name == "Clavicle.R")
+	{
 		int i = 0;
+	}
 
 	for (int i = 0; i < children.size(); i++)
 	{
@@ -168,27 +170,48 @@ void Skeleton::Bone::reset()
 {
 }
 
-void Skeleton::Bone::updateTransform()
+void Skeleton::Bone::updateTransform(FILE *fp)
 {
-	if (parent != NULL)
-	{
-		XMMATRIX m1 = XMLoadFloat4x4(&parent->globalMatrix);
-		XMMATRIX m2 = XMLoadFloat4x4(&localMatrix);
+	globalMatrix = localMatrix;
 
-		XMStoreFloat4x4(&globalMatrix, m2*m1);
+	Bone *p = parent;
 
-		if (name == "Waist")
-			int i = 0;
-	}
-	else
+	XMMATRIX globalM = XMLoadFloat4x4(&globalMatrix);
+
+	while (p != NULL)
 	{
-		globalMatrix = localMatrix;
+		//globalMatrix = p->localMatrix*globalMatrix;
+		//if (name == "Stomach")
+		//{
+		//	fprintf(fp, "curGlobaM\n");
+		//	XMFLOAT4X4 fff;
+		//	XMStoreFloat4x4(&fff, globalM);
+		//	MathUntil::printfMatrix(fff, fp);
+		//}
+
+
+		globalM = globalM*XMLoadFloat4x4(&p->localMatrix);
+		//if (name == "Stomach")
+		//{
+		//	fprintf(fp, "%s\n", p->name.c_str());
+		//	MathUntil::printfMatrix(p->localMatrix, fp);
+
+		//	fprintf(fp, "result\n");
+		//	XMFLOAT4X4 fff;
+		//	XMStoreFloat4x4(&fff, globalM);
+		//	MathUntil::printfMatrix(fff, fp);
+		//}
+		p = p->parent;
 	}
+
+
+
+	XMStoreFloat4x4(&globalMatrix, globalM);
 
 	for (int i = 0; i < children.size(); i++)
 	{
 		Bone *b = children[i];
-		b->updateTransform();
+		b->updateTransform(fp);
 	}
 }
 

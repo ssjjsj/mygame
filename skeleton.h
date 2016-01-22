@@ -43,7 +43,7 @@ public:
 			return name == "root" || name == "Root";
 		}
 
-		void updateTransform();
+		void updateTransform(FILE *fp);
 		void computePosMatrix();
 		void reset();
 		void computeInverseMatrix();

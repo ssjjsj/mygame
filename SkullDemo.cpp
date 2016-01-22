@@ -210,7 +210,7 @@ void SkullApp::UpdateScene(float dt)
 
 void SkullApp::DrawScene()
 {
-	//UpdateGeometryBuffers();
+	UpdateGeometryBuffers();
 	md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::LightSteelBlue));
 	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
 
@@ -230,7 +230,7 @@ void SkullApp::DrawScene()
 		mSkullIndexCount = datas[i].indexs.size();
 
 		md3dImmediateContext->IASetInputLayout(mInputLayout);
-		md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+		md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		UINT stride = sizeof(MyVertex::Vertex);
 		UINT offset = 0;
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mVB[i], &stride, &offset);
@@ -298,7 +298,7 @@ void SkullApp::OnMouseMove(WPARAM btnState, int x, int y)
 
 void SkullApp::UpdateGeometryBuffers()
 {
-	vector<MyVertex::ModelData>& datas = m->getSkeletonModelData();
+	vector<MyVertex::ModelData>& datas = m->getModelData();
 
 	if (datas.size() == 0)
 		return;
@@ -330,9 +330,9 @@ void SkullApp::UpdateGeometryBuffers()
 void SkullApp::BuildGeometryBuffers()
 {
 	m= new Mesh("Sinbad.mesh.xml");
-	m->playAnimation("Sinbad");
-	m->update(1.0f);
-	vector<MyVertex::ModelData>& datas = m->getSkeletonModelData();
+	//m->playAnimation("Sinbad");
+	//m->update(1.0f);
+	vector<MyVertex::ModelData>& datas = m->getModelData();
 
 
 

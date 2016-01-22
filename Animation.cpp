@@ -131,11 +131,11 @@ void Animation::update(float deltaTime)
 	{
 		Track &t = tracks[i];
 		vector<KeyFrame*> twoKeyFrame = findTwoKeyframes(curTime, t);
-		//KeyFrame *leftFrame = twoKeyFrame[0];
-		//KeyFrame *rightFrame = twoKeyFrame[1];
+		KeyFrame *leftFrame = twoKeyFrame[0];
+		KeyFrame *rightFrame = twoKeyFrame[1];
 
-		KeyFrame *leftFrame = &t.keyFrames[0];
-		KeyFrame *rightFrame = &t.keyFrames[0];
+		//KeyFrame *leftFrame = &t.keyFrames[0];
+		//KeyFrame *rightFrame = &t.keyFrames[0];
 
 		if (t.BoneName == "Root")
 			int i = 0;
@@ -162,35 +162,16 @@ void Animation::update(float deltaTime)
 void Animation::updateAllMatrix()
 {
 	Skeleton::Bone *rootBone = skeleton.GetBone("root");
-	rootBone->updateTransform();
+	FILE *fp = fopen("a.txt", "w");
+	rootBone->updateTransform(fp);
+
 
 	for (int i = 0; i < skeleton.GetBones().size(); i++)
 	{
-		Skeleton::Bone *bone = skeleton.GetBone(i);
-		FILE *name = fopen("a.txt", "a+");
-		fprintf(name, "%s\n", bone->name.c_str());
-		fprintf(name, "%f ", bone->localMatrix._11);
-		fprintf(name, "%f ", bone->localMatrix._21);
-		fprintf(name, "%f ", bone->localMatrix._31);
-		fprintf(name, "%f\n ", bone->localMatrix._41);
-
-		fprintf(name, "%f ", bone->localMatrix._12);
-		fprintf(name, "%f ", bone->localMatrix._22);
-		fprintf(name, "%f ", bone->localMatrix._32);
-		fprintf(name, "%f \n", bone->localMatrix._42);
-
-		fprintf(name, "%f ", bone->localMatrix._13);
-		fprintf(name, "%f ", bone->localMatrix._23);
-		fprintf(name, "%f ", bone->localMatrix._33);
-		fprintf(name, "%f \n", bone->localMatrix._43);
-
-		fprintf(name, "%f ", bone->localMatrix._14);
-		fprintf(name, "%f ", bone->localMatrix._24);
-		fprintf(name, "%f ", bone->localMatrix._34);
-		fprintf(name, "%f \n", bone->localMatrix._44);
-
-		fclose(name);
+		fprintf(fp, "%s\n", skeleton.GetBone(i)->name.c_str());
+		MathUntil::printfMatrix(skeleton.GetBone(i)->inverseMatrix, fp);
 	}
+	fclose(fp);
 	rootBone->computePosMatrix();
 }
 

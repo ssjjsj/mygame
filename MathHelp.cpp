@@ -120,4 +120,27 @@ namespace MathUntil
 			lkQ.w * rkQ.w - lkQ.x * rkQ.x - lkQ.y * rkQ.y - lkQ.z * rkQ.z
 			);
 	}
+
+	void printfMatrix(XMFLOAT4X4 m, FILE *fp)
+	{
+		fprintf(fp, "%f ", m._11);
+		fprintf(fp, "%f ", m._21);
+		fprintf(fp, "%f ", m._31);
+		fprintf(fp, "%f\n ", m._41);
+
+		fprintf(fp, "%f ", m._12);
+		fprintf(fp, "%f ", m._22);
+		fprintf(fp, "%f ", m._32);
+		fprintf(fp, "%f \n", m._42);
+
+		fprintf(fp, "%f ", m._13);
+		fprintf(fp, "%f ", m._23);
+		fprintf(fp, "%f ", m._33);
+		fprintf(fp, "%f \n", m._43);
+
+		fprintf(fp, "%f ", m._14);
+		fprintf(fp, "%f ", m._24);
+		fprintf(fp, "%f ", m._34);
+		fprintf(fp, "%f \n\n", m._44);
+	}
 }
