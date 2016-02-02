@@ -134,9 +134,6 @@ void Animation::update(float deltaTime)
 		KeyFrame *leftFrame = twoKeyFrame[0];
 		KeyFrame *rightFrame = twoKeyFrame[1];
 
-		//KeyFrame *leftFrame = &t.keyFrames[0];
-		//KeyFrame *rightFrame = &t.keyFrames[0];
-
 		if (t.BoneName == "Root")
 			int i = 0;
 
@@ -156,6 +153,38 @@ void Animation::update(float deltaTime)
 		}
 	}
 	updateAllMatrix();
+
+	
+
+	printDataList.clear();
+	for (int i = 0; i < skeleton.GetBones().size(); i++)
+	{
+		Skeleton::Bone *b = skeleton.GetBone(i);
+
+		PrintData data;
+		data.name = b->name;
+		data.inverseMatrix = b->inverseMatrix;
+		data.globalMatrix = b->globalMatrix;
+		data.result = b->poseMatrix;
+		printDataList.push_back(data);
+	}
+
+	std::sort(printDataList.begin(), printDataList.end(), PrintData::cmp);
+
+	if (!hasPrintData)
+	{
+		FILE *fp = fopen("data.txt", "w");
+		hasPrintData = true;
+		for (int i = 0; i < printDataList.size(); i++)
+		{
+			PrintData data = printDataList[i];
+			fprintf(fp, "%s\n", data.name.c_str());
+			MathUntil::printfMatrix(data.inverseMatrix, fp);
+			MathUntil::printfMatrix(data.globalMatrix, fp);
+			MathUntil::printfMatrix(data.result, fp);
+		}
+		fclose(fp);
+	}
 }
 
 

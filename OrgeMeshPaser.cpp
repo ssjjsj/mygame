@@ -1,5 +1,6 @@
 #include "OrgeMeshPaser.h"
 #include <vector>
+#include <map>
 
 namespace OrgeMeshPaser
 {
@@ -78,6 +79,7 @@ namespace OrgeMeshPaser
 				ass.weight = atof(curBoneVertexElement->Attribute("weight"));
 				model.boneVertexAssigns.push_back(ass);
 			}
+			
 
 			modelDatas.push_back(model);
 		}
@@ -165,6 +167,34 @@ namespace OrgeMeshPaser
 				ass.boneIndex = atoi(curBoneVertexElement->Attribute("boneindex"));
 				ass.weight = atof(curBoneVertexElement->Attribute("weight"));
 				model.boneVertexAssigns.push_back(ass);
+			}
+
+
+			map<int, vector<BoneVertexAssignment*>> indexWeightMap;
+			for (int i = 0; i < model.boneVertexAssigns.size(); i++)
+			{
+				BoneVertexAssignment &ass = model.boneVertexAssigns[i];
+				indexWeightMap[ass.vertexIndex].push_back(&ass);
+			}
+
+			for (map<int, vector<BoneVertexAssignment*>>::iterator it = indexWeightMap.begin(); it != indexWeightMap.end(); it++)
+			{
+				vector<BoneVertexAssignment*> assVec = it->second;
+				float weight = 0.0f;
+				for (int i = 0; i < assVec.size(); i++)
+				{
+					if (i == assVec.size() - 1)
+					{
+						if (weight + assVec[i]->weight > 1.0f)
+							assVec[i]->weight = 1.0f - weight;
+						else if (weight + assVec[i]->weight < 1.0f)
+							assVec[i]->weight = 1.0f - weight;
+					}
+					else
+					{
+						weight += assVec[i]->weight;
+					}
+				}
 			}
 
 			modelDatas.push_back(model);

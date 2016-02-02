@@ -19,6 +19,19 @@ class Animation
 		string BoneName;
 		vector<KeyFrame> keyFrames;
 	};
+
+	struct PrintData
+	{
+		XMFLOAT4X4 inverseMatrix;
+		XMFLOAT4X4 globalMatrix;
+		XMFLOAT4X4 result;
+		string name;
+
+		static bool cmp(PrintData a, PrintData b)
+		{
+			return a.name < b.name;
+		}
+	};
 public:
 	Animation();
 	Animation(string fileName);
@@ -58,6 +71,9 @@ private:
 	vector<Track> tracks;
 	map<string, XMFLOAT4X4> posMatrix;
 	float curTime;
+
+	bool hasPrintData = false;
+	vector<PrintData> printDataList;
 
 	KeyFrame *curLeftFrame;
 	KeyFrame *curRightFrame;
