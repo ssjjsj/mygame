@@ -172,7 +172,7 @@ bool SkullApp::Init()
 	wireframeDesc.FrontCounterClockwise = false;
 	wireframeDesc.DepthClipEnable = true;
 
-	HR(md3dDevice->CreateRasterizerState(&wireframeDesc, &mWireframeRS));
+	//HR(md3dDevice->CreateRasterizerState(&wireframeDesc, &mWireframeRS));
 
 	return true;
 }
@@ -210,44 +210,44 @@ void SkullApp::UpdateScene(float dt)
 
 void SkullApp::DrawScene()
 {
-	UpdateGeometryBuffers();
-	md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::LightSteelBlue));
-	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
+	//UpdateGeometryBuffers();
+	//md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::LightSteelBlue));
+	//md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	//md3dImmediateContext->RSSetState(mWireframeRS);
+	////md3dImmediateContext->RSSetState(mWireframeRS);
 
-	// Set constants
+	//// Set constants
 
-	XMMATRIX view = XMLoadFloat4x4(&mView);
-	XMMATRIX proj = XMLoadFloat4x4(&mProj);
-	XMMATRIX world = XMLoadFloat4x4(&mSkullWorld);
-	XMMATRIX worldViewProj = world*view*proj;
-	mfxWorldViewProj->SetMatrix(reinterpret_cast<float*>(&worldViewProj));
- 
-	vector<MyVertex::ModelData>& datas = m->getModelData();
-	for (int i = 0; i <mVB.size(); i++)
-	{
-		mSkullIndexCount = datas[i].indexs.size();
+	//XMMATRIX view = XMLoadFloat4x4(&mView);
+	//XMMATRIX proj = XMLoadFloat4x4(&mProj);
+	//XMMATRIX world = XMLoadFloat4x4(&mSkullWorld);
+	//XMMATRIX worldViewProj = world*view*proj;
+	//mfxWorldViewProj->SetMatrix(reinterpret_cast<float*>(&worldViewProj));
+ //
+	//vector<MyVertex::ModelData>& datas = m->getModelData();
+	//for (int i = 0; i <mVB.size(); i++)
+	//{
+	//	mSkullIndexCount = datas[i].indexs.size();
 
-		md3dImmediateContext->IASetInputLayout(mInputLayout);
-		md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		UINT stride = sizeof(MyVertex::Vertex);
-		UINT offset = 0;
-		md3dImmediateContext->IASetVertexBuffers(0, 1, &mVB[i], &stride, &offset);
-		md3dImmediateContext->IASetIndexBuffer(mIB[i], DXGI_FORMAT_R32_UINT, 0);
+	//	md3dImmediateContext->IASetInputLayout(mInputLayout);
+	//	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	//	UINT stride = sizeof(MyVertex::Vertex);
+	//	UINT offset = 0;
+	//	md3dImmediateContext->IASetVertexBuffers(0, 1, &mVB[i], &stride, &offset);
+	//	md3dImmediateContext->IASetIndexBuffer(mIB[i], DXGI_FORMAT_R32_UINT, 0);
 
-		diffuseMap->SetResource(mDiffuseMap[datas[i].materialName]);
+	//	diffuseMap->SetResource(mDiffuseMap[datas[i].materialName]);
 
-		D3DX11_TECHNIQUE_DESC techDesc;
-		mTech->GetDesc(&techDesc);
-		for (UINT p = 0; p < techDesc.Passes; ++p)
-		{
-			mTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
-			md3dImmediateContext->DrawIndexed(mSkullIndexCount, 0, 0);
-		}
-	}
+	//	D3DX11_TECHNIQUE_DESC techDesc;
+	//	mTech->GetDesc(&techDesc);
+	//	for (UINT p = 0; p < techDesc.Passes; ++p)
+	//	{
+	//		mTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+	//		md3dImmediateContext->DrawIndexed(mSkullIndexCount, 0, 0);
+	//	}
+	//}
 
-	HR(mSwapChain->Present(0, 0));
+	//HR(mSwapChain->Present(0, 0));
 }
 
 void SkullApp::OnMouseDown(WPARAM btnState, int x, int y)
@@ -298,128 +298,128 @@ void SkullApp::OnMouseMove(WPARAM btnState, int x, int y)
 
 void SkullApp::UpdateGeometryBuffers()
 {
-	vector<MyVertex::ModelData>& datas = m->getModelData();
+	//vector<MyVertex::ModelData>& datas = m->getModelData();
 
-	if (datas.size() == 0)
-		return;
+	//if (datas.size() == 0)
+	//	return;
 
-	for (int i = 0; i < datas.size(); i++)
-	{
-		std::vector<MyVertex::Vertex>& vertices = datas[i].vertexs;
+	//for (int i = 0; i < datas.size(); i++)
+	//{
+	//	std::vector<MyVertex::Vertex>& vertices = datas[i].vertexs;
 
-		UINT vcount = vertices.size();
-		D3D11_MAPPED_SUBRESOURCE vResource;
-		HRESULT hResult = md3dImmediateContext->Map(mVB[i], 0,
-			D3D11_MAP_WRITE_DISCARD, 0, &vResource);
+	//	UINT vcount = vertices.size();
+	//	D3D11_MAPPED_SUBRESOURCE vResource;
+	//	HRESULT hResult = md3dImmediateContext->Map(mVB[i], 0,
+	//		D3D11_MAP_WRITE_DISCARD, 0, &vResource);
 
-		if (FAILED(hResult))
-		{
-			int i = 0;
-		}
+	//	if (FAILED(hResult))
+	//	{
+	//		int i = 0;
+	//	}
 
-		MyVertex::Vertex* v = (MyVertex::Vertex*)(vResource.pData);
-		for (int j = 0; j < vertices.size(); j++)
-		{
-			v[j] = vertices[j];
-		}
+	//	MyVertex::Vertex* v = (MyVertex::Vertex*)(vResource.pData);
+	//	for (int j = 0; j < vertices.size(); j++)
+	//	{
+	//		v[j] = vertices[j];
+	//	}
 
-		md3dImmediateContext->Unmap(mVB[i], 0);
-	}
+	//	md3dImmediateContext->Unmap(mVB[i], 0);
+	//}
 }
  
 void SkullApp::BuildGeometryBuffers()
 {
-	m= new Mesh("Sinbad.mesh.xml");
-	//m->playAnimation("Sinbad");
-	//m->update(1.0f);
-	vector<MyVertex::ModelData>& datas = m->getModelData();
+	//m= new Mesh("Sinbad.mesh.xml");
+	////m->playAnimation("Sinbad");
+	////m->update(1.0f);
+	//vector<MyVertex::ModelData>& datas = m->getModelData();
 
 
 
-	for (int i = 0; i < datas.size(); i++)
-	{
+	//for (int i = 0; i < datas.size(); i++)
+	//{
 
-		std::vector<UINT> indices = datas[i].indexs;
+	//	std::vector<UINT> indices = datas[i].indexs;
 
-		std::vector<MyVertex::Vertex> vertices = datas[i].vertexs;
-		UINT vcount = vertices.size();
-		UINT tcount = indices.size();
-		mSkullIndexCount = tcount;
+	//	std::vector<MyVertex::Vertex> vertices = datas[i].vertexs;
+	//	UINT vcount = vertices.size();
+	//	UINT tcount = indices.size();
+	//	mSkullIndexCount = tcount;
 
-		ID3D11Buffer *VB;
-		D3D11_BUFFER_DESC vbd;
-		vbd.Usage = D3D11_USAGE_DYNAMIC;
-		vbd.ByteWidth = sizeof(MyVertex::Vertex) * vcount;
-		vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		vbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-		vbd.MiscFlags = 0;
-		D3D11_SUBRESOURCE_DATA vinitData;
-		vinitData.pSysMem = &vertices[0];
-		HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &VB));
-		mVB.push_back(VB);
+	//	ID3D11Buffer *VB;
+	//	D3D11_BUFFER_DESC vbd;
+	//	vbd.Usage = D3D11_USAGE_DYNAMIC;
+	//	vbd.ByteWidth = sizeof(MyVertex::Vertex) * vcount;
+	//	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	//	vbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	//	vbd.MiscFlags = 0;
+	//	D3D11_SUBRESOURCE_DATA vinitData;
+	//	vinitData.pSysMem = &vertices[0];
+	//	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &VB));
+	//	mVB.push_back(VB);
 
-		//
-		// Pack the indices of all the meshes into one index buffer.
-		//
+	//	//
+	//	// Pack the indices of all the meshes into one index buffer.
+	//	//
 
-		ID3D11Buffer *IB;
-		D3D11_BUFFER_DESC ibd;
-		ibd.Usage = D3D11_USAGE_IMMUTABLE;
-		ibd.ByteWidth = sizeof(UINT) * tcount;
-		ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-		ibd.CPUAccessFlags = 0;
-		ibd.MiscFlags = 0;
-		D3D11_SUBRESOURCE_DATA iinitData;
-		iinitData.pSysMem = &indices[0];
-		HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &IB));
-		mIB.push_back(IB);
-	}
+	//	ID3D11Buffer *IB;
+	//	D3D11_BUFFER_DESC ibd;
+	//	ibd.Usage = D3D11_USAGE_IMMUTABLE;
+	//	ibd.ByteWidth = sizeof(UINT) * tcount;
+	//	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	//	ibd.CPUAccessFlags = 0;
+	//	ibd.MiscFlags = 0;
+	//	D3D11_SUBRESOURCE_DATA iinitData;
+	//	iinitData.pSysMem = &indices[0];
+	//	HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &IB));
+	//	mIB.push_back(IB);
+	//}
 }
  
 void SkullApp::BuildFX()
 {
-	std::ifstream fin("fx/color.fxo", std::ios::binary);
+	//std::ifstream fin("fx/color.fxo", std::ios::binary);
 
-	fin.seekg(0, std::ios_base::end);
-	int size = (int)fin.tellg();
-	fin.seekg(0, std::ios_base::beg);
-	std::vector<char> compiledShader(size);
+	//fin.seekg(0, std::ios_base::end);
+	//int size = (int)fin.tellg();
+	//fin.seekg(0, std::ios_base::beg);
+	//std::vector<char> compiledShader(size);
 
-	fin.read(&compiledShader[0], size);
-	fin.close();
-	
-	HR(D3DX11CreateEffectFromMemory(&compiledShader[0], size, 
-		0, md3dDevice, &mFX));
+	//fin.read(&compiledShader[0], size);
+	//fin.close();
+	//
+	//HR(D3DX11CreateEffectFromMemory(&compiledShader[0], size, 
+	//	0, md3dDevice, &mFX));
 
-	mTech    = mFX->GetTechniqueByName("ColorTech");
-	mfxWorldViewProj = mFX->GetVariableByName("gWorldViewProj")->AsMatrix();
-	diffuseMap = mFX->GetVariableByName("gDiffuseMap")->AsShaderResource();
+	//mTech    = mFX->GetTechniqueByName("ColorTech");
+	//mfxWorldViewProj = mFX->GetVariableByName("gWorldViewProj")->AsMatrix();
+	//diffuseMap = mFX->GetVariableByName("gDiffuseMap")->AsShaderResource();
 }
 
 void SkullApp::BuildTexture()
 {
-	for (int i = 0; i < matrialList.size(); i++)
-	{
-		ID3D11ShaderResourceView *tex;
-		D3DX11CreateShaderResourceViewFromFile(md3dDevice, matrialList[i].texName, NULL, NULL, &tex, NULL);
-		mDiffuseMap[matrialList[i].matrialName] = tex;
-	}
+	//for (int i = 0; i < matrialList.size(); i++)
+	//{
+	//	ID3D11ShaderResourceView *tex;
+	//	D3DX11CreateShaderResourceViewFromFile(md3dDevice, matrialList[i].texName, NULL, NULL, &tex, NULL);
+	//	mDiffuseMap[matrialList[i].matrialName] = tex;
+	//}
 }
 
 void SkullApp::BuildVertexLayout()
 {
-	// Create the vertex input layout.
-	D3D11_INPUT_ELEMENT_DESC vertexDesc[] =
-	{
-		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{"COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 40, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-	};
+	//// Create the vertex input layout.
+	//D3D11_INPUT_ELEMENT_DESC vertexDesc[] =
+	//{
+	//	{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+	//	{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	//	{"COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0},
+	//	{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 40, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	//};
 
-	// Create the input layout
-    D3DX11_PASS_DESC passDesc;
-    mTech->GetPassByIndex(0)->GetDesc(&passDesc);
-	HR(md3dDevice->CreateInputLayout(vertexDesc, 4, passDesc.pIAInputSignature, 
-		passDesc.IAInputSignatureSize, &mInputLayout));
+	//// Create the input layout
+ //   D3DX11_PASS_DESC passDesc;
+ //   mTech->GetPassByIndex(0)->GetDesc(&passDesc);
+	//HR(md3dDevice->CreateInputLayout(vertexDesc, 4, passDesc.pIAInputSignature, 
+	//	passDesc.IAInputSignatureSize, &mInputLayout));
 }

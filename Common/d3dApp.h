@@ -14,6 +14,7 @@
 #include "d3dUtil.h"
 #include "GameTimer.h"
 #include <string>
+#include "../RenderDevice.h"
 
 class D3DApp
 {
@@ -43,7 +44,6 @@ public:
 
 protected:
 	bool InitMainWindow();
-	bool InitDirect3D();
 
 	void CalculateFrameStats();
 
@@ -59,9 +59,6 @@ protected:
 
 	GameTimer mTimer;
 
-	ID3D11Device* md3dDevice;
-	ID3D11DeviceContext* md3dImmediateContext;
-	IDXGISwapChain* mSwapChain;
 	ID3D11Texture2D* mDepthStencilBuffer;
 	ID3D11RenderTargetView* mRenderTargetView;
 	ID3D11DepthStencilView* mDepthStencilView;
