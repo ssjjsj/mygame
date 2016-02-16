@@ -7,6 +7,7 @@
 class RenderAble
 {
 public:
+	RenderAble() {};
 	RenderAble(Geometry *g, Material *m);
 	~RenderAble();
 public:

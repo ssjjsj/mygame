@@ -90,7 +90,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
 SkullApp::SkullApp(HINSTANCE hInstance)
 : D3DApp(hInstance), mVB(0), mIB(0), mFX(0), mTech(0),
-  mfxWorldViewProj(0), mInputLayout(0), mWireframeRS(0), mSkullIndexCount(0),
+  mfxWorldViewProj(0), mWireframeRS(0), mSkullIndexCount(0),
   mTheta(1.5f*MathHelper::Pi), mPhi(0.1f*MathHelper::Pi), mRadius(20.0f)
 {
 	mMainWndCaption = L"Skull Demo";
@@ -114,7 +114,6 @@ SkullApp::~SkullApp()
 		ReleaseCOM(mIB[i]);
 	}
 	ReleaseCOM(mFX);
-	ReleaseCOM(mInputLayout);
 	ReleaseCOM(mWireframeRS);
 	delete m;
 	//FreeConsole();

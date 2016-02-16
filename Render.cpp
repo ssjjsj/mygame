@@ -100,7 +100,7 @@ void Render::onReset()
 
 	// Bind the render target view and depth/stencil view to the pipeline.
 
-	immediateContext->OMSetRenderTargets(1, &mRenderTargetView, depthStencilView);
+	immediateContext->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 	
 
 	// Set the viewport transform.
