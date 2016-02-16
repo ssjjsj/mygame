@@ -47,6 +47,13 @@ enum CullModes
 	None
 };
 
+
+struct SourceCode
+{
+	int length;
+	byte* data;
+};
+
 class ShaderResource
 {
 public:
@@ -56,8 +63,8 @@ private:
 	TestModes testMode;
 	BlendModes blendMode;
 	vector<ShaderPropery> properties;
-	string vsShaderCode;
-	string psShaderCode;
+	SourceCode vsShaderCode;
+	SourceCode psShaderCode;
 	string vsMainFunction;
 	string psMainFunction;
 
@@ -67,8 +74,8 @@ public:
 	string getShaderName() { return shaderName; }
 	string getPsMainFunction() { return psMainFunction; }
 	string getVsMainFunction() { return vsMainFunction; }
-	string getPsShaderCode() { return psShaderCode; }
-	string getVsShaderCode() { return vsShaderCode; }
+	SourceCode& getPsShaderCode() { return psShaderCode; }
+	SourceCode& getVsShaderCode() { return vsShaderCode; }
 	vector<ShaderPropery>& getProperties() { return properties; }
 	BlendModes getBlendMode() { return blendMode; }
 	TestModes getTestMode() { return testMode; }

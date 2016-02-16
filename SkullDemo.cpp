@@ -52,8 +52,6 @@ private:
 	map<string, ID3D11ShaderResourceView*> mDiffuseMap;
 	vector<Matrial> matrialList;
 
-	ID3D11InputLayout* mInputLayout;
-
 	ID3D11RasterizerState* mWireframeRS;
 
 	// Define transformations from local spaces to world space.

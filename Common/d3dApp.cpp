@@ -126,7 +126,7 @@ void D3DApp::OnResize()
 
 	//ReleaseCOM(mRenderTargetView);
 	//ReleaseCOM(mDepthStencilView);
-	//ReleaseCOM(mDepthStencilBuffer);
+	ReleaseCOM(mDepthStencilBuffer);
 
 	//ID3D11Device* d3dDevice = RenderDevice::Instance()->d3dDevice;
 	//ID3D11DeviceContext* immediateContext = RenderDevice::Instance()->immediateContext;

@@ -11,6 +11,8 @@ public:
 	ID3D11Device* d3dDevice;
 	ID3D11DeviceContext* immediateContext;
 	IDXGISwapChain* swapChain;
+	int width;
+	int height;
 
 	~RenderDevice();
 };

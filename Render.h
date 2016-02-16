@@ -2,17 +2,7 @@
 #define RENDER_H
 
 #include "RenderDevice.h"
-
-
-struct RenderOperation
-{
-	enum VertexLayout
-	{
-		PNCT = 0,
-		PC = 1,
-		PT = 2,
-	};
-};
+#include "renderAble.h"
 
 class Render
 {
@@ -22,6 +12,16 @@ public:
 
 private:
 	RenderDevice *renderDevice;
-	void init();
+	void onReset();
+
+public:
+	void draw(vector<RenderAble*> renderAbles);
+	RenderDevice* Device() { return renderDevice; }
+
+private:
+	ID3D11Texture2D* depthStencilBuffer;
+	ID3D11RenderTargetView* renderTargetView;
+	ID3D11DepthStencilView* depthStencilView;
+	D3D11_VIEWPORT screenViewport;
 };
 #endif

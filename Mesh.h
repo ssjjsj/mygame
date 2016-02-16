@@ -7,6 +7,7 @@
 #include "BoneVertexAssignment.h"
 #include "Vertex.h"
 #include "Aniamtion.h"
+#include "renderAble.h"
 using namespace std;
 
 
@@ -27,7 +28,7 @@ private:
 	void loadFile(string fileName);
 
 public:
-	void Draw();
+	vector<RenderAble*>& getRenderAble() { return renderAbleList; }
 	void update(float deltaTime);
 	vector<MyVertex::ModelData>& getModelData();
 	vector<MyVertex::ModelData> getSkeletonModelData();
@@ -45,6 +46,7 @@ private:
 	vector<MyVertex::ModelData> skinedMeshAry;
 	vector<Animation*> animations;
 	Animation *curAnimation;
+	vector<RenderAble*> renderAbleList;
 };
 
 #endif

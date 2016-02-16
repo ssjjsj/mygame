@@ -5,6 +5,9 @@ bool RenderDevice::init(HWND wnd, int width, int height)
 {
 	// Create the device and device context.
 
+	this->width = width;
+	this->height = height;
+
 	UINT createDeviceFlags = 0;
 #if defined(DEBUG) || defined(_DEBUG)  
 	//createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
@@ -120,15 +123,4 @@ RenderDevice::~RenderDevice()
 	{
 		swapChain->Release();
 	}
-}
-
-
-RenderDevice* RenderDevice::Instance()
-{
-	if (instance == NULL)
-	{
-		instance = new RenderDevice;
-	}
-
-	return instance;
 }
