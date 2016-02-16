@@ -41,8 +41,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>D:\program files (x86)\Microsoft DirectX SDK (June 2010)\Include;C:\Users\ji\Desktop\DIRECTX\Common;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\ji\Desktop\DIRECTX\Common;D:\program files (x86)\Microsoft DirectX SDK (June 2010)\Lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\program files (x86)\Microsoft DirectX SDK (June 2010)\Include;E:\mygame\Common;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\mygame\Common;D:\program files (x86)\Microsoft DirectX SDK (June 2010)\Lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -93,6 +93,7 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Common\Camera.cpp" />
     <ClCompile Include="Common\d3dApp.cpp" />
     <ClCompile Include="Common\d3dUtil.cpp" />
@@ -103,11 +104,18 @@
     <ClCompile Include="Common\TextureMgr.cpp" />
     <ClCompile Include="Common\Waves.cpp" />
     <ClCompile Include="Common\xnacollision.cpp" />
+    <ClCompile Include="MathHelp.cpp" />
     <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Node.cpp" />
     <ClCompile Include="OrgeMeshPaser.cpp" />
+    <ClCompile Include="Render.cpp" />
+    <ClCompile Include="RenderDevice.cpp" />
+    <ClCompile Include="skeleton.cpp" />
     <ClCompile Include="SkullDemo.cpp" />
+    <ClCompile Include="SubMeshInstance.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Aniamtion.h" />
     <ClInclude Include="BoneVertexAssignment.h" />
     <ClInclude Include="Common\Camera.h" />
     <ClInclude Include="Common\d3dApp.h" />
@@ -120,8 +128,17 @@
     <ClInclude Include="Common\TextureMgr.h" />
     <ClInclude Include="Common\Waves.h" />
     <ClInclude Include="Common\xnacollision.h" />
+    <ClInclude Include="global.h" />
+    <ClInclude Include="MathHelp.h" />
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Node.h" />
     <ClInclude Include="OrgeMeshPaser.h" />
+    <ClInclude Include="Render.h" />
+    <ClInclude Include="RenderDevice.h" />
+    <ClInclude Include="ShaderResource.cpp" />
+    <ClInclude Include="shaderResource.h" />
+    <ClInclude Include="skeleton.h" />
+    <ClInclude Include="SubMeshInstance.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
