@@ -1,15 +1,17 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
-#include "Render.h"
+//#include "Render.h"
 #include <string>
 using namespace std;
 
-Render *gRender;
+class Render;
 
-string ShaderPath = "";
-string TexturePath = "";
-string MaterialPath = "";
-string ModelPath = "";
+extern Render *gRender;
+
+extern string ShaderPath;
+extern string TexturePath;
+extern string MaterialPath;
+extern string ModelPath;
 
 #endif

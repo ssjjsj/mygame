@@ -1,6 +1,7 @@
 #include "geometry.h"
 #include "global.h"
 #include "shaderResource.h"
+#include "Render.h"
 
 Geometry::Geometry()
 {
@@ -15,9 +16,7 @@ Geometry::~Geometry()
 		ib->Release();
 }
 
-
-
-void Geometry::SetVertexData(vector<MyVertex::Vertex> vertices, ID3D11Device* device)
+void Geometry::setVertexData(vector<MyVertex::Vertex> vertices)
 {
 	UINT vcount = vertices.size();
 	ID3D11Buffer *VB;
@@ -29,11 +28,11 @@ void Geometry::SetVertexData(vector<MyVertex::Vertex> vertices, ID3D11Device* de
 	vbd.MiscFlags = 0;
 	D3D11_SUBRESOURCE_DATA vinitData;
 	vinitData.pSysMem = &vertices[0];
-	HR(device->CreateBuffer(&vbd, &vinitData, &vb));
+	gRender->Device()->d3dDevice->CreateBuffer(&vbd, &vinitData, &vb);
 }
 
 
-void Geometry::SetIndexData(vector<int> indices, ID3D11Device* device)
+void Geometry::setIndexData(vector<int> indices)
 {
 	tcount = indices.size();
 	D3D11_BUFFER_DESC ibd;
@@ -44,7 +43,7 @@ void Geometry::SetIndexData(vector<int> indices, ID3D11Device* device)
 	ibd.MiscFlags = 0;
 	D3D11_SUBRESOURCE_DATA iinitData;
 	iinitData.pSysMem = &indices[0];
-	HR(device->CreateBuffer(&ibd, &iinitData, &ib));
+	gRender->Device()->d3dDevice->CreateBuffer(&ibd, &iinitData, &ib);
 }
 
 

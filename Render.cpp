@@ -19,7 +19,8 @@ void Render::draw(vector<RenderAble*> renderAbles)
 		ID3D11DeviceContext* immediateContext = renderDevice->immediateContext;
 		IDXGISwapChain* swapChain = renderDevice->swapChain;
 
-		immediateContext->ClearRenderTargetView(renderTargetView, reinterpret_cast<const float*>(&Colors::LightSteelBlue));
+		float color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+		immediateContext->ClearRenderTargetView(renderTargetView, color);
 		immediateContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 		//set constant
@@ -34,8 +35,8 @@ void Render::draw(vector<RenderAble*> renderAbles)
 		immediateContext->IASetInputLayout(g->getLayout());
 		immediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-		immediateContext->VSSetShader(m->getShader().getVsShader(), NULL, 0);
-		immediateContext->PSSetShader(m->getShader().getPsShader(), NULL, 0);
+		immediateContext->VSSetShader(m->getShader()->getVsShader(), NULL, 0);
+		immediateContext->PSSetShader(m->getShader()->getPsShader(), NULL, 0);
 
 
 		immediateContext->DrawIndexed(g->getIndexCount(), 0, 0);

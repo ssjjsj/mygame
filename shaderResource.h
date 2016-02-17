@@ -51,7 +51,7 @@ enum CullModes
 struct SourceCode
 {
 	int length;
-	byte* data;
+	char* data;
 };
 
 class ShaderResource

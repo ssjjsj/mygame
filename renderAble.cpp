@@ -9,5 +9,6 @@ RenderAble::RenderAble(Geometry *g, Material *m)
 
 RenderAble::~RenderAble()
 {
-
+	delete mat;
+	delete geometry;
 }

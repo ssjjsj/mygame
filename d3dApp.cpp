@@ -5,7 +5,8 @@
 #include "d3dApp.h"
 #include <WindowsX.h>
 #include <sstream>
-#include "../global.h"
+#include "global.h"
+#include "Render.h"
 
 namespace
 {
@@ -52,9 +53,7 @@ D3DApp::D3DApp(HINSTANCE hInstance)
 
 D3DApp::~D3DApp()
 {
-	ReleaseCOM(mRenderTargetView);
-	ReleaseCOM(mDepthStencilView);
-	ReleaseCOM(mDepthStencilBuffer);
+	delete gRender;
 }
 
 HINSTANCE D3DApp::AppInst()const
@@ -118,75 +117,10 @@ bool D3DApp::Init()
 
 	return true;
 }
- 
-void D3DApp::OnResize()
+
+void OnResize()
 {
-	//// Release the old views, as they hold references to the buffers we
-	//// will be destroying.  Also release the old depth/stencil buffer.
-
-	//ReleaseCOM(mRenderTargetView);
-	//ReleaseCOM(mDepthStencilView);
-	ReleaseCOM(mDepthStencilBuffer);
-
-	//ID3D11Device* d3dDevice = RenderDevice::Instance()->d3dDevice;
-	//ID3D11DeviceContext* immediateContext = RenderDevice::Instance()->immediateContext;
-	//IDXGISwapChain* swapChain = RenderDevice::Instance()->swapChain;
-
-	//// Resize the swap chain and recreate the render target view.
-
-	//HR(swapChain->ResizeBuffers(1, mClientWidth, mClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
-	//ID3D11Texture2D* backBuffer;
-	//HR(swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&backBuffer)));
-	//HR(d3dDevice->CreateRenderTargetView(backBuffer, 0, &mRenderTargetView));
-	//ReleaseCOM(backBuffer);
-
-	//// Create the depth/stencil buffer and view.
-
-	//D3D11_TEXTURE2D_DESC depthStencilDesc;
-	//
-	//depthStencilDesc.Width     = mClientWidth;
-	//depthStencilDesc.Height    = mClientHeight;
-	//depthStencilDesc.MipLevels = 1;
-	//depthStencilDesc.ArraySize = 1;
-	//depthStencilDesc.Format    = DXGI_FORMAT_D24_UNORM_S8_UINT;
-
-	//// Use 4X MSAA? --must match swap chain MSAA values.
-	//if( mEnable4xMsaa )
-	//{
-	//	depthStencilDesc.SampleDesc.Count   = 4;
-	//	depthStencilDesc.SampleDesc.Quality = m4xMsaaQuality-1;
-	//}
-	//// No MSAA
-	//else
-	//{
-	//	depthStencilDesc.SampleDesc.Count   = 1;
-	//	depthStencilDesc.SampleDesc.Quality = 0;
-	//}
-
-	//depthStencilDesc.Usage          = D3D11_USAGE_DEFAULT;
-	//depthStencilDesc.BindFlags      = D3D11_BIND_DEPTH_STENCIL;
-	//depthStencilDesc.CPUAccessFlags = 0; 
-	//depthStencilDesc.MiscFlags      = 0;
-
-	//HR(d3dDevice->CreateTexture2D(&depthStencilDesc, 0, &mDepthStencilBuffer));
-	//HR(d3dDevice->CreateDepthStencilView(mDepthStencilBuffer, 0, &mDepthStencilView));
-
-
-	//// Bind the render target view and depth/stencil view to the pipeline.
-
-	//immediateContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
-	//
-
-	//// Set the viewport transform.
-
-	//mScreenViewport.TopLeftX = 0;
-	//mScreenViewport.TopLeftY = 0;
-	//mScreenViewport.Width    = static_cast<float>(mClientWidth);
-	//mScreenViewport.Height   = static_cast<float>(mClientHeight);
-	//mScreenViewport.MinDepth = 0.0f;
-	//mScreenViewport.MaxDepth = 1.0f;
-
-	//immediateContext->RSSetViewports(1, &mScreenViewport);
+	gRender->onReset();
 }
  
 LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)

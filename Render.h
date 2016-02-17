@@ -3,20 +3,22 @@
 
 #include "RenderDevice.h"
 #include "renderAble.h"
+//class RenderAble;
 
 class Render
 {
 public:
+	Render() {};
 	Render(RenderDevice *device);
 	~Render();
 
 private:
 	RenderDevice *renderDevice;
-	void onReset();
 
 public:
 	void draw(vector<RenderAble*> renderAbles);
 	RenderDevice* Device() { return renderDevice; }
+	void onReset();
 
 private:
 	ID3D11Texture2D* depthStencilBuffer;

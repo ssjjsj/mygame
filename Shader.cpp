@@ -1,10 +1,21 @@
 #include "shader.h"
+#include "Render.h"
 
 
 Shader::Shader(ShaderResource res)
 {
 	shaderRes = res;
 	createShader();
+}
+
+
+Shader::~Shader()
+{
+	if (vsShader != NULL)
+		vsShader->Release();
+
+	if (psShader != NULL)
+		psShader->Release();
 }
 
 

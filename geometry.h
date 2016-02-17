@@ -22,8 +22,8 @@ public:
 	~Geometry();
 public:
 	void setLayout(SourceCode &code);
-	void setVertexData(vector<MyVertex::Vertex> vertexs, ID3D11Device* device);
-	void setIndexData(vector<int> indexs, ID3D11Device* device);
+	void setVertexData(vector<MyVertex::Vertex> vertexs);
+	void setIndexData(vector<int> indexs);
 	ID3D11Buffer* getVertexBuffer() { return vb; }
 	ID3D11Buffer* getIndexBuffer() { return ib; }
 	ID3D11InputLayout* getLayout() { return inputLayout; }

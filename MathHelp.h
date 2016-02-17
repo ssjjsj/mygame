@@ -1,4 +1,6 @@
-#include "Common\d3dApp.h"
+#include <windows.h>
+#include <xnamath.h>
+#include <cstdio>
 
 namespace MathUntil
 {

@@ -1,4 +1,3 @@
-#include "Common\d3dApp.h"
 #include "MathHelp.h"
 
 namespace MathUntil

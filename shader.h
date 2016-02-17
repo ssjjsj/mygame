@@ -2,13 +2,14 @@
 #define SHADER_H
 
 #include "global.h"
-#include "Render.h"
 #include "shaderResource.h"
+#include <d3d11.h>
 
 class Shader
 {
 public:
 	Shader(ShaderResource res);
+	~Shader();
 private:
 	//bool compileShader(string sourceCode);
 	bool createShader();

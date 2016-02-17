@@ -169,7 +169,7 @@ void Animation::update(float deltaTime)
 		printDataList.push_back(data);
 	}
 
-	std::sort(printDataList.begin(), printDataList.end(), PrintData::cmp);
+	//std::sort(printDataList.begin(), printDataList.end(), PrintData::cmp);
 
 	if (!hasPrintData)
 	{

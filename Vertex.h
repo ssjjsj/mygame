@@ -1,6 +1,6 @@
 #ifndef VERTEX_H
 #define VERTEX_H
-#include "d3dApp.h"
+#include "MathHelp.h"
 #include <vector>
 #include "BoneVertexAssignment.h"
 using namespace std;

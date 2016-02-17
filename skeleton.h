@@ -3,7 +3,7 @@
 #include <string>
 #include "tinyxml\tinystr.h"
 #include "tinyxml\tinyxml.h"
-#include "Common\MathHelper.h"
+#include "MathHelp.h"
 #include <vector>
 #include <string>
 #include <map>

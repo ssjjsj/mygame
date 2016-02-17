@@ -11,10 +11,9 @@
 #ifndef D3DAPP_H
 #define D3DAPP_H
 
-#include "d3dUtil.h"
 #include "GameTimer.h"
 #include <string>
-#include "../RenderDevice.h"
+#include "RenderDevice.h"
 
 class D3DApp
 {
@@ -32,7 +31,7 @@ public:
 	// implement specific application requirements.
 
 	virtual bool Init();
-	virtual void OnResize(); 
+	void OnResize(); 
 	virtual void UpdateScene(float dt)=0;
 	virtual void DrawScene()=0; 
 	virtual LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);

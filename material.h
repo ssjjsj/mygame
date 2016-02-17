@@ -4,6 +4,9 @@
 #include "shader.h"
 #include "Texture.h"
 
+#include <vector>
+using namespace std;
+
 class Material
 {
 public:
@@ -11,11 +14,13 @@ public:
 	~Material();
 
 private:
-	Shader shader;
-	vector<Texture> textures;
+	Shader *shader;
+	vector<Texture*> textures;
 
 public:
-	Shader& getShader() { return shader; }
-	vector<Texture>& getTextures() { return textures; }
+	void setShader(Shader *shader);
+	void addTexture(Texture *tex);
+	Shader* getShader() { return shader; };
+	vector<Texture*>& getTextures() { return textures; };
 };
 #endif

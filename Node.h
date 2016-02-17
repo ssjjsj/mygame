@@ -1,7 +1,7 @@
 #ifndef NODE_H
 #define NODE_H
 #include <vector>
-#include "Common\MathHelper.h"
+#include "MathHelp.h"
 using namespace std;
 
 class Node
