@@ -8,17 +8,16 @@
 class Shader
 {
 public:
-	Shader(ShaderResource res);
+	Shader(ShaderResource *res);
 	~Shader();
 private:
 	//bool compileShader(string sourceCode);
-	bool createShader();
+	bool createShader(ShaderResource *res);
 
 public:
 	ID3D11VertexShader *getVsShader() {return vsShader;}
 	ID3D11PixelShader *getPsShader() { return psShader; }
 private:
-	ShaderResource shaderRes;
 	ID3D11VertexShader *vsShader;
 	ID3D11PixelShader *psShader;
 };

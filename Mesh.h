@@ -37,6 +37,7 @@ public:
 	{
 		return curAnimation != NULL;
 	}
+	void setMaterial(string name);
 private:
 	void DrawSubMesh();
 	void skin();
@@ -47,6 +48,7 @@ private:
 	vector<Animation*> animations;
 	Animation *curAnimation;
 	vector<RenderAble*> renderAbleList;
+	string MatName;
 };
 
 #endif

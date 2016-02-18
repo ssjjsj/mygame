@@ -2,10 +2,9 @@
 #include "Render.h"
 
 
-Shader::Shader(ShaderResource res)
+Shader::Shader(ShaderResource *res)
 {
-	shaderRes = res;
-	createShader();
+	createShader(res);
 }
 
 
@@ -19,9 +18,9 @@ Shader::~Shader()
 }
 
 
-bool Shader::createShader()
+bool Shader::createShader(ShaderResource *res)
 {
-	SourceCode& sourceCode = shaderRes.getVsShaderCode();
+	SourceCode& sourceCode = res->getVsShaderCode();
 
 	HRESULT hr = gRender->Device()->d3dDevice->CreateVertexShader(
 		sourceCode.data,
@@ -33,7 +32,7 @@ bool Shader::createShader()
 	if (FAILED(hr))
 		return false;
 
-	sourceCode = shaderRes.getVsShaderCode();
+	sourceCode = res->getVsShaderCode();
 	hr = gRender->Device()->d3dDevice->CreatePixelShader(
 		sourceCode.data,
 		sourceCode.length,

@@ -3,6 +3,7 @@
 
 #include "shader.h"
 #include "Texture.h"
+#include "materialRes.h"
 
 #include <vector>
 using namespace std;
@@ -11,6 +12,7 @@ class Material
 {
 public:
 	Material();
+	Material(MaterialRes::MaterialData &data);
 	~Material();
 
 private:

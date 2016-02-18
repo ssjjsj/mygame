@@ -3,18 +3,25 @@
 
 #include "shaderResource.h"
 #include "global.h"
+#include <map>
+using namespace std;
 
 class MaterialRes
 {
+public:
+	struct MaterialData
+	{
+		ShaderResource *res;
+		string texName;
+	};
 public:
 	MaterialRes(string resName);
 	~MaterialRes();
 
 private:
-	ShaderResource *res;
-	void load();
-
+	void load(string name);
+	map<string, MaterialData> dataMap;
 public:
-	ShaderResource *getShaderRes() { return res; }
+	MaterialData& getMaterialData(string name) { return dataMap[name]; }
 };
 #endif

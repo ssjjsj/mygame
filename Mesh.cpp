@@ -28,6 +28,26 @@ void Mesh::loadFile(string filename)
 	subMeshAry = OrgeMeshPaser::parseMesh(filename);
 }
 
+void Mesh::setMaterial(string name) 
+{ 
+	MaterialRes res = MaterialRes(name);
+
+	for (int i = 0; i < subMeshAry.size(); i++)
+	{
+
+		MyVertex::ModelData &model = subMeshAry[i];
+
+		Geometry *g = new Geometry();
+		g->setIndexData(model.indexs);
+		g->setVertexData(model.vertexs);
+
+		MaterialRes::MaterialData &data = res.getMaterialData(model.materialName);
+		Material *m = new Material(data);
+		RenderAble *obj = new RenderAble(g, m);
+		renderAbleList.push_back(obj);
+	}
+}
+
 void Mesh::playAnimation(string animationName)
 {
 	Animation *animation = NULL;

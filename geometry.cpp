@@ -16,7 +16,7 @@ Geometry::~Geometry()
 		ib->Release();
 }
 
-void Geometry::setVertexData(vector<MyVertex::Vertex> vertices)
+void Geometry::setVertexData(vector<MyVertex::Vertex> &vertices)
 {
 	UINT vcount = vertices.size();
 	ID3D11Buffer *VB;
@@ -32,7 +32,7 @@ void Geometry::setVertexData(vector<MyVertex::Vertex> vertices)
 }
 
 
-void Geometry::setIndexData(vector<int> indices)
+void Geometry::setIndexData(vector<UINT> &indices)
 {
 	tcount = indices.size();
 	D3D11_BUFFER_DESC ibd;

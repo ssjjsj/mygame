@@ -3,19 +3,33 @@
 using namespace std;
 #include <string>
 #include <vector>
+#include <D3D11.h>
 
 struct ShaderPropery
 {
-	enum List
+	enum PropertyType
 	{
-		PTMatrix = 0,
-		PTVector4 = 1,
-		PTColor = 2,
-		PTFloat = 3,
+		Matrix = 0,
+		Vector4 = 1,
+		Color = 2,
+		Float = 3,
+		Texture = 4,
 	};
 
-	float *data;
-	string texName;
+	PropertyType type;
+	string variableName;
+
+	static PropertyType getType(string type)
+	{
+		if (type == "Matrix")
+			return  PropertyType::Matrix;
+		else if (type == "Vector4")
+			return  PropertyType::Vector4;
+		else if (type == "Color")
+			return  PropertyType::Color;
+		else if (type == "Float")
+			return  PropertyType::Float;
+	}
 };
 
 
@@ -50,13 +64,16 @@ enum CullModes
 
 struct SourceCode
 {
-	int length;
+	SIZE_T length;
 	char* data;
 };
 
 class ShaderResource
 {
 public:
+	ShaderResource(string name);
+	ShaderResource(){};
+	~ShaderResource(){};
 	void load(string name);
 private:
 	CullModes cullMode;
