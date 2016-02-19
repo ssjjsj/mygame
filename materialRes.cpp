@@ -5,7 +5,7 @@
 
 MaterialRes::MaterialRes(string name)
 {
-
+	load(name);
 }
 
 MaterialRes::~MaterialRes()

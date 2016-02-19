@@ -1,8 +1,14 @@
 #include "Render.h"
+#include "MathHelp.h"
 
 Render::Render(RenderDevice *device)
 {
 	renderDevice = device;
+}
+
+Render::~Render()
+{
+	delete renderDevice;
 }
 
 
@@ -24,6 +30,18 @@ void Render::draw(vector<RenderAble*> renderAbles)
 		immediateContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 		//set constant
+		//XMFLOAT4X4 mvpMatrix;
+
+		//XMVECTOR pos = XMVectorSet(1.0f, 2.0f, 1.0f, 1.0f);
+		//XMVECTOR target = XMVectorZero();
+		//XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+
+		//XMMATRIX V = XMMatrixLookAtLH(pos, target, up);
+		//XMStoreFloat4x4(&mvpMatrix, V);
+
+
+		////renderDevice->immediateContext->
+		
 
 		UINT stride = (UINT)Geometry::getVertexSize(g->getVertexType());
 		UINT offset = 0;

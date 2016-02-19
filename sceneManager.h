@@ -15,6 +15,7 @@ public:
 public:
 	void update(float delat);
 	void render();
+	void addMesh(Mesh *m) { meshAry.push_back(m); }
 
 private:
 	vector<Mesh*> meshAry;

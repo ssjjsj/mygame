@@ -11,6 +11,8 @@
 
 #include "d3dApp.h"
 #include "Mesh.h"
+#include "sceneManager.h"
+#include "global.h"
  
 
 
@@ -37,7 +39,9 @@ private:
 	float mPhi;
 	float mRadius;
 
-	Mesh *m;
+	SceneManager gSceneManager;
+
+
 
 	POINT mLastMousePos;
 };
@@ -83,6 +87,9 @@ bool SkullApp::Init()
 	if(!D3DApp::Init())
 		return false;
 
+	Mesh *m = new Mesh("Sinbad.mesh.xml");
+	gSceneManager.addMesh(m);
+
 	return true;
 }
 
@@ -109,12 +116,7 @@ void SkullApp::UpdateScene(float dt)
 	XMMATRIX V = XMMatrixLookAtLH(pos, target, up);
 	XMStoreFloat4x4(&mView, V);
 
-	if (m != NULL)
-	{
-		if (!m->IsPlayAnimation())
-			m->playAnimation("Sinbad");
-		m->update(dt);
-	}
+	gSceneManager.update(dt);
 }
 
 void SkullApp::DrawScene()
