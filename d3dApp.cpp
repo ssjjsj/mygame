@@ -118,7 +118,7 @@ bool D3DApp::Init()
 	return true;
 }
 
-void OnResize()
+void D3DApp::OnResize()
 {
 	gRender->onReset();
 }

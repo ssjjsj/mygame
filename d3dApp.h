@@ -31,7 +31,7 @@ public:
 	// implement specific application requirements.
 
 	virtual bool Init();
-	void OnResize(); 
+	virtual void OnResize();
 	virtual void UpdateScene(float dt)=0;
 	virtual void DrawScene()=0; 
 	virtual LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);

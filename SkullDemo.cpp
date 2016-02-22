@@ -13,6 +13,7 @@
 #include "Mesh.h"
 #include "sceneManager.h"
 #include "global.h"
+#include "shaderResource.h"
  
 
 
@@ -88,6 +89,7 @@ bool SkullApp::Init()
 		return false;
 
 	Mesh *m = new Mesh("Sinbad.mesh.xml");
+	m->setMaterial("ogre.material.xml");
 	gSceneManager.addMesh(m);
 
 	return true;
@@ -117,6 +119,7 @@ void SkullApp::UpdateScene(float dt)
 	XMStoreFloat4x4(&mView, V);
 
 	gSceneManager.update(dt);
+	gSceneManager.render();
 }
 
 void SkullApp::DrawScene()

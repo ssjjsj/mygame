@@ -72,8 +72,8 @@ class ShaderResource
 {
 public:
 	ShaderResource(string name);
-	//ShaderResource(){};
-	~ShaderResource(){};
+	ShaderResource();
+	~ShaderResource();
 private:
 	CullModes cullMode;
 	TestModes testMode;
@@ -85,9 +85,7 @@ private:
 	string psMainFunction;
 
 	string shaderName;
-
-private:
-	void load(string name);
+	void loadShader(string name);
 
 public:
 	string getShaderName() { return shaderName; }

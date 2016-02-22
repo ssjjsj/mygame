@@ -4,6 +4,7 @@
 #include "shaderResource.h"
 #include "global.h"
 #include <map>
+#include <string>
 using namespace std;
 
 class MaterialRes

@@ -1,26 +1,34 @@
-#include "shaderResource.h"
 #include "tinyxml\tinyxml.h"
 #include "tinyxml\tinystr.h"
 #include <cstdio>
-#include <D3D10.h>
+//#include <D3D10.h>
 #include <D3DX11.h>
 #include "global.h"
+#include "shaderResource.h"
 
 ShaderResource::ShaderResource(string name)
 {
-	load(ShaderPath + name);
+	loadShader(ShaderPath + name);
 }
 
-void ShaderResource::load(string name)
+ShaderResource::ShaderResource()
+{
+}
+
+ShaderResource::~ShaderResource()
+{
+}
+
+void ShaderResource::loadShader(string name)
 {
 	TiXmlDocument doc = TiXmlDocument(name.c_str());
 	doc.LoadFile();
 
-	TiXmlElement *shaderElement = doc.RootElement;
+	TiXmlElement *shaderElement = doc.RootElement();
 	vsMainFunction = shaderElement->Attribute("vsMainFunction");
 	psMainFunction = shaderElement->Attribute("psMainFunction");
 
-	TiXmlNode *propertyRootNode = shaderElement->NextSibling();
+	TiXmlNode *propertyRootNode = shaderElement->FirstChild();
 	for (TiXmlNode *curPropertyNode = propertyRootNode->FirstChild(); curPropertyNode != NULL; curPropertyNode = curPropertyNode->NextSibling())
 	{
 		TiXmlElement *propertyElement = (TiXmlElement*)curPropertyNode;
@@ -93,13 +101,13 @@ void ShaderResource::load(string name)
 
 	
 	TiXmlElement *psProgramElement = (TiXmlElement*)vsProgramElement->NextSibling();
-	string tVsSourceCode = psProgramElement->Attribute("program");
+	string tPsSourceCode = psProgramElement->Attribute("program");
 
 	fp = fopen("temp.hlsl", "w");
-	fprintf(fp, "%s", tVsSourceCode.c_str());
+	fprintf(fp, "%s", tPsSourceCode.c_str());
 	fclose(fp);
-
-	HRESULT result = D3DX11CompileFromFile(L"temp.hlsl", NULL, NULL, psMainFunction.c_str(), "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL,
+	
+	result = D3DX11CompileFromFile(L"temp.hlsl", NULL, NULL, psMainFunction.c_str(), "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL,
 		&shaderBuffer, NULL, NULL);
 
 	psShaderCode.length = shaderBuffer->GetBufferSize();

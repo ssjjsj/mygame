@@ -2,6 +2,7 @@
 #include "global.h"
 #include "tinyxml\tinystr.h"
 #include "tinyxml\tinyxml.h"
+#include "shaderResource.h"
 
 MaterialRes::MaterialRes(string name)
 {
@@ -37,7 +38,7 @@ void MaterialRes::load(string name)
 		TiXmlElement *shaderNode = (TiXmlElement*)materialElement->FirstChild();
 		string shaderName = shaderNode->Attribute("name");
 
-		data.res = new ShaderResource(name);
+		data.res = new ShaderResource(shaderName);
 
 		TiXmlElement *texNode = (TiXmlElement*)shaderNode->NextSibling();
 		data.texName = texNode->Attribute("name");
