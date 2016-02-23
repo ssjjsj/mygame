@@ -11,12 +11,6 @@ MaterialRes::MaterialRes(string name)
 
 MaterialRes::~MaterialRes()
 {
-	for (map<string, MaterialData>::iterator it = dataMap.begin(); it != dataMap.end(); it++)
-	{
-		delete it->second.res;
-	}
-
-	dataMap.clear();
 }
 
 
@@ -38,7 +32,7 @@ void MaterialRes::load(string name)
 		TiXmlElement *shaderNode = (TiXmlElement*)materialElement->FirstChild();
 		string shaderName = shaderNode->Attribute("name");
 
-		data.res = new ShaderResource(shaderName);
+		data.res = shared_ptr<ShaderResource>(new ShaderResource(shaderName));
 
 		TiXmlElement *texNode = (TiXmlElement*)shaderNode->NextSibling();
 		data.texName = texNode->Attribute("name");

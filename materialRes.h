@@ -5,6 +5,7 @@
 #include "global.h"
 #include <map>
 #include <string>
+#include <memory>
 using namespace std;
 
 class MaterialRes
@@ -12,7 +13,7 @@ class MaterialRes
 public:
 	struct MaterialData
 	{
-		ShaderResource *res;
+		shared_ptr<ShaderResource> res;
 		string texName;
 	};
 public:
@@ -25,4 +26,5 @@ private:
 public:
 	MaterialData& getMaterialData(string name) { return dataMap[name]; }
 };
+
 #endif

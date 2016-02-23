@@ -4,6 +4,10 @@
 Render::Render(RenderDevice *device)
 {
 	renderDevice = device;
+	renderTargetView = NULL;
+	depthStencilBuffer = NULL;
+	depthStencilView = NULL;
+	onReset();
 }
 
 Render::~Render()
@@ -56,6 +60,8 @@ void Render::draw(vector<RenderAble*> renderAbles)
 		immediateContext->VSSetShader(m->getShader()->getVsShader(), NULL, 0);
 		immediateContext->PSSetShader(m->getShader()->getPsShader(), NULL, 0);
 
+		//immediateContext->OMSetDepthStencilState()
+
 
 		immediateContext->DrawIndexed(g->getIndexCount(), 0, 0);
 
@@ -67,9 +73,12 @@ void Render::draw(vector<RenderAble*> renderAbles)
 
 void Render::onReset()
 {
-	renderTargetView->Release();
-	depthStencilBuffer->Release();
-	depthStencilView->Release();
+	if (renderTargetView != NULL)
+		renderTargetView->Release();
+	if (depthStencilBuffer != NULL)
+		depthStencilBuffer->Release();
+	if (depthStencilView != NULL)
+		depthStencilView->Release();
 
 	ID3D11Device* d3dDevice = renderDevice->d3dDevice;
 	ID3D11DeviceContext* immediateContext = renderDevice->immediateContext;
@@ -96,17 +105,17 @@ void Render::onReset()
 	depthStencilDesc.Format    = DXGI_FORMAT_D24_UNORM_S8_UINT;
 
 	//// Use 4X MSAA? --must match swap chain MSAA values.
-	//if( mEnable4xMsaa )
-	//{
-	//	depthStencilDesc.SampleDesc.Count   = 4;
-	//	depthStencilDesc.SampleDesc.Quality = m4xMsaaQuality-1;
-	//}
-	//// No MSAA
-	//else
-	//{
-	//	depthStencilDesc.SampleDesc.Count   = 1;
-	//	depthStencilDesc.SampleDesc.Quality = 0;
-	//}
+	UINT m4xMsaaQuality = 0;
+	if( true )
+	{
+		depthStencilDesc.SampleDesc.Count   = 4;
+		depthStencilDesc.SampleDesc.Quality = 16;
+	}
+	else
+	{
+		depthStencilDesc.SampleDesc.Count   = 1;
+		depthStencilDesc.SampleDesc.Quality = 0;
+	}
 
 	depthStencilDesc.Usage          = D3D11_USAGE_DEFAULT;
 	depthStencilDesc.BindFlags      = D3D11_BIND_DEPTH_STENCIL;

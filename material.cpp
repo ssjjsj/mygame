@@ -8,7 +8,7 @@ Material::Material()
 
 Material::Material(MaterialRes::MaterialData &data)
 {
-	shader = new Shader(data.res);
+	shader = new Shader(data.res.get());
 
 	Texture *tex = new Texture(data.texName);
 	textures.push_back(tex);

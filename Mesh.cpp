@@ -41,8 +41,10 @@ void Mesh::setMaterial(string name)
 		g->setIndexData(model.indexs);
 		g->setVertexData(model.vertexs);
 
-		MaterialRes::MaterialData &data = res.getMaterialData(model.materialName);
+
+		MaterialRes::MaterialData data = res.getMaterialData(model.materialName);
 		Material *m = new Material(data);
+		g->setLayout(data.res->getVsShaderCode());
 		RenderAble *obj = new RenderAble(g, m);
 		renderAbleList.push_back(obj);
 	}

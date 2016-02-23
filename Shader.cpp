@@ -32,7 +32,7 @@ bool Shader::createShader(ShaderResource *res)
 	if (FAILED(hr))
 		return false;
 
-	sourceCode = res->getVsShaderCode();
+	sourceCode = res->getPsShaderCode();
 	hr = gRender->Device()->d3dDevice->CreatePixelShader(
 		sourceCode.data,
 		sourceCode.length,

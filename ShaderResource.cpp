@@ -17,6 +17,8 @@ ShaderResource::ShaderResource()
 
 ShaderResource::~ShaderResource()
 {
+	//delete[] vsShaderCode.data;
+	//delete[] psShaderCode.data;
 }
 
 void ShaderResource::loadShader(string name)
@@ -91,7 +93,7 @@ void ShaderResource::loadShader(string name)
 	fclose(fp);
 
 	ID3D10Blob* shaderBuffer;
-	HRESULT result = D3DX11CompileFromFile(L"temp.hlsl", NULL, NULL, vsMainFunction.c_str(), "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL,
+	HRESULT result = D3DX11CompileFromFile(L"temp.hlsl", NULL, NULL, vsMainFunction.c_str(), "vs_5_0", 0, 0, NULL,
 		&shaderBuffer, NULL, NULL);
 
 	vsShaderCode.length = shaderBuffer->GetBufferSize();
@@ -107,11 +109,20 @@ void ShaderResource::loadShader(string name)
 	fprintf(fp, "%s", tPsSourceCode.c_str());
 	fclose(fp);
 	
-	result = D3DX11CompileFromFile(L"temp.hlsl", NULL, NULL, psMainFunction.c_str(), "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL,
-		&shaderBuffer, NULL, NULL);
+
+	ID3D10Blob* errorMessage = NULL;
+	result = D3DX11CompileFromFile(L"temp.hlsl", NULL, NULL, psMainFunction.c_str(), "ps_5_0", 0, 0, NULL,
+		&shaderBuffer, &errorMessage, NULL);
+
+	if (errorMessage != NULL)
+	{
+		char *compileErrors = (char*)(errorMessage->GetBufferPointer());
+		string error = string(compileErrors, errorMessage->GetBufferSize());
+		errorMessage->Release();
+	}
 
 	psShaderCode.length = shaderBuffer->GetBufferSize();
-	psShaderCode.data = new char[vsShaderCode.length];
+	psShaderCode.data = new char[psShaderCode.length];
 	memcpy(psShaderCode.data, shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize());
 	shaderBuffer->Release();
 }

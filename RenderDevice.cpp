@@ -8,7 +8,7 @@ bool RenderDevice::init(HWND wnd, int width, int height)
 	this->width = width;
 	this->height = height;
 
-	UINT createDeviceFlags = 0;
+	UINT createDeviceFlags = D3D11_CREATE_DEVICE_DEBUG;
 #if defined(DEBUG) || defined(_DEBUG)  
 	//createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
@@ -39,9 +39,9 @@ bool RenderDevice::init(HWND wnd, int width, int height)
 	// All Direct3D 11 capable devices support 4X MSAA for all render 
 	// target formats, so we only need to check quality support.
 
-	//HR(d3dDevice->CheckMultisampleQualityLevels(
-	//	DXGI_FORMAT_R8G8B8A8_UNORM, 4, &m4xMsaaQuality));
-	//assert(m4xMsaaQuality > 0);
+	UINT m4xMsaaQuality;
+	(d3dDevice->CheckMultisampleQualityLevels(
+		DXGI_FORMAT_R8G8B8A8_UNORM, 4, &m4xMsaaQuality));
 
 	// Fill out a DXGI_SWAP_CHAIN_DESC to describe our swap chain.
 
@@ -54,18 +54,17 @@ bool RenderDevice::init(HWND wnd, int width, int height)
 	sd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 	sd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 
-	// Use 4X MSAA? 
-	//if (mEnable4xMsaa)
-	//{
-	//	sd.SampleDesc.Count = 4;
-	//	sd.SampleDesc.Quality = m4xMsaaQuality - 1;
-	//}
-	// No MSAA
-	//else
-	//{
-	//	sd.SampleDesc.Count = 1;
-	//	sd.SampleDesc.Quality = 0;
-	//}
+	 //Use 4X MSAA? 
+	if (true)
+	{
+		sd.SampleDesc.Count = 4;
+		sd.SampleDesc.Quality = m4xMsaaQuality - 1;
+	}
+	else
+	{
+		sd.SampleDesc.Count = 1;
+		sd.SampleDesc.Quality = 0;
+	}
 
 	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	sd.BufferCount = 1;

@@ -1,4 +1,6 @@
 #include "sceneManager.h"
+#include "global.h"
+#include "Render.h"
 
 void SceneManager::update(float delta)
 {
@@ -11,6 +13,8 @@ void SceneManager::update(float delta)
 
 void SceneManager::render()
 {
+	renderAbleAry.clear();
+
 	for (int i = 0; i < meshAry.size(); i++)
 	{
 		vector<RenderAble*>& renderAbles = meshAry[i]->getRenderAble();
@@ -19,4 +23,6 @@ void SceneManager::render()
 			renderAbleAry.push_back(renderAbles[j]);
 		}
 	}
+
+	gRender->draw(renderAbleAry);
 }
