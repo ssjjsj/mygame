@@ -37,7 +37,6 @@ namespace OrgeMeshPaser
 			for (TiXmlNode *curVertexNode = vertexbufferNode->FirstChild(); curVertexNode != NULL; curVertexNode = curVertexNode->NextSibling())
 			{
 				MyVertex::Vertex v;
-				v.Color = XMFLOAT4(1.0f, 10.f, 0.0f, 0.0f);
 				TiXmlElement *curPosElememt = (TiXmlElement*)curVertexNode->FirstChildElement();
 
 				float x = atof(curPosElememt->Attribute("x"));
@@ -126,7 +125,6 @@ namespace OrgeMeshPaser
 			for (TiXmlNode *curVertexNode = vertexRootElement->FirstChild(); curVertexNode != NULL; curVertexNode = curVertexNode->NextSibling())
 			{
 				MyVertex::Vertex v;
-				v.Color = XMFLOAT4(1.0f, 10.f, 0.0f, 0.0f);
 				TiXmlElement *curPosElememt = (TiXmlElement*)curVertexNode->FirstChildElement();
 
 				float x = atof(curPosElememt->Attribute("x"));

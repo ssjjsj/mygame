@@ -11,7 +11,6 @@ namespace MyVertex
 	{
 		XMFLOAT3 Pos;
 		XMFLOAT3 Nor;
-		XMFLOAT4 Color;
 		XMFLOAT2 UV;
 	};
 

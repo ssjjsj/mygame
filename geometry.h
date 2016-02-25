@@ -26,14 +26,12 @@ public:
 	void setIndexData(vector<UINT> &indexs);
 	ID3D11Buffer* getVertexBuffer() { return vb; }
 	ID3D11Buffer* getIndexBuffer() { return ib; }
-	ID3D11InputLayout* getLayout() { return inputLayout; }
 	UINT getIndexCount() { return tcount; }
 	VertexType getVertexType() { return vertexType; }
 	static int getVertexSize(VertexType type);
 private:
 	ID3D11Buffer* vb;
 	ID3D11Buffer* ib;
-	ID3D11InputLayout* inputLayout;
 	UINT tcount;
 	VertexType vertexType;
 };

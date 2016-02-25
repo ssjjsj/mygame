@@ -5,6 +5,7 @@
 #include <D3DX11.h>
 #include "global.h"
 #include "shaderResource.h"
+#include "Render.h"
 
 ShaderResource::ShaderResource(string name)
 {
@@ -92,9 +93,31 @@ void ShaderResource::loadShader(string name)
 	fprintf(fp, "%s", tVsSourceCode.c_str());
 	fclose(fp);
 
+	ID3D10Blob* errorMessage = NULL;
 	ID3D10Blob* shaderBuffer;
 	HRESULT result = D3DX11CompileFromFile(L"temp.hlsl", NULL, NULL, vsMainFunction.c_str(), "vs_5_0", 0, 0, NULL,
-		&shaderBuffer, NULL, NULL);
+		&shaderBuffer, &errorMessage, NULL);
+
+	// Create the vertex input layout.
+	D3D11_INPUT_ELEMENT_DESC vertexDesc[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+
+	if (errorMessage != NULL)
+	{
+		char *compileErrors = (char*)(errorMessage->GetBufferPointer());
+		string error = string(compileErrors, errorMessage->GetBufferSize());
+		errorMessage->Release();
+	}
+
+
+	ID3D11VertexShader *shader;
+	HRESULT hr = gRender->Device()->d3dDevice->CreateInputLayout(vertexDesc, 3, shaderBuffer->GetBufferPointer(),
+		shaderBuffer->GetBufferSize(), &inputLayout);
+
 
 	vsShaderCode.length = shaderBuffer->GetBufferSize();
 	vsShaderCode.data = new char[vsShaderCode.length];
@@ -110,7 +133,7 @@ void ShaderResource::loadShader(string name)
 	fclose(fp);
 	
 
-	ID3D10Blob* errorMessage = NULL;
+	errorMessage = NULL;
 	result = D3DX11CompileFromFile(L"temp.hlsl", NULL, NULL, psMainFunction.c_str(), "ps_5_0", 0, 0, NULL,
 		&shaderBuffer, &errorMessage, NULL);
 

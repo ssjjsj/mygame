@@ -44,7 +44,6 @@ void Mesh::setMaterial(string name)
 
 		MaterialRes::MaterialData data = res.getMaterialData(model.materialName);
 		Material *m = new Material(data);
-		g->setLayout(data.res->getVsShaderCode());
 		RenderAble *obj = new RenderAble(g, m);
 		renderAbleList.push_back(obj);
 	}
@@ -168,14 +167,8 @@ vector<MyVertex::ModelData> Mesh::getSkeletonModelData()
 		vertex.Pos = XMFLOAT3(fdata.x, fdata.y, fdata.z);
 		data.vertexs.push_back(vertex);
 
-		if (b->name == "Root")
-			vertex.Color = XMFLOAT4(1.0f, 0.0f, 0.0f, 0.0f);
-
 		//if (b->name == "Waist")
 		//	vertex.Color = XMFLOAT4(1.0f, 0.0f, 0.0f, 0.0f);
-
-		if (b->name == "Thigh.L")
-			vertex.Color = XMFLOAT4(0.0f, 1.0f, 0.0f, 0.0f);
 
 		Skeleton::Bone *root = curAnimation->GetSkeleton()->GetBone("root");
 		if (b == root || b->parent == root || true)

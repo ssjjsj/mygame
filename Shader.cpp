@@ -40,5 +40,7 @@ bool Shader::createShader(ShaderResource *res)
 		&psShader
 		);
 
+	inputLayout = res->getInputLayout();
+
 	return !FAILED(hr);
 }

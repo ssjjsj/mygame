@@ -21,5 +21,10 @@ void Texture::createTexture(string name)
 	name = TexturePath + name;
 	std::wstring stemp = std::wstring(name.begin(), name.end());
 	LPCWSTR texName = stemp.c_str();
-	D3DX11CreateShaderResourceViewFromFile(gRender->Device()->d3dDevice, texName, NULL, NULL, &texture, NULL);
+	HRESULT hr = D3DX11CreateShaderResourceViewFromFile(gRender->Device()->d3dDevice, texName, NULL, NULL, &texture, NULL);
+
+	if (FAILED(hr))
+	{
+		int i = 3;
+	}
 }

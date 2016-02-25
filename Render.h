@@ -3,6 +3,7 @@
 
 #include "RenderDevice.h"
 #include "renderAble.h"
+#include "Camera.h"
 //class RenderAble;
 
 class Render
@@ -25,5 +26,7 @@ private:
 	ID3D11RenderTargetView* renderTargetView;
 	ID3D11DepthStencilView* depthStencilView;
 	D3D11_VIEWPORT screenViewport;
+	ID3D11Buffer* matrixBuffer;
+	Camera *camera;
 };
 #endif

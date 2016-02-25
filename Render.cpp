@@ -7,12 +7,29 @@ Render::Render(RenderDevice *device)
 	renderTargetView = NULL;
 	depthStencilBuffer = NULL;
 	depthStencilView = NULL;
+	matrixBuffer = NULL;
+	camera = new Camera;
+
+	D3D11_BUFFER_DESC matrixBufferDesc;
+	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	matrixBufferDesc.ByteWidth = sizeof(XMFLOAT4X4);
+	matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	matrixBufferDesc.MiscFlags = 0;
+	matrixBufferDesc.StructureByteStride = 0;
+
+	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
+	renderDevice->d3dDevice->CreateBuffer(&matrixBufferDesc, NULL, &matrixBuffer);
+
 	onReset();
 }
 
 Render::~Render()
 {
 	delete renderDevice;
+
+	if (matrixBuffer != NULL)
+		matrixBuffer->Release();
 }
 
 
@@ -33,18 +50,15 @@ void Render::draw(vector<RenderAble*> renderAbles)
 		immediateContext->ClearRenderTargetView(renderTargetView, color);
 		immediateContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-		//set constant
-		//XMFLOAT4X4 mvpMatrix;
+		D3D11_MAPPED_SUBRESOURCE mappedResource;
+		immediateContext->Map(matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		XMFLOAT4X4* dataPtr = (XMFLOAT4X4*)mappedResource.pData;
+		//XMMATRIX vpoj = camera->ViewProj();
+		XMMATRIX vpoj = XMMatrixIdentity();
+		XMStoreFloat4x4(dataPtr, vpoj);
+		immediateContext->Unmap(matrixBuffer, 0);
+		immediateContext->VSSetConstantBuffers(0, 1, &matrixBuffer);
 
-		//XMVECTOR pos = XMVectorSet(1.0f, 2.0f, 1.0f, 1.0f);
-		//XMVECTOR target = XMVectorZero();
-		//XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-
-		//XMMATRIX V = XMMatrixLookAtLH(pos, target, up);
-		//XMStoreFloat4x4(&mvpMatrix, V);
-
-
-		////renderDevice->immediateContext->
 		
 
 		UINT stride = (UINT)Geometry::getVertexSize(g->getVertexType());
@@ -54,11 +68,17 @@ void Render::draw(vector<RenderAble*> renderAbles)
 		immediateContext->IASetVertexBuffers(0, 1, &vsBuffer, &stride, &offset);
 		immediateContext->IASetIndexBuffer(psBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-		immediateContext->IASetInputLayout(g->getLayout());
+		immediateContext->IASetInputLayout(m->getShader()->getInputLayout());
 		immediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		immediateContext->VSSetShader(m->getShader()->getVsShader(), NULL, 0);
 		immediateContext->PSSetShader(m->getShader()->getPsShader(), NULL, 0);
+
+		vector<Texture*> textures = m->getTextures();
+		Texture *tex = textures[0];
+		ID3D11ShaderResourceView* texRes = tex->getTexture();
+
+		immediateContext->PSSetShaderResources(0, 1, &texRes);
 
 		//immediateContext->OMSetDepthStencilState()
 

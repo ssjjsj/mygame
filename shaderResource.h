@@ -85,6 +85,8 @@ private:
 	string vsMainFunction;
 	string psMainFunction;
 
+	ID3D11InputLayout* inputLayout;
+
 	string shaderName;
 	void loadShader(string name);
 
@@ -98,6 +100,7 @@ public:
 	BlendModes getBlendMode() { return blendMode; }
 	TestModes getTestMode() { return testMode; }
 	CullModes getCullMode() { return cullMode; }
+	ID3D11InputLayout* getInputLayout() { return inputLayout; }
 };
 
 #endif
