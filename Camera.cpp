@@ -164,6 +164,16 @@ XMMATRIX Camera::ViewProj()const
 	return XMMatrixMultiply(View(), Proj());
 }
 
+
+XMFLOAT4X4 Camera::ViewProjData()const
+{
+	XMMATRIX m = XMMatrixMultiply(View(), Proj());
+	XMFLOAT4X4 data;
+	XMStoreFloat4x4(&data, m);
+
+	return data;
+}
+
 void Camera::Strafe(float d)
 {
 	// mPosition += d*mRight

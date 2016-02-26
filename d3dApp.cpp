@@ -148,7 +148,7 @@ LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		// Save the new client area dimensions.
 		mClientWidth  = LOWORD(lParam);
 		mClientHeight = HIWORD(lParam);
-		if( gRender->Device()->d3dDevice )
+		if( gRender && gRender->Device()->d3dDevice )
 		{
 			if( wParam == SIZE_MINIMIZED )
 			{

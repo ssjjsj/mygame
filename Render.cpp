@@ -8,6 +8,7 @@ Render::Render(RenderDevice *device)
 	depthStencilBuffer = NULL;
 	depthStencilView = NULL;
 	matrixBuffer = NULL;
+	sampleState = NULL;
 	camera = new Camera;
 
 	D3D11_BUFFER_DESC matrixBufferDesc;
@@ -20,6 +21,25 @@ Render::Render(RenderDevice *device)
 
 	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
 	renderDevice->d3dDevice->CreateBuffer(&matrixBufferDesc, NULL, &matrixBuffer);
+
+	
+	D3D11_SAMPLER_DESC samplerDesc;
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.MipLODBias = 0.0f;
+	samplerDesc.MaxAnisotropy = 1;
+	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	samplerDesc.BorderColor[0] = 0;
+	samplerDesc.BorderColor[1] = 0;
+	samplerDesc.BorderColor[2] = 0;
+	samplerDesc.BorderColor[3] = 0;
+	samplerDesc.MinLOD = 0;
+	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+	// Create the texture sampler state.
+	renderDevice->d3dDevice->CreateSamplerState(&samplerDesc, &sampleState);
 
 	onReset();
 }
@@ -35,6 +55,18 @@ Render::~Render()
 
 void Render::draw(vector<RenderAble*> renderAbles)
 {
+	camera->SetPosition(0.0f, 0.0f, -45.0f);
+	camera->UpdateViewMatrix();
+	XMMATRIX vpoj = camera->ViewProj();
+
+	ID3D11Device* d3dDevice = renderDevice->d3dDevice;
+	ID3D11DeviceContext* immediateContext = renderDevice->immediateContext;
+	IDXGISwapChain* swapChain = renderDevice->swapChain;
+
+	float color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	immediateContext->ClearRenderTargetView(renderTargetView, color);
+	immediateContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
 	for (int i = 0; i < renderAbles.size(); i++)
 	{
 		RenderAble *renderAble = renderAbles[i];
@@ -42,20 +74,11 @@ void Render::draw(vector<RenderAble*> renderAbles)
 		Geometry *g = renderAble->getGeometry();
 		Material *m = renderAble->getMaterial();
 
-		ID3D11Device* d3dDevice = renderDevice->d3dDevice;
-		ID3D11DeviceContext* immediateContext = renderDevice->immediateContext;
-		IDXGISwapChain* swapChain = renderDevice->swapChain;
-
-		float color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-		immediateContext->ClearRenderTargetView(renderTargetView, color);
-		immediateContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		immediateContext->Map(matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 		XMFLOAT4X4* dataPtr = (XMFLOAT4X4*)mappedResource.pData;
-		//XMMATRIX vpoj = camera->ViewProj();
-		XMMATRIX vpoj = XMMatrixIdentity();
-		XMStoreFloat4x4(dataPtr, vpoj);
+		*dataPtr = camera->ViewProjData();
 		immediateContext->Unmap(matrixBuffer, 0);
 		immediateContext->VSSetConstantBuffers(0, 1, &matrixBuffer);
 
@@ -63,10 +86,10 @@ void Render::draw(vector<RenderAble*> renderAbles)
 
 		UINT stride = (UINT)Geometry::getVertexSize(g->getVertexType());
 		UINT offset = 0;
-		ID3D11Buffer *vsBuffer = g->getVertexBuffer();
-		ID3D11Buffer *psBuffer = g->getIndexBuffer();
-		immediateContext->IASetVertexBuffers(0, 1, &vsBuffer, &stride, &offset);
-		immediateContext->IASetIndexBuffer(psBuffer, DXGI_FORMAT_R32_UINT, 0);
+		ID3D11Buffer *vertexBuffer = g->getVertexBuffer();
+		ID3D11Buffer *indexBuffer = g->getIndexBuffer();
+		immediateContext->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
+		immediateContext->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
 		immediateContext->IASetInputLayout(m->getShader()->getInputLayout());
 		immediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -79,14 +102,15 @@ void Render::draw(vector<RenderAble*> renderAbles)
 		ID3D11ShaderResourceView* texRes = tex->getTexture();
 
 		immediateContext->PSSetShaderResources(0, 1, &texRes);
+		immediateContext->PSSetSamplers(0, 1, &sampleState);
 
 		//immediateContext->OMSetDepthStencilState()
 
 
 		immediateContext->DrawIndexed(g->getIndexCount(), 0, 0);
-
-		swapChain->Present(0, 0);
 	}
+
+	renderDevice->swapChain->Present(0, 0);
 }
 
 
@@ -111,7 +135,7 @@ void Render::onReset()
 	swapChain->ResizeBuffers(1, width, height, DXGI_FORMAT_R8G8B8A8_UNORM, 0);
 	ID3D11Texture2D* backBuffer;
 	swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&backBuffer));
-	d3dDevice->CreateRenderTargetView(backBuffer, 0, &renderTargetView);
+	HRESULT hr = d3dDevice->CreateRenderTargetView(backBuffer, 0, &renderTargetView);
 	backBuffer->Release();
 
 	// Create the depth/stencil buffer and view.
@@ -159,6 +183,8 @@ void Render::onReset()
 	screenViewport.Height = static_cast<float>(height);
 	screenViewport.MinDepth = 0.0f;
 	screenViewport.MaxDepth = 1.0f;
+
+	camera->SetLens(3.14 / 4, (float)width / (float)height, 1.0f, 1000.0f);
 
 	immediateContext->RSSetViewports(1, &screenViewport);
 }
