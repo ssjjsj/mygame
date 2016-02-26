@@ -48,36 +48,33 @@ namespace OrgeMeshPaser
 				float ny = atof(curNormalElement->Attribute("y"));
 				float nz = atof(curNormalElement->Attribute("z"));
 
+				TiXmlElement *uvElement = (TiXmlElement*)curNormalElement->NextSibling();
+
+				float uvX = atof(uvElement->Attribute("v"));
+				float uvY = atof(uvElement->Attribute("u"));
+
 				v.Pos.x = x;
 				v.Pos.y = y;
 				v.Pos.z = -z;
 				v.Nor.x = nx;
 				v.Nor.y = ny;
 				v.Nor.z = nz;
+				v.UV.x = uvX;
+				v.UV.y = uvY;
 				model.vertexs.push_back(v);
 			}
-			
-			TiXmlNode *uvRootNode = vertexbufferNode->NextSibling();
-			int i = 0;
-			for (TiXmlNode* curUVNode = uvRootNode->FirstChild(); curUVNode != NULL; curUVNode = curUVNode->NextSibling())
-			{
-				TiXmlElement *uvElement = curUVNode->FirstChildElement();
-				model.vertexs[i].UV.x = atof(uvElement->Attribute("v"));
-				model.vertexs[i].UV.y = atof(uvElement->Attribute("u"));
-				i++;
-			}
 
-			TiXmlNode *boneVertexAssignRootNode = sharedgeometryNode->NextSibling();
-			for (TiXmlNode *curBoneVertexNode = boneVertexAssignRootNode->FirstChild();
-				curBoneVertexNode != NULL; curBoneVertexNode = curBoneVertexNode->NextSibling())
-			{
-				BoneVertexAssignment ass;
-				TiXmlElement *curBoneVertexElement = (TiXmlElement*)(curBoneVertexNode);
-				ass.vertexIndex = atoi(curBoneVertexElement->Attribute("vertexindex"));
-				ass.boneIndex = atoi(curBoneVertexElement->Attribute("boneindex"));
-				ass.weight = atof(curBoneVertexElement->Attribute("weight"));
-				model.boneVertexAssigns.push_back(ass);
-			}
+			//TiXmlNode *boneVertexAssignRootNode = sharedgeometryNode->NextSibling();
+			//for (TiXmlNode *curBoneVertexNode = boneVertexAssignRootNode->FirstChild();
+			//	curBoneVertexNode != NULL; curBoneVertexNode = curBoneVertexNode->NextSibling())
+			//{
+			//	BoneVertexAssignment ass;
+			//	TiXmlElement *curBoneVertexElement = (TiXmlElement*)(curBoneVertexNode);
+			//	ass.vertexIndex = atoi(curBoneVertexElement->Attribute("vertexindex"));
+			//	ass.boneIndex = atoi(curBoneVertexElement->Attribute("boneindex"));
+			//	ass.weight = atof(curBoneVertexElement->Attribute("weight"));
+			//	model.boneVertexAssigns.push_back(ass);
+			//}
 			
 
 			modelDatas.push_back(model);

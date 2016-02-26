@@ -88,7 +88,7 @@ bool SkullApp::Init()
 	if(!D3DApp::Init())
 		return false;
 
-	Mesh *m = new Mesh("cube.mesh.xml");
+	Mesh *m = new Mesh("Sinbad.mesh.xml");
 	m->setMaterial("ogre.material.xml");
 	gSceneManager.addMesh(m);
 

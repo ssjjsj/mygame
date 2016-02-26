@@ -78,7 +78,7 @@ void Render::draw(vector<RenderAble*> renderAbles)
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		immediateContext->Map(matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 		XMFLOAT4X4* dataPtr = (XMFLOAT4X4*)mappedResource.pData;
-		*dataPtr = camera->ViewProjData();
+		XMStoreFloat4x4(dataPtr, camera->Proj());
 		immediateContext->Unmap(matrixBuffer, 0);
 		immediateContext->VSSetConstantBuffers(0, 1, &matrixBuffer);
 
