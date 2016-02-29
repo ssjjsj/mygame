@@ -55,13 +55,14 @@ Render::~Render()
 
 void Render::draw(vector<RenderAble*> renderAbles)
 {
-	camera->SetPosition(0.0f, 0.0f, -45.0f);
-	camera->UpdateViewMatrix();
-	XMMATRIX vpoj = camera->ViewProj();
-
 	ID3D11Device* d3dDevice = renderDevice->d3dDevice;
 	ID3D11DeviceContext* immediateContext = renderDevice->immediateContext;
 	IDXGISwapChain* swapChain = renderDevice->swapChain;
+
+
+	XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f*3.14, 1.333, 1.0f, 1000.0f);
+	XMMATRIX V = camera->View();
+	XMMATRIX matrix = V*P;
 
 	float color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	immediateContext->ClearRenderTargetView(renderTargetView, color);
@@ -74,11 +75,10 @@ void Render::draw(vector<RenderAble*> renderAbles)
 		Geometry *g = renderAble->getGeometry();
 		Material *m = renderAble->getMaterial();
 
-
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		immediateContext->Map(matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 		XMFLOAT4X4* dataPtr = (XMFLOAT4X4*)mappedResource.pData;
-		XMStoreFloat4x4(dataPtr, camera->Proj());
+		XMStoreFloat4x4(dataPtr, matrix);
 		immediateContext->Unmap(matrixBuffer, 0);
 		immediateContext->VSSetConstantBuffers(0, 1, &matrixBuffer);
 
@@ -184,7 +184,7 @@ void Render::onReset()
 	screenViewport.MinDepth = 0.0f;
 	screenViewport.MaxDepth = 1.0f;
 
-	camera->SetLens(3.14 / 4, (float)width / (float)height, 1.0f, 1000.0f);
+	camera->SetLens(3.14 / 2, (float)width / (float)height, 1.0f, 1000.0f);
 
 	immediateContext->RSSetViewports(1, &screenViewport);
 }

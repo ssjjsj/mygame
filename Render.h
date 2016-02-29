@@ -20,6 +20,7 @@ public:
 	void draw(vector<RenderAble*> renderAbles);
 	RenderDevice* Device() { return renderDevice; }
 	void onReset();
+	Camera * getCamera() { return camera; }
 
 private:
 	ID3D11Texture2D* depthStencilBuffer;

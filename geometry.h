@@ -23,6 +23,8 @@ public:
 public:
 	void setLayout(SourceCode &code);
 	void setVertexData(vector<MyVertex::Vertex> &vertexs);
+	void updateVertexData(vector<MyVertex::Vertex> &vertexs);
+	void Geometry::updateIndexData(vector<UINT> &indices);
 	void setIndexData(vector<UINT> &indexs);
 	ID3D11Buffer* getVertexBuffer() { return vb; }
 	ID3D11Buffer* getIndexBuffer() { return ib; }

@@ -32,14 +32,37 @@ void Geometry::setVertexData(vector<MyVertex::Vertex> &vertices)
 }
 
 
+void Geometry::updateVertexData(vector<MyVertex::Vertex> &vertexs)
+{
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
+	auto d3dContext = gRender->Device()->immediateContext;
+	d3dContext->Map(vb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	memcpy(mappedResource.pData, &vertexs[0], vertexs.size()*sizeof(MyVertex::Vertex));
+	d3dContext->Unmap(vb, 0);
+}
+
+
+void Geometry::updateIndexData(vector<UINT> &indices)
+{
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
+	auto d3dContext = gRender->Device()->immediateContext;
+	d3dContext->Map(ib, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	memcpy(mappedResource.pData, &indices[0], indices.size()*sizeof(UINT));
+	d3dContext->Unmap(ib, 0);
+}
+
+
 void Geometry::setIndexData(vector<UINT> &indices)
 {
 	tcount = indices.size();
 	D3D11_BUFFER_DESC ibd;
-	ibd.Usage = D3D11_USAGE_IMMUTABLE;
+	//ibd.Usage = D3D11_USAGE_IMMUTABLE;
+	ibd.Usage = D3D11_USAGE_DYNAMIC;
 	ibd.ByteWidth = sizeof(UINT) * tcount;
 	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	ibd.CPUAccessFlags = 0;
+	ibd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	ibd.MiscFlags = 0;
 	D3D11_SUBRESOURCE_DATA iinitData;
 	iinitData.pSysMem = &indices[0];

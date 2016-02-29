@@ -9,7 +9,7 @@ namespace MyVertex
 {
 	struct Vertex
 	{
-		XMFLOAT3 Pos;
+		XMFLOAT4 Pos;
 		XMFLOAT3 Nor;
 		XMFLOAT2 UV;
 	};

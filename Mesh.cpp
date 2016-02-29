@@ -2,6 +2,8 @@
 using namespace MyVertex;
 #include <map>
 #include "MathHelp.h"
+#include "global.h"
+#include "Render.h"
 using namespace std;
 
 Mesh::Mesh()
@@ -70,10 +72,33 @@ void Mesh::playAnimation(string animationName)
 
 void Mesh::update(float deltaTime)
 {
-	if (curAnimation != NULL)
+	//if (curAnimation != NULL)
+	//{
+	//	curAnimation->update(deltaTime);
+	//	skin();
+	//}
+
+	for (int i = 0; i < renderAbleList.size(); i++)
 	{
-		curAnimation->update(deltaTime);
-		skin();
+		RenderAble *obj = renderAbleList[i];
+
+		ModelData &model = subMeshAry[i];
+		vector<Vertex> newVertexs;
+		for (int j = 0; j < model.vertexs.size(); j++)
+		{
+			Vertex v = model.vertexs[j];
+			
+			XMMATRIX vp = gRender->getCamera()->ViewProj();
+			XMFLOAT4 newPos = XMFLOAT4(v.Pos.x, v.Pos.y, v.Pos.z, 1.0f);
+			XMVECTOR vector = XMVector4Transform(XMLoadFloat4(&newPos), vp);
+			XMStoreFloat4(&newPos, vector);
+			Vertex newVertex;
+			newVertex.Pos = newPos;
+			newVertex.UV = v.UV;
+			newVertexs.push_back(newVertex);
+		}
+
+		obj->getGeometry()->updateVertexData(newVertexs);
 	}
 }
 
@@ -117,8 +142,8 @@ void Mesh::skin()
 
 		for (map<int, XMFLOAT3>::iterator it = posMap.begin(); it != posMap.end(); it++)
 		{
-			XMFLOAT3 pos = it->second;
-			skinedMeshAry[indexSubMesh].vertexs[it->first].Pos = pos;
+			//XMFLOAT3 pos = it->second;
+			//skinedMeshAry[indexSubMesh].vertexs[it->first].Pos = pos;
 		}
 	}
 }
@@ -164,7 +189,7 @@ vector<MyVertex::ModelData> Mesh::getSkeletonModelData()
 		XMVECTOR vector = XMVector4Transform(XMLoadFloat4(&v), XMLoadFloat4x4(&b->globalMatrix));
 		XMFLOAT4 fdata;
 		XMStoreFloat4(&fdata, vector);
-		vertex.Pos = XMFLOAT3(fdata.x, fdata.y, fdata.z);
+		//vertex.Pos = XMFLOAT3(fdata.x, fdata.y, fdata.z);
 		data.vertexs.push_back(vertex);
 
 		//if (b->name == "Waist")

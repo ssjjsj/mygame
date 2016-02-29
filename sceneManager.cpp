@@ -6,7 +6,7 @@ void SceneManager::update(float delta)
 {
 	for (int i = 0; i < meshAry.size(); i++)
 	{
-		//meshAry[i]->update(delta);
+		meshAry[i]->update(delta);
 	}
 }
 

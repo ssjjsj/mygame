@@ -14,6 +14,8 @@
 #include "sceneManager.h"
 #include "global.h"
 #include "shaderResource.h"
+#include "global.h"
+#include "Render.h"
  
 
 
@@ -67,6 +69,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 SkullApp::SkullApp(HINSTANCE hInstance)
 : D3DApp(hInstance)
 {
+	mPhi = 0.0f;
+	mTheta = 0.0f;
+	mRadius = 0.0f;
 	mMainWndCaption = L"Skull Demo";
 	
 	mLastMousePos.x = 0;
@@ -99,8 +104,8 @@ void SkullApp::OnResize()
 {
 	D3DApp::OnResize();
 
-	XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f*3.14f, AspectRatio(), 1.0f, 1000.0f);
-	XMStoreFloat4x4(&mProj, P);
+	//XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f*3.14f, AspectRatio(), 1.0f, 1000.0f);
+	//XMStoreFloat4x4(&mProj, P);
 }
 
 void SkullApp::UpdateScene(float dt)
@@ -115,8 +120,11 @@ void SkullApp::UpdateScene(float dt)
 	XMVECTOR target = XMVectorZero();
 	XMVECTOR up     = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
-	XMMATRIX V = XMMatrixLookAtLH(pos, target, up);
-	XMStoreFloat4x4(&mView, V);
+	//XMMATRIX V = XMMatrixLookAtLH(pos, target, up);
+	//XMStoreFloat4x4(&mView, V);
+
+	gRender->getCamera()->SetPosition(0.0f, 0.0f, mPhi);
+	gRender->getCamera()->UpdateViewMatrix();
 
 	gSceneManager.update(dt);
 	gSceneManager.render();
