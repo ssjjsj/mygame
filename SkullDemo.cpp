@@ -116,15 +116,17 @@ void SkullApp::UpdateScene(float dt)
 	float y = mRadius*cosf(mPhi);
 
 	// Build the view matrix.
-	XMVECTOR pos    = XMVectorSet(x, y, z, 1.0f);
+	XMVECTOR pos    = XMVectorSet(x, y, z, -10.0f);
 	XMVECTOR target = XMVectorZero();
 	XMVECTOR up     = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
 	//XMMATRIX V = XMMatrixLookAtLH(pos, target, up);
 	//XMStoreFloat4x4(&mView, V);
 
-	gRender->getCamera()->SetPosition(0.0f, 0.0f, mPhi);
-	gRender->getCamera()->UpdateViewMatrix();
+	//gRender->getCamera()->SetPosition(0.0f, 0.0f, mPhi);
+	XMMATRIX m = XMMatrixTranslation(0.0f, 0.0f, mPhi);
+	XMStoreFloat4x4(&gRender->getCamera()->viewM, m);
+	//gRender->getCamera()->UpdateViewMatrix();
 
 	gSceneManager.update(dt);
 	gSceneManager.render();

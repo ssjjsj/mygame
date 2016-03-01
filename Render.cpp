@@ -9,18 +9,42 @@ Render::Render(RenderDevice *device)
 	depthStencilView = NULL;
 	matrixBuffer = NULL;
 	sampleState = NULL;
+	rasterState = NULL;
 	camera = new Camera;
 
+	D3D11_RASTERIZER_DESC rasterDesc;
+	ZeroMemory(&rasterDesc, sizeof(D3D11_RASTERIZER_DESC));
+	rasterDesc.AntialiasedLineEnable = false;
+	rasterDesc.CullMode = D3D11_CULL_BACK;
+	rasterDesc.DepthBias = 0;
+	rasterDesc.DepthBiasClamp = 0.0f;
+	rasterDesc.DepthClipEnable = true;
+	rasterDesc.FillMode = D3D11_FILL_SOLID;
+	rasterDesc.FrontCounterClockwise = false;
+	rasterDesc.MultisampleEnable = false;
+	rasterDesc.ScissorEnable = false;
+	rasterDesc.SlopeScaledDepthBias = 0.0f;
+	renderDevice->d3dDevice->CreateRasterizerState(&rasterDesc, &rasterState);
+
+	//D3D11_BUFFER_DESC matrixBufferDesc;
+	//ZeroMemory(&matrixBufferDesc, sizeof(D3D11_BUFFER_DESC));
+	//matrixBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	//matrixBufferDesc.ByteWidth = sizeof(XMFLOAT4X4);
+	//matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	//matrixBufferDesc.CPUAccessFlags = 0;
+
 	D3D11_BUFFER_DESC matrixBufferDesc;
+	ZeroMemory(&matrixBufferDesc, sizeof(D3D11_BUFFER_DESC));
 	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	matrixBufferDesc.ByteWidth = sizeof(XMFLOAT4X4);
 	matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	matrixBufferDesc.MiscFlags = 0;
-	matrixBufferDesc.StructureByteStride = 0;
 
 	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-	renderDevice->d3dDevice->CreateBuffer(&matrixBufferDesc, NULL, &matrixBuffer);
+	if FAILED(renderDevice->d3dDevice->CreateBuffer(&matrixBufferDesc, NULL, &matrixBuffer))
+	{
+		int i = 3;
+	}
 
 	
 	D3D11_SAMPLER_DESC samplerDesc;
@@ -50,6 +74,24 @@ Render::~Render()
 
 	if (matrixBuffer != NULL)
 		matrixBuffer->Release();
+
+	if (rasterState != NULL)
+		rasterState->Release();
+
+	if (sampleState != NULL)
+		sampleState->Release();
+
+
+	if (renderTargetView != NULL)
+		renderTargetView->Release();
+
+
+	if (depthStencilBuffer != NULL)
+		depthStencilBuffer->Release();
+
+
+	if (sampleState != NULL)
+		depthStencilView->Release();
 }
 
 
@@ -60,9 +102,11 @@ void Render::draw(vector<RenderAble*> renderAbles)
 	IDXGISwapChain* swapChain = renderDevice->swapChain;
 
 
-	XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f*3.14, 1.333, 1.0f, 1000.0f);
-	XMMATRIX V = camera->View();
-	XMMATRIX matrix = V*P;
+	XMMATRIX matrix = XMLoadFloat4x4(&gRender->camera->viewM);
+	XMMATRIX p = XMMatrixPerspectiveFovLH(3.14 / 2, (float)800 / float(600), 1.0f, 100.0f);
+	matrix = matrix * p;
+	XMMATRIX s = XMMatrixScaling(0.1f, 0.1f, 0.1f);
+	matrix = s*matrix;
 
 	float color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	immediateContext->ClearRenderTargetView(renderTargetView, color);
@@ -75,15 +119,7 @@ void Render::draw(vector<RenderAble*> renderAbles)
 		Geometry *g = renderAble->getGeometry();
 		Material *m = renderAble->getMaterial();
 
-		D3D11_MAPPED_SUBRESOURCE mappedResource;
-		immediateContext->Map(matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-		XMFLOAT4X4* dataPtr = (XMFLOAT4X4*)mappedResource.pData;
-		XMStoreFloat4x4(dataPtr, matrix);
-		immediateContext->Unmap(matrixBuffer, 0);
-		immediateContext->VSSetConstantBuffers(0, 1, &matrixBuffer);
-
 		
-
 		UINT stride = (UINT)Geometry::getVertexSize(g->getVertexType());
 		UINT offset = 0;
 		ID3D11Buffer *vertexBuffer = g->getVertexBuffer();
@@ -96,6 +132,22 @@ void Render::draw(vector<RenderAble*> renderAbles)
 
 		immediateContext->VSSetShader(m->getShader()->getVsShader(), NULL, 0);
 		immediateContext->PSSetShader(m->getShader()->getPsShader(), NULL, 0);
+
+		D3D11_MAPPED_SUBRESOURCE mappedResource;
+		immediateContext->Map(matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		XMFLOAT4X4* dataPtr = (XMFLOAT4X4*)mappedResource.pData;
+		XMFLOAT4X4 data;
+		XMStoreFloat4x4(&data, matrix);
+		memcpy(dataPtr, &data, sizeof(XMFLOAT4X4));
+		immediateContext->Unmap(matrixBuffer, 0);
+		immediateContext->VSSetConstantBuffers(0, 1, &matrixBuffer);
+
+
+		//XMFLOAT4X4 data;
+		//XMMatrixTranspose(matrix);
+		//XMStoreFloat4x4(&data, matrix);
+		//immediateContext->UpdateSubresource(matrixBuffer, 0, NULL, &data, 0, 0);
+
 
 		vector<Texture*> textures = m->getTextures();
 		Texture *tex = textures[0];
@@ -184,7 +236,7 @@ void Render::onReset()
 	screenViewport.MinDepth = 0.0f;
 	screenViewport.MaxDepth = 1.0f;
 
-	camera->SetLens(3.14 / 2, (float)width / (float)height, 1.0f, 1000.0f);
+	camera->SetLens(3.14, (float)width / (float)height, 1.0f, 1000.0f);
 
 	immediateContext->RSSetViewports(1, &screenViewport);
 }

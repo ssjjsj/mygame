@@ -10,7 +10,7 @@ Camera::Camera()
 	  mUp(0.0f, 1.0f, 0.0f),
 	  mLook(0.0f, 0.0f, 1.0f)
 {
-	SetLens(0.25f*3.14f, 1.0f, 1.0f, 1000.0f);
+	//SetLens(0.25f*3.14f, 1.0f, 1.0f, 1000.0f);
 }
 
 Camera::~Camera()
@@ -82,36 +82,36 @@ float Camera::GetAspect()const
 	return mAspect;
 }
 
-float Camera::GetFovY()const
-{
-	return mFovY;
-}
+//float Camera::GetFovY()const
+//{
+//	return mFovY;
+//}
+//
+//float Camera::GetFovX()const
+//{
+//	float halfWidth = 0.5f*GetNearWindowWidth();
+//	return 2.0f*atan(halfWidth / mNearZ);
+//}
 
-float Camera::GetFovX()const
-{
-	float halfWidth = 0.5f*GetNearWindowWidth();
-	return 2.0f*atan(halfWidth / mNearZ);
-}
-
-float Camera::GetNearWindowWidth()const
-{
-	return mAspect * mNearWindowHeight;
-}
-
-float Camera::GetNearWindowHeight()const
-{
-	return mNearWindowHeight;
-}
-
-float Camera::GetFarWindowWidth()const
-{
-	return mAspect * mFarWindowHeight;
-}
-
-float Camera::GetFarWindowHeight()const
-{
-	return mFarWindowHeight;
-}
+//float Camera::GetNearWindowWidth()const
+//{
+//	return mAspect * mNearWindowHeight;
+//}
+//
+//float Camera::GetNearWindowHeight()const
+//{
+//	return mNearWindowHeight;
+//}
+//
+//float Camera::GetFarWindowWidth()const
+//{
+//	return mAspect * mFarWindowHeight;
+//}
+//
+//float Camera::GetFarWindowHeight()const
+//{
+//	return mFarWindowHeight;
+//}
 
 void Camera::SetLens(float fovY, float aspect, float zn, float zf)
 {
@@ -121,10 +121,10 @@ void Camera::SetLens(float fovY, float aspect, float zn, float zf)
 	mNearZ = zn;
 	mFarZ = zf;
 
-	mNearWindowHeight = 2.0f * mNearZ * tanf( 0.5f*mFovY );
-	mFarWindowHeight  = 2.0f * mFarZ * tanf( 0.5f*mFovY );
+	//mNearWindowHeight = 2.0f * mNearZ * tanf( 0.5f*mFovY );
+	//mFarWindowHeight  = 2.0f * mFarZ * tanf( 0.5f*mFovY );
 
-	XMMATRIX P = XMMatrixPerspectiveFovLH(mFovY, mAspect, mNearZ, mFarZ);
+	XMMATRIX P = XMMatrixPerspectiveFovLH(0.5*mFovY, mAspect, mNearZ, mFarZ);
 	XMStoreFloat4x4(&mProj, P);
 }
 

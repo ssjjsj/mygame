@@ -78,28 +78,30 @@ void Mesh::update(float deltaTime)
 	//	skin();
 	//}
 
-	for (int i = 0; i < renderAbleList.size(); i++)
-	{
-		RenderAble *obj = renderAbleList[i];
+	//for (int i = 0; i < renderAbleList.size(); i++)
+	//{
+	//	RenderAble *obj = renderAbleList[i];
 
-		ModelData &model = subMeshAry[i];
-		vector<Vertex> newVertexs;
-		for (int j = 0; j < model.vertexs.size(); j++)
-		{
-			Vertex v = model.vertexs[j];
-			
-			XMMATRIX vp = gRender->getCamera()->ViewProj();
-			XMFLOAT4 newPos = XMFLOAT4(v.Pos.x, v.Pos.y, v.Pos.z, 1.0f);
-			XMVECTOR vector = XMVector4Transform(XMLoadFloat4(&newPos), vp);
-			XMStoreFloat4(&newPos, vector);
-			Vertex newVertex;
-			newVertex.Pos = newPos;
-			newVertex.UV = v.UV;
-			newVertexs.push_back(newVertex);
-		}
+	//	ModelData &model = subMeshAry[i];
+	//	vector<Vertex> newVertexs;
+	//	for (int j = 0; j < model.vertexs.size(); j++)
+	//	{
+	//		Vertex v = model.vertexs[j];
+	//		
+	//		XMMATRIX vp = gRender->getCamera()->ViewProj();
+	//		XMMATRIX s = XMMatrixScaling(0.1f, 0.1f, 0.1f);
+	//		vp = s*vp;
+	//		XMFLOAT4 newPos = XMFLOAT4(v.Pos.x, v.Pos.y, v.Pos.z, 1.0f);
+	//		XMVECTOR vector = XMVector4Transform(XMLoadFloat4(&newPos), vp);
+	//		XMStoreFloat4(&newPos, vector);
+	//		Vertex newVertex;
+	//		newVertex.Pos = newPos;
+	//		newVertex.UV = v.UV;
+	//		newVertexs.push_back(newVertex);
+	//	}
 
-		obj->getGeometry()->updateVertexData(newVertexs);
-	}
+	//	obj->getGeometry()->updateVertexData(newVertexs);
+	//}
 }
 
 

@@ -30,5 +30,6 @@ private:
 	ID3D11Buffer* matrixBuffer;
 	ID3D11SamplerState* sampleState;
 	Camera *camera;
+	ID3D11RasterizerState* rasterState;
 };
 #endif

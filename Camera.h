@@ -24,6 +24,8 @@ public:
 	XMFLOAT3 GetPosition()const;
 	void SetPosition(float x, float y, float z);
 	void SetPosition(const XMFLOAT3& v);
+
+	XMFLOAT4X4 viewM;
 	
 	// Get camera basis vectors.
 	XMVECTOR GetRightXM()const;
@@ -37,14 +39,14 @@ public:
 	float GetNearZ()const;
 	float GetFarZ()const;
 	float GetAspect()const;
-	float GetFovY()const;
-	float GetFovX()const;
+	//float GetFovY()const;
+	//float GetFovX()const;
 
 	// Get near and far plane dimensions in view space coordinates.
-	float GetNearWindowWidth()const;
-	float GetNearWindowHeight()const;
-	float GetFarWindowWidth()const;
-	float GetFarWindowHeight()const;
+	//float GetNearWindowWidth()const;
+	//float GetNearWindowHeight()const;
+	//float GetFarWindowWidth()const;
+	//float GetFarWindowHeight()const;
 	
 	// Set frustum.
 	void SetLens(float fovY, float aspect, float zn, float zf);
@@ -83,8 +85,8 @@ private:
 	float mFarZ;
 	float mAspect;
 	float mFovY;
-	float mNearWindowHeight;
-	float mFarWindowHeight;
+	//float mNearWindowHeight;
+	//float mFarWindowHeight;
 
 	// Cache View/Proj matrices.
 	XMFLOAT4X4 mView;
