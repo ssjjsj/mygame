@@ -102,11 +102,12 @@ void Render::draw(vector<RenderAble*> renderAbles)
 	IDXGISwapChain* swapChain = renderDevice->swapChain;
 
 
-	XMMATRIX matrix = XMLoadFloat4x4(&gRender->camera->viewM);
+	XMMATRIX matrix = XMMatrixTranslation(0.0f, 0.0f, 1.5f);
 	XMMATRIX p = XMMatrixPerspectiveFovLH(3.14 / 2, (float)800 / float(600), 1.0f, 100.0f);
 	matrix = matrix * p;
-	XMMATRIX s = XMMatrixScaling(0.1f, 0.1f, 0.1f);
+	XMMATRIX s = XMMatrixScaling(0.2f, 0.2f, 0.2f);
 	matrix = s*matrix;
+	matrix = XMMatrixTranspose(matrix);
 
 	float color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	immediateContext->ClearRenderTargetView(renderTargetView, color);

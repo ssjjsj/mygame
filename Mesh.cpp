@@ -72,11 +72,20 @@ void Mesh::playAnimation(string animationName)
 
 void Mesh::update(float deltaTime)
 {
-	//if (curAnimation != NULL)
-	//{
-	//	curAnimation->update(deltaTime);
-	//	skin();
-	//}
+	if (curAnimation != NULL)
+	{
+		curAnimation->update(deltaTime);
+		skin();
+	}
+
+	for (int i = 0; i < skinedMeshAry.size(); i++)
+	{
+		ModelData &data = skinedMeshAry[i];
+		RenderAble *obj = renderAbleList[i];
+
+		obj->getGeometry()->updateVertexData(data.vertexs);
+	}
+
 
 	//for (int i = 0; i < renderAbleList.size(); i++)
 	//{
@@ -144,8 +153,8 @@ void Mesh::skin()
 
 		for (map<int, XMFLOAT3>::iterator it = posMap.begin(); it != posMap.end(); it++)
 		{
-			//XMFLOAT3 pos = it->second;
-			//skinedMeshAry[indexSubMesh].vertexs[it->first].Pos = pos;
+			XMFLOAT3 pos = it->second;
+			skinedMeshAry[indexSubMesh].vertexs[it->first].Pos = pos;
 		}
 	}
 }

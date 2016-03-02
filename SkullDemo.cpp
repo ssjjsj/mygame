@@ -95,6 +95,7 @@ bool SkullApp::Init()
 
 	Mesh *m = new Mesh("Sinbad.mesh.xml");
 	m->setMaterial("ogre.material.xml");
+	m->playAnimation("Sinbad");
 	gSceneManager.addMesh(m);
 
 	return true;
