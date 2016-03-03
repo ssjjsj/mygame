@@ -1,53 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
 <materials>
 	<material name = "Sinbad/Body">
-		<shader name = "basic.shader.xml">
-		<texture name = "sinbad_body.tga">
-	<material>
-		<material name = "Sinbad/Gold">
-		<shader name = "basic.shader.xml">
-		<texture name = "sinbad_clothes.tga">
-	<material>
-		<material name = "Sinbad/Sheaths">
-		<shader name = "basic.shader.xml">
-		<texture name = "sinbad_sword.tga">
-	<material>
+		<shader name = "basic.shader.xml"/>
+		<texture name = "sinbad_body.dds"/>
+	</material>
+	
+	
+	<material name = "Sinbad/Gold">
+		<shader name = "basic.shader.xml"/>
+		<texture name = "sinbad_clothes.dds"/>
+	</material>
+	
+	<material name = "Sinbad/Sheaths">
+		<shader name = "basic.shader.xml" />
+		<texture name = "sinbad_sword.dds" />
+	</material>
 	
 	<material name = "Sinbad/Clothes">
-		<shader name = "basic.shader.xml">
-		<texture name = "sinbad_clothes.tga">
-	<material>
-		<material name = "Sinbad/Teeth">
-		<shader name = "basic.shader.xml">
-		<texture name = "sinbad_body.tga">
-	<material>
-		<material name = "Sinbad/Eyes">
-		<shader name = "basic.shader.xml">
-		<texture name = "sinbad_body.tga">
-	<material>
+		<shader name = "basic.shader.xml" />
+		<texture name = "sinbad_clothes.dds" />
+	</material>
+	
+	<material name = "Sinbad/Teeth">
+		<shader name = "basic.shader.xml" />
+		<texture name = "sinbad_body.dds" />
+	</material>
+	
+	<material name = "Sinbad/Eyes">
+		<shader name = "basic.shader.xml" />
+		<texture name = "sinbad_body.dds" />
+	</material>
 	
 	<material name = "Sinbad/Spikes">
-		<shader name = "basic.shader.xml">
-		<texture name = "sinbad_clothes.tga">
-	<material>
-		<material name = "Sinbad/Blade">
-		<shader name = "basic.shader.xml">
-		<texture name = "sinbad_sword.tga">
-	<material>
-		<material name = "Sinbad/Ruby">
-		<shader name = "basic.shader.xml">
-		<texture name = "sinbad_sword.tga">
-	<material>
+		<shader name = "basic.shader.xml"/>
+		<texture name = "sinbad_clothes.dds"/>
+	</material>
 	
-	<material>
-		<material name = "Sinbad/Hilt">
-		<shader name = "basic.shader.xml">
-		<texture name = "sinbad_sword.tga">
-	<material>
+	<material name = "Sinbad/Blade">
+		<shader name = "basic.shader.xml"/>
+		<texture name = "sinbad_sword.dds"/>
+	</material>
 	
-	<material>
-		<material name = "Sinbad/Handle">
-		<shader name = "basic.shader.xml">
-		<texture name = "sinbad_sword.tga">
-	<material>
-<materials>
+	<material name = "Sinbad/Ruby">
+		<shader name = "basic.shader.xml"/>
+		<texture name = "sinbad_sword.dds"/>
+	</material>
+	
+	<material name = "Sinbad/Hilt">
+		<shader name = "basic.shader.xml"/>
+		<texture name = "sinbad_sword.dds"/>
+	</material>
+	
+	<material name = "Cat">
+		<shader name = "basic.shader.xml"/>
+		<texture name = "cat_pet.dds"/>
+	</material>
+	
+	<material name = "BaseWhite">
+		<shader name = "basic.shader.xml"/>
+		<texture name = "cat_pet.dds"/>
+	</material>
+	
+	<material name = "Sinbad/Handle">
+		<shader name = "basic.shader.xml"/>
+		<texture name = "sinbad_sword.dds"/>
+	</material>
+	
+	<material name = "terrain">
+		<shader name = "terrain.shader.xml"/>
+		<texture name = ""/>
+	</material>
+</materials>
