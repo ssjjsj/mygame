@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shader vsMainFunction = "VS" psMainFunction = "PS">
+	
+	<properties>
+		<property type="Matrix" name = "gWorldViewProj" />
+		<property type="Texture" name = "gDiffuseMap" />
+	</properties>
+	
+	<states>
+		<state type = "" data = "" />
+	</states>
+	
+	<vsShader program = 
+	
+	"
+	cbuffer cbPerObject
+	{
+		float4x4 gWorldViewProj; 
+	};
+	
+	
+	struct VertexIn
+	{
+		float3 Pos   : POSITION;
+		float3 Nor :	NORMAL;
+		//float4 Color : COLOR;
+		float2 UV : TEXCOORD0;
+	};
+
+	struct VertexOut
+	{
+		float4 PosH  : SV_POSITION;
+		//float4 Color : COLOR;
+	};
+
+	VertexOut VS(VertexIn vin)
+	{
+		VertexOut vout;
+	
+		// Transform to homogeneous clip space.
+		
+		vout.PosH = mul(float4(vin.Pos, 1.0f), gWorldViewProj);
+    
+		return vout;
+	}"
+	/>
+	
+	
+	
+	<psShader program = "
+	struct VertexOut
+	{
+		float4 PosH  : SV_POSITION;
+		//float4 Color : COLOR;
+	};
+	
+	float4 PS(VertexOut pin) : SV_TARGET
+	{
+		return float4(1.0f, 0.0f, 0.0f, 1.0f);
+	}"
+	/>
+	
+</shader>
+	  
