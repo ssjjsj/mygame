@@ -2,6 +2,22 @@
 #include "global.h"
 #include "Render.h"
 
+SceneManager::SceneManager()
+{
+}
+
+SceneManager::~SceneManager()
+{
+	delete terrain;
+}
+
+void SceneManager::createTerrain()
+{
+	terrain = new Terrain();
+	terrain->loadData("");
+	terrain->generateRenderAbles();
+}
+
 void SceneManager::update(float delta)
 {
 	for (int i = 0; i < meshAry.size(); i++)
@@ -22,6 +38,12 @@ void SceneManager::render()
 		{
 			renderAbleAry.push_back(renderAbles[j]);
 		}
+	}
+
+	vector<RenderAble*>& renderAbles = terrain->getRenderAbles();
+	for (int j = 0; j < renderAbles.size(); j++)
+	{
+		renderAbleAry.push_back(renderAbles[j]);
 	}
 
 	gRender->draw(renderAbleAry);

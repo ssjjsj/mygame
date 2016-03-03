@@ -19,7 +19,7 @@ Render::Render(RenderDevice *device)
 	rasterDesc.DepthBias = 0;
 	rasterDesc.DepthBiasClamp = 0.0f;
 	rasterDesc.DepthClipEnable = true;
-	rasterDesc.FillMode = D3D11_FILL_SOLID;
+	rasterDesc.FillMode = D3D11_FILL_WIREFRAME;
 	rasterDesc.FrontCounterClockwise = false;
 	rasterDesc.MultisampleEnable = false;
 	rasterDesc.ScissorEnable = false;
@@ -102,11 +102,7 @@ void Render::draw(vector<RenderAble*> renderAbles)
 	IDXGISwapChain* swapChain = renderDevice->swapChain;
 
 
-	XMMATRIX matrix = XMMatrixTranslation(0.0f, 0.0f, 1.5f);
-	XMMATRIX p = XMMatrixPerspectiveFovLH(3.14 / 2, (float)800 / float(600), 1.0f, 100.0f);
-	matrix = matrix * p;
-	XMMATRIX s = XMMatrixScaling(0.2f, 0.2f, 0.2f);
-	matrix = s*matrix;
+	XMMATRIX matrix = camera->ViewProj();
 	matrix = XMMatrixTranspose(matrix);
 
 	float color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -151,11 +147,14 @@ void Render::draw(vector<RenderAble*> renderAbles)
 
 
 		vector<Texture*> textures = m->getTextures();
-		Texture *tex = textures[0];
-		ID3D11ShaderResourceView* texRes = tex->getTexture();
+		if (textures.size() > 0)
+		{
+			Texture *tex = textures[0];
+			ID3D11ShaderResourceView* texRes = tex->getTexture();
 
-		immediateContext->PSSetShaderResources(0, 1, &texRes);
-		immediateContext->PSSetSamplers(0, 1, &sampleState);
+			immediateContext->PSSetShaderResources(0, 1, &texRes);
+			immediateContext->PSSetSamplers(0, 1, &sampleState);
+		}
 
 		//immediateContext->OMSetDepthStencilState()
 

@@ -33,6 +33,7 @@ public:
 	void OnMouseDown(WPARAM btnState, int x, int y);
 	void OnMouseUp(WPARAM btnState, int x, int y);
 	void OnMouseMove(WPARAM btnState, int x, int y);
+	void OnMouseWheel(int delta);
 
 private:
 	XMFLOAT4X4 mView;
@@ -41,6 +42,7 @@ private:
 	float mTheta;
 	float mPhi;
 	float mRadius;
+	float mWheel;
 
 	SceneManager gSceneManager;
 
@@ -72,6 +74,7 @@ SkullApp::SkullApp(HINSTANCE hInstance)
 	mPhi = 0.0f;
 	mTheta = 0.0f;
 	mRadius = 0.0f;
+	mWheel = 0.0f;
 	mMainWndCaption = L"Skull Demo";
 	
 	mLastMousePos.x = 0;
@@ -93,10 +96,20 @@ bool SkullApp::Init()
 	if(!D3DApp::Init())
 		return false;
 
-	Mesh *m = new Mesh("Sinbad.mesh.xml");
-	m->setMaterial("ogre.material.xml");
-	m->playAnimation("Sinbad");
-	gSceneManager.addMesh(m);
+	//Mesh *m = new Mesh("Sinbad.mesh.xml");
+	//m->setMaterial("ogre.material.xml");
+	//m->playAnimation("Sinbad");
+	//gSceneManager.addMesh(m);
+
+	gSceneManager.createTerrain();
+
+	XMVECTOR pos = XMVectorSet(0, 5, 50, 1.0f);
+	XMVECTOR target = XMVectorSet(50, 0, 50.0f, 0.0f);
+	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+
+	//XMMATRIX V = XMMatrixLookAtLH(pos, target, up);
+	gRender->getCamera()->LookAt(pos, target, up);
+	gRender->getCamera()->UpdateViewMatrix();
 
 	return true;
 }
@@ -116,18 +129,10 @@ void SkullApp::UpdateScene(float dt)
 	float z = mRadius*sinf(mPhi)*sinf(mTheta);
 	float y = mRadius*cosf(mPhi);
 
-	// Build the view matrix.
-	XMVECTOR pos    = XMVectorSet(x, y, z, -10.0f);
-	XMVECTOR target = XMVectorZero();
-	XMVECTOR up     = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-
-	//XMMATRIX V = XMMatrixLookAtLH(pos, target, up);
-	//XMStoreFloat4x4(&mView, V);
-
-	//gRender->getCamera()->SetPosition(0.0f, 0.0f, mPhi);
-	XMMATRIX m = XMMatrixTranslation(0.0f, 0.0f, mPhi);
-	XMStoreFloat4x4(&gRender->getCamera()->viewM, m);
-	//gRender->getCamera()->UpdateViewMatrix();
+	Camera *camera = gRender->getCamera();
+	XMFLOAT3 pos = camera->GetPosition();
+	camera->SetPosition(pos.x, pos.y - 0.1f*mPhi, pos.z - 0.1f*mTheta);
+	camera->UpdateViewMatrix();
 
 	gSceneManager.update(dt);
 	gSceneManager.render();
@@ -150,9 +155,21 @@ void SkullApp::OnMouseUp(WPARAM btnState, int x, int y)
 	ReleaseCapture();
 }
 
+void SkullApp::OnMouseWheel(int delta)
+{
+	if (delta > 120)
+		mWheel = delta / 120;
+	else
+		mWheel = -delta / 120;
+}
+
 void SkullApp::OnMouseMove(WPARAM btnState, int x, int y)
 {
-	if( (btnState & MK_LBUTTON) != 0 )
+	if ((btnState & MK_MBUTTON) != 0)
+	{
+
+	}
+	else if( (btnState & MK_LBUTTON) != 0 )
 	{
 		// Make each pixel correspond to a quarter of a degree.
 		float dx = XMConvertToRadians(0.25f*static_cast<float>(x - mLastMousePos.x));
