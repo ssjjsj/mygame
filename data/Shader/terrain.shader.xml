@@ -7,7 +7,7 @@
 	</properties>
 	
 	<states>
-		<state type = "" data = "" />
+		<state type = "RenderModes" data = "Wire" />
 	</states>
 	
 	<vsShader program = 
