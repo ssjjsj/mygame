@@ -34,6 +34,7 @@ public:
 	void OnMouseUp(WPARAM btnState, int x, int y);
 	void OnMouseMove(WPARAM btnState, int x, int y);
 	void OnMouseWheel(int delta);
+	void OnKeyDown(WPARAM key);
 
 private:
 	XMFLOAT4X4 mView;
@@ -96,15 +97,15 @@ bool SkullApp::Init()
 	if(!D3DApp::Init())
 		return false;
 
-	//Mesh *m = new Mesh("Sinbad.mesh.xml");
-	//m->setMaterial("ogre.material.xml");
-	//m->playAnimation("Sinbad");
-	//gSceneManager.addMesh(m);
+	Mesh *m = new Mesh("Sinbad.mesh.xml");
+	m->setMaterial("ogre.material.xml");
+	m->playAnimation("Sinbad");
+	gSceneManager.addMesh(m);
 
 	gSceneManager.createTerrain();
 
-	XMVECTOR pos = XMVectorSet(0, 5, 50, 1.0f);
-	XMVECTOR target = XMVectorSet(50, 0, 50.0f, 0.0f);
+	XMVECTOR pos = XMVectorSet(50.0f, 50.0f, 0.0f, 1.0f);
+	XMVECTOR target = XMVectorSet(50.0f, 0.0f, 50.0f, 1.0f);
 	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
 	//XMMATRIX V = XMMatrixLookAtLH(pos, target, up);
@@ -124,16 +125,7 @@ void SkullApp::OnResize()
 
 void SkullApp::UpdateScene(float dt)
 {
-	// Convert Spherical to Cartesian coordinates.
-	float x = mRadius*sinf(mPhi)*cosf(mTheta);
-	float z = mRadius*sinf(mPhi)*sinf(mTheta);
-	float y = mRadius*cosf(mPhi);
-
-	Camera *camera = gRender->getCamera();
-	XMFLOAT3 pos = camera->GetPosition();
-	camera->SetPosition(pos.x, pos.y - 0.1f*mPhi, pos.z - 0.1f*mTheta);
-	camera->UpdateViewMatrix();
-
+	gRender->getCamera()->UpdateViewMatrix();
 	gSceneManager.update(dt);
 	gSceneManager.render();
 }
@@ -155,21 +147,54 @@ void SkullApp::OnMouseUp(WPARAM btnState, int x, int y)
 	ReleaseCapture();
 }
 
+void SkullApp::OnKeyDown(WPARAM key)
+{
+	Camera *c = gRender->getCamera();
+	XMFLOAT3 pos = c->GetPosition();
+	XMFLOAT3 d = c->GetLook();
+	XMFLOAT3 right = c->GetRight();
+	if (key == VK_DOWN)
+	{
+		c->SetPosition(pos.x-d.x, pos.y-d.y, pos.z - d.z);
+	}
+	else if (key == VK_RIGHT)
+	{
+		c->SetPosition(pos.x+right.x, pos.y+right.y, pos.z+right.z);
+	}
+	else if (key == VK_LEFT)
+	{
+		c->SetPosition(pos.x - right.x, pos.y-right.y, pos.z-right.z);
+	}
+	else if (key == VK_UP)
+	{
+		c->SetPosition(pos.x+d.x, pos.y+d.y, pos.z + d.z);
+	}
+}
+
 void SkullApp::OnMouseWheel(int delta)
 {
-	if (delta > 120)
-		mWheel = delta / 120;
+	if (delta == 0.0f)
+		return;
+
+
+	if (delta > 0)
+		mWheel = delta / 1200000;
 	else
-		mWheel = -delta / 120;
+		mWheel = delta / 1200000;
+	Camera *c = gRender->getCamera();
+	XMFLOAT3 pos = c->GetPosition();
+	XMFLOAT3 look = c->GetLook();
+	XMFLOAT3 newPos;
+	newPos.x = pos.x + look.x*mWheel;
+	newPos.y = pos.y + look.y*mWheel;
+	newPos.z = pos.z + look.z*mWheel;
+	c->SetPosition(newPos);
 }
 
 void SkullApp::OnMouseMove(WPARAM btnState, int x, int y)
 {
-	if ((btnState & MK_MBUTTON) != 0)
-	{
-
-	}
-	else if( (btnState & MK_LBUTTON) != 0 )
+	Camera *c = gRender->getCamera();
+	if( (btnState & MK_LBUTTON) != 0 )
 	{
 		// Make each pixel correspond to a quarter of a degree.
 		float dx = XMConvertToRadians(0.25f*static_cast<float>(x - mLastMousePos.x));
@@ -178,6 +203,10 @@ void SkullApp::OnMouseMove(WPARAM btnState, int x, int y)
 		// Update angles based on input to orbit camera around box.
 		mTheta += dx;
 		mPhi   += dy;
+
+
+		c->RotateY(0.07*mTheta);
+		c->Pitch(0.07*mPhi);
 
 		// Restrict the angle mPhi.
 		//mPhi = MathHelper::Clamp(mPhi, 0.1f, MathHelper::Pi-0.1f);
@@ -188,11 +217,8 @@ void SkullApp::OnMouseMove(WPARAM btnState, int x, int y)
 		float dx = 0.05f*static_cast<float>(x - mLastMousePos.x);
 		float dy = 0.05f*static_cast<float>(y - mLastMousePos.y);
 
-		// Update the camera radius based on input.
-		mRadius += dx - dy;
-
-		// Restrict the radius.
-		//mRadius = MathHelper::Clamp(mRadius, 5.0f, 50.0f);
+		XMFLOAT3 pos = c->GetPosition();
+		c->SetPosition(pos.x, pos.y + 0.1*dy, pos.z);
 	}
 
 	mLastMousePos.x = x;

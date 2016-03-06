@@ -4,6 +4,8 @@ RenderAble::RenderAble(Geometry *g, Material *m)
 {
 	mat = m;
 	geometry = g;
+
+	XMStoreFloat4x4(&localMatrix, XMMatrixIdentity());
 }
 
 

@@ -41,6 +41,7 @@ public:
 	virtual void OnMouseUp(WPARAM btnState, int x, int y)  { }
 	virtual void OnMouseMove(WPARAM btnState, int x, int y){ }
 	virtual void OnMouseWheel(int delta) {}
+	virtual void OnKeyDown(WPARAM key) {}
 
 protected:
 	bool InitMainWindow();

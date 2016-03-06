@@ -34,6 +34,13 @@ struct ShaderPropery
 };
 
 
+enum RenderModes
+{
+	Wire = 0,
+	Soild,
+};
+
+
 
 enum BlendModes
 {
@@ -69,6 +76,14 @@ struct SourceCode
 	char* data;
 };
 
+struct RenderStates
+{
+	CullModes cullMode;
+	TestModes testMode;
+	RenderModes renderMode;
+	BlendModes blendMode;
+};
+
 class ShaderResource
 {
 public:
@@ -76,14 +91,12 @@ public:
 	ShaderResource();
 	~ShaderResource();
 private:
-	CullModes cullMode;
-	TestModes testMode;
-	BlendModes blendMode;
 	vector<ShaderPropery> properties;
 	SourceCode vsShaderCode;
 	SourceCode psShaderCode;
 	string vsMainFunction;
 	string psMainFunction;
+	RenderStates renderStates;
 
 	ID3D11InputLayout* inputLayout;
 
@@ -97,9 +110,7 @@ public:
 	SourceCode& getPsShaderCode() { return psShaderCode; }
 	SourceCode& getVsShaderCode() { return vsShaderCode; }
 	vector<ShaderPropery>& getProperties() { return properties; }
-	BlendModes getBlendMode() { return blendMode; }
-	TestModes getTestMode() { return testMode; }
-	CullModes getCullMode() { return cullMode; }
+	RenderStates getRenderStates() { return renderStates; }
 	ID3D11InputLayout* getInputLayout() { return inputLayout; }
 };
 

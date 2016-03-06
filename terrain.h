@@ -8,7 +8,7 @@ class Terrain
 {
 	struct HeightData
 	{
-		vector<char> data;
+		vector<float> data;
 		int xSize;
 		int zSize;
 	};
@@ -23,11 +23,11 @@ public:
 	void generateRenderAbles();
 	vector<RenderAble*>& getRenderAbles() { return renderAbleList; }
 	void loadData(string name);
+	void fractal();
 
 private:
-	int scale;
+	float scale;
 	HeightData heightData;
-	int width;
 	vector<RenderAble*> renderAbleList;
 };
 

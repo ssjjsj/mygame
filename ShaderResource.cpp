@@ -50,9 +50,13 @@ void ShaderResource::loadShader(string name)
 		string stateType = stateElement->Attribute("type");
 		string data = stateElement->Attribute("data");
 
+		RenderModes renderMode = RenderModes::Soild;
+		CullModes cullMode = CullModes::None;
+		BlendModes blendMode = BlendModes::Replace;
+		TestModes testMode = TestModes::Always;
+
 		if (stateType == "CullMode")
 		{
-			cullMode = CullModes::None;
 			if (data == "Back")
 				cullMode = CullModes::Back;
 			else if (data == "Front")
@@ -60,7 +64,6 @@ void ShaderResource::loadShader(string name)
 		}
 		else if (stateType == "BlendMode")
 		{
-			blendMode = BlendModes::Replace;
 			if (data == "Add")
 				blendMode = BlendModes::Add;
 			else if (data == "AddBlended")
@@ -72,7 +75,6 @@ void ShaderResource::loadShader(string name)
 		}
 		else if (stateType == "TestMode")
 		{
-			testMode = TestModes::Always;
 			if (data == "Equal")
 				testMode = TestModes::Equal;
 			else if (data == "Greater")
@@ -84,6 +86,16 @@ void ShaderResource::loadShader(string name)
 			else if (data == "LessEqual")
 				testMode = TestModes::LessEqual;
 		}
+		else if (stateType == "RenderModes")
+		{
+			if (data == "Wire")
+				renderMode = RenderModes::Wire;
+		}
+
+		renderStates.blendMode = blendMode;
+		renderStates.cullMode = cullMode;
+		renderStates.renderMode = renderMode;
+		renderStates.testMode = testMode;
 	}
 
 	TiXmlElement *vsProgramElement = (TiXmlElement*)stateRootNode->NextSibling();

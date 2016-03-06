@@ -47,6 +47,8 @@ void Mesh::setMaterial(string name)
 		MaterialRes::MaterialData data = res.getMaterialData(model.materialName);
 		Material *m = new Material(data);
 		RenderAble *obj = new RenderAble(g, m);
+		XMMATRIX matrix = XMMatrixTranslation(50.0f, 0.0f, 50.0f);
+		XMStoreFloat4x4(&obj->localMatrix, matrix);
 		renderAbleList.push_back(obj);
 	}
 }

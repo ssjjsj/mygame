@@ -7,9 +7,10 @@
 class RenderAble
 {
 public:
-	RenderAble() {};
+	RenderAble() { XMStoreFloat4x4(&localMatrix, XMMatrixIdentity()); };
 	RenderAble(Geometry *g, Material *m);
 	~RenderAble();
+	XMFLOAT4X4 localMatrix;
 public:
 	Material* getMaterial() { return mat; };
 	Geometry* getGeometry() { return geometry; };

@@ -7,11 +7,22 @@ using namespace std;
 
 namespace MyVertex
 {
+	enum VertexType
+	{
+		P_N_UV = 0,
+		P_C,
+	};
 	struct Vertex
 	{
 		XMFLOAT3 Pos;
 		XMFLOAT3 Nor;
 		XMFLOAT2 UV;
+	};
+
+	struct Vertex_P4_C
+	{
+		XMFLOAT4 Pos;
+		XMFLOAT4 Color;
 	};
 
 

@@ -4,11 +4,13 @@
 
 SceneManager::SceneManager()
 {
+	terrain = NULL;
 }
 
 SceneManager::~SceneManager()
 {
-	delete terrain;
+	if (terrain != NULL)
+		delete terrain;
 }
 
 void SceneManager::createTerrain()
@@ -40,10 +42,13 @@ void SceneManager::render()
 		}
 	}
 
-	vector<RenderAble*>& renderAbles = terrain->getRenderAbles();
-	for (int j = 0; j < renderAbles.size(); j++)
+	if (terrain != NULL)
 	{
-		renderAbleAry.push_back(renderAbles[j]);
+		vector<RenderAble*>& renderAbles = terrain->getRenderAbles();
+		for (int j = 0; j < renderAbles.size(); j++)
+		{
+			renderAbleAry.push_back(renderAbles[j]);
+		}
 	}
 
 	gRender->draw(renderAbleAry);

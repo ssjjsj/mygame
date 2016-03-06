@@ -12,7 +12,11 @@ Render::Render(RenderDevice *device)
 	rasterState = NULL;
 	camera = new Camera;
 
-	D3D11_RASTERIZER_DESC rasterDesc;
+	renderState.blendMode = BlendModes::Replace;
+	renderState.cullMode = CullModes::Back;
+	renderState.renderMode = RenderModes::Soild;
+	renderState.testMode = TestModes::Always;
+
 	ZeroMemory(&rasterDesc, sizeof(D3D11_RASTERIZER_DESC));
 	rasterDesc.AntialiasedLineEnable = false;
 	rasterDesc.CullMode = D3D11_CULL_BACK;
@@ -101,9 +105,7 @@ void Render::draw(vector<RenderAble*> renderAbles)
 	ID3D11DeviceContext* immediateContext = renderDevice->immediateContext;
 	IDXGISwapChain* swapChain = renderDevice->swapChain;
 
-
-	XMMATRIX matrix = camera->ViewProj();
-	matrix = XMMatrixTranspose(matrix);
+	XMMATRIX vp = camera->ViewProj();
 
 	float color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	immediateContext->ClearRenderTargetView(renderTargetView, color);
@@ -116,6 +118,10 @@ void Render::draw(vector<RenderAble*> renderAbles)
 		Geometry *g = renderAble->getGeometry();
 		Material *m = renderAble->getMaterial();
 
+
+		XMMATRIX local = XMLoadFloat4x4(&renderAble->localMatrix);
+		XMMATRIX matrix = local*vp;
+		matrix = XMMatrixTranspose(matrix);
 		
 		UINT stride = (UINT)Geometry::getVertexSize(g->getVertexType());
 		UINT offset = 0;
@@ -127,8 +133,22 @@ void Render::draw(vector<RenderAble*> renderAbles)
 		immediateContext->IASetInputLayout(m->getShader()->getInputLayout());
 		immediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-		immediateContext->VSSetShader(m->getShader()->getVsShader(), NULL, 0);
-		immediateContext->PSSetShader(m->getShader()->getPsShader(), NULL, 0);
+		Shader *shader = m->getShader();
+		RenderModes renderMode = shader->getRenderState().renderMode;
+		rasterState->GetDesc(&rasterDesc);
+		if (renderMode != renderState.renderMode)
+		{
+			renderState.renderMode = renderMode;
+			if (renderMode == RenderModes::Soild)
+				rasterDesc.FillMode = D3D11_FILL_SOLID;
+			else if (renderMode == RenderModes::Wire)
+				rasterDesc.FillMode = D3D11_FILL_WIREFRAME;
+		}
+
+		immediateContext->RSSetState(rasterState);
+
+		immediateContext->VSSetShader(shader->getVsShader(), NULL, 0);
+		immediateContext->PSSetShader(shader->getPsShader(), NULL, 0);
 
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		immediateContext->Map(matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
@@ -138,12 +158,6 @@ void Render::draw(vector<RenderAble*> renderAbles)
 		memcpy(dataPtr, &data, sizeof(XMFLOAT4X4));
 		immediateContext->Unmap(matrixBuffer, 0);
 		immediateContext->VSSetConstantBuffers(0, 1, &matrixBuffer);
-
-
-		//XMFLOAT4X4 data;
-		//XMMatrixTranspose(matrix);
-		//XMStoreFloat4x4(&data, matrix);
-		//immediateContext->UpdateSubresource(matrixBuffer, 0, NULL, &data, 0, 0);
 
 
 		vector<Texture*> textures = m->getTextures();

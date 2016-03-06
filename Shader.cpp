@@ -20,6 +20,7 @@ Shader::~Shader()
 
 bool Shader::createShader(ShaderResource *res)
 {
+	states = res->getRenderStates();
 	SourceCode& sourceCode = res->getVsShaderCode();
 
 	HRESULT hr = gRender->Device()->d3dDevice->CreateVertexShader(
