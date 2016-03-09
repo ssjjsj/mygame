@@ -2,7 +2,7 @@
 
 Render *gRender = NULL;
 
-string ShaderPath = "H:/mygame/Data/Shader/"; 
-string TexturePath = "H:/mygame/Data/Texture/";
-string MaterialPath = "H:/mygame/Data/Material/";
-string ModelPath = "H:/mygame/Data/Model/";
+string ShaderPath = "E:/mygame/Data/Shader/"; 
+string TexturePath = "E:/mygame/Data/Texture/";
+string MaterialPath = "E:/mygame/Data/Material/";
+string ModelPath = "E:/mygame/Data/Model/";

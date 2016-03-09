@@ -6,6 +6,14 @@ using namespace std;
 
 class Terrain
 {
+	struct QuadNode
+	{
+		XMFLOAT2 centerPos;
+		bool isSubdivided;
+		float length;
+		vector<QuadNode*> subNodes;
+	};
+
 	struct HeightData
 	{
 		vector<float> data;
@@ -14,8 +22,8 @@ class Terrain
 	};
 
 public:
-	Terrain() {};
-	~Terrain() {};
+	Terrain();
+	~Terrain();
 
 public:
 	char getHeight(int x, int z);
@@ -26,9 +34,21 @@ public:
 	void fractal();
 
 private:
+	void initQuadTree();
+	void createQuadNode(float length, QuadNode *parentNode);
+	void destoryQuadTree();
+	void destoryQuadNode(QuadNode *q);
+	void reSetNode(QuadNode *q);
+	void reBuildQuadTree();
+	void renderQuadNode(QuadNode *node);
+	void generateRenderAblesOnQuadTree();
+
+private:
 	float scale;
 	HeightData heightData;
 	vector<RenderAble*> renderAbleList;
+	QuadNode *rootNode;
+	MyVertex::ModelData modelData;
 };
 
 #endif // !TERRAIN_H
