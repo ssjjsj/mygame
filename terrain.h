@@ -8,7 +8,7 @@ class Terrain
 {
 	struct QuadNode
 	{
-		XMFLOAT2 centerPos;
+		std::pair<int, int> centerPos;
 		bool isSubdivided;
 		float length;
 		vector<QuadNode*> subNodes;
@@ -42,6 +42,7 @@ private:
 	void reBuildQuadTree();
 	void renderQuadNode(QuadNode *node);
 	void generateRenderAblesOnQuadTree();
+	void generateRenderAblesOnQuad(QuadNode *node);
 
 private:
 	float scale;

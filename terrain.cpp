@@ -6,7 +6,6 @@
 
 Terrain::Terrain()
 {
-	initQuadTree();
 }
 
 Terrain::~Terrain()
@@ -16,8 +15,8 @@ Terrain::~Terrain()
 
 void Terrain::loadData(string data)
 {
-	heightData.xSize = 128;
-	heightData.zSize = 128;
+	heightData.xSize = 5;
+	heightData.zSize = 5;
 
 	for (int indexZ = 0; indexZ < heightData.zSize; indexZ++)
 	{
@@ -40,8 +39,9 @@ void Terrain::setHeight(int x, int z, char height)
 
 char Terrain::getHeight(int x, int z)
 {
-	int xSize = heightData.xSize;
-	return heightData.data[xSize*z + x];
+	return 0;
+	//int xSize = heightData.xSize;
+	//return heightData.data[xSize*z + x];
 }
 
 
@@ -78,9 +78,6 @@ void Terrain::generateRenderAbles()
 	//		}
 	//	}
 	//}
-
-	modelData.vertexs.clear();
-	modelData.indexs.clear();
 
 	generateRenderAblesOnQuadTree();
 
@@ -134,56 +131,61 @@ void Terrain::initQuadTree()
 {
 	QuadNode *node = new QuadNode;
 	node->isSubdivided = true;
-	node->length = 128.0f;
+	node->length = heightData.xSize-1;
 	rootNode = node;
-	node->centerPos = XMFLOAT2(31.0f, 31.0f);
+	node->centerPos.first = (node->length) / 2;
+	node->centerPos.second = (node->length) / 2;
 
-	createQuadNode(64.0f, rootNode);
+	createQuadNode(node->length/2, rootNode);
 }
 
 void Terrain::createQuadNode(float length, QuadNode *parentNode)
 {
-	if (length > 1.0f)
+	if (length >= 2.0f)
 	{
 		QuadNode *node = new QuadNode;
-		if (length / 2 > 1.0f)
+		if (length/2 > 1.0f)
 			node->isSubdivided = true;
 		else
 			node->isSubdivided = false;
-		node->length = length / 2;
-		node->centerPos = XMFLOAT2(parentNode->centerPos.x - length / 4, parentNode->centerPos.y - length / 4);
+		node->length = length;
+		node->centerPos.first = parentNode->centerPos.first - length / 2;
+		node->centerPos.second = parentNode->centerPos.second - length / 2;
 		parentNode->subNodes.push_back(node);
-		createQuadNode(length / 2, node);
+		createQuadNode(node->length / 2, node);
 
 		node = new QuadNode;
-		if (length / 2 > 1.0f)
+		if (length/2 > 1.0f)
 			node->isSubdivided = true;
 		else
 			node->isSubdivided = false;
-		node->length = length / 2;
-		node->centerPos = XMFLOAT2(parentNode->centerPos.x + length / 4, parentNode->centerPos.y - length / 4);
+		node->length = length;
+		node->centerPos.first = parentNode->centerPos.first + length / 2;
+		node->centerPos.second = parentNode->centerPos.second - length / 2;
 		parentNode->subNodes.push_back(node);
-		createQuadNode(length / 2, node);
+		createQuadNode(node->length / 2, node);
 
 		node = new QuadNode;
-		if (length / 2 > 1.0f)
+		if (length/2> 1.0f)
 			node->isSubdivided = true;
 		else
 			node->isSubdivided = false;
-		node->length = length / 2;
-		node->centerPos = XMFLOAT2(parentNode->centerPos.x - length / 4, parentNode->centerPos.y + length / 4);
+		node->length = length;
+		node->centerPos.first = parentNode->centerPos.first - length / 2;
+		node->centerPos.second = parentNode->centerPos.second + length / 2;
 		parentNode->subNodes.push_back(node);
-		createQuadNode(length / 2, node);
+		createQuadNode(node->length / 2, node);
 
 		node = new QuadNode;
-		if (length / 2 > 1.0f)
+		if (length/2> 1.0f)
 			node->isSubdivided = true;
 		else
 			node->isSubdivided = false;
-		node->length = length / 2;
-		node->centerPos = XMFLOAT2(parentNode->centerPos.x - length / 4, parentNode->centerPos.y + length / 4);
+		node->length = length;
+		node->centerPos.first = parentNode->centerPos.first - length / 2;
+		node->centerPos.second = parentNode->centerPos.second - length / 2;
 		parentNode->subNodes.push_back(node);
-		createQuadNode(length / 2, node);
+		createQuadNode(node->length / 2, node);
 	}
 }
 
@@ -214,7 +216,47 @@ void Terrain::reSetNode(QuadNode *node)
 
 void Terrain::generateRenderAblesOnQuadTree()
 {
+	modelData.vertexs.clear();
+	modelData.indexs.clear();
 	renderQuadNode(rootNode);
+}
+
+void Terrain::generateRenderAblesOnQuad(QuadNode *node)
+{
+	int vertexIndex = modelData.vertexs.size();
+	MyVertex::Vertex v;
+	float x = node->centerPos.first + node->length / 2;
+	float z = node->centerPos.second + node->length / 2;
+	float y = getHeight(x, z);
+	v.Pos = XMFLOAT3(x, y, z);
+	modelData.vertexs.push_back(v);
+
+
+	x = node->centerPos.first + node->length / 2;
+	z = node->centerPos.second - node->length / 2;
+	y = getHeight(x, z);
+	v.Pos = XMFLOAT3(x, y, z);
+	modelData.vertexs.push_back(v);
+
+	x = node->centerPos.first - node->length / 2;
+	z = node->centerPos.second - node->length / 2;
+	y = getHeight(x, z);
+	v.Pos = XMFLOAT3(x, y, z);
+	modelData.vertexs.push_back(v);
+
+	x = node->centerPos.first - node->length / 2;
+	z = node->centerPos.second + node->length / 2;
+	y = getHeight(x, z);
+	v.Pos = XMFLOAT3(x, y, z);
+	modelData.vertexs.push_back(v);
+
+	modelData.indexs.push_back(vertexIndex);
+	modelData.indexs.push_back(vertexIndex + 1);
+	modelData.indexs.push_back(vertexIndex + 2);
+
+	modelData.indexs.push_back(vertexIndex + 2);
+	modelData.indexs.push_back(vertexIndex + 3);
+	modelData.indexs.push_back(vertexIndex);
 }
 
 void Terrain::renderQuadNode(QuadNode *node)
@@ -228,37 +270,6 @@ void Terrain::renderQuadNode(QuadNode *node)
 	}
 	else
 	{
-		int vertexIndex = modelData.vertexs.size();
-
-		MyVertex::Vertex v;
-		float x = node->centerPos.x + node->length / 2;
-		float z = node->centerPos.y + node->length / 2;
-		float y = getHeight(x, z);
-		v.Pos = XMFLOAT3(x, y, z);
-		modelData.vertexs.push_back(v);
-
-
-		x = node->centerPos.x + node->length / 2;
-		z = node->centerPos.y - node->length / 2;
-		y = getHeight(x, z);
-		v.Pos = XMFLOAT3(x, y, z);
-
-		x = node->centerPos.x - node->length / 2;
-		z = node->centerPos.y - node->length / 2;
-		y = getHeight(x, z);
-		v.Pos = XMFLOAT3(x, y, z);
-
-		x = node->centerPos.x - node->length / 2;
-		z = node->centerPos.y + node->length / 2;
-		y = getHeight(x, z);
-		v.Pos = XMFLOAT3(x, y, z);
-
-		modelData.indexs.push_back(vertexIndex);
-		modelData.indexs.push_back(vertexIndex + 1);
-		modelData.indexs.push_back(vertexIndex + 2);
-
-		modelData.indexs.push_back(vertexIndex + 2);
-		modelData.indexs.push_back(vertexIndex + 3);
-		modelData.indexs.push_back(vertexIndex);
+		generateRenderAblesOnQuad(node);
 	}
 }
