@@ -97,13 +97,6 @@ bool SkullApp::Init()
 	if(!D3DApp::Init())
 		return false;
 
-	Mesh *m = new Mesh("Sinbad.mesh.xml");
-	m->setMaterial("ogre.material.xml");
-	m->playAnimation("Sinbad");
-	gSceneManager.addMesh(m);
-
-	gSceneManager.createTerrain();
-
 	XMVECTOR pos = XMVectorSet(50.0f, 50.0f, 0.0f, 1.0f);
 	XMVECTOR target = XMVectorSet(50.0f, 0.0f, 50.0f, 1.0f);
 	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
@@ -111,6 +104,13 @@ bool SkullApp::Init()
 	//XMMATRIX V = XMMatrixLookAtLH(pos, target, up);
 	gRender->getCamera()->LookAt(pos, target, up);
 	gRender->getCamera()->UpdateViewMatrix();
+
+	Mesh *m = new Mesh("Sinbad.mesh.xml");
+	m->setMaterial("ogre.material.xml");
+	m->playAnimation("Sinbad");
+	gSceneManager.addMesh(m);
+
+	gSceneManager.createTerrain();
 
 	return true;
 }

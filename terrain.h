@@ -32,6 +32,7 @@ public:
 	vector<RenderAble*>& getRenderAbles() { return renderAbleList; }
 	void loadData(string name);
 	void fractal();
+	void updateQuadTree();
 
 private:
 	void initQuadTree();
@@ -39,10 +40,11 @@ private:
 	void destoryQuadTree();
 	void destoryQuadNode(QuadNode *q);
 	void reSetNode(QuadNode *q);
-	void reBuildQuadTree();
+	void updateQuadNode(QuadNode *q);
 	void renderQuadNode(QuadNode *node);
 	void generateRenderAblesOnQuadTree();
 	void generateRenderAblesOnQuad(QuadNode *node);
+	bool IsSubdivided(std::pair<int, int> center, float length);
 
 private:
 	float scale;

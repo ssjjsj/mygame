@@ -15,8 +15,8 @@ Terrain::~Terrain()
 
 void Terrain::loadData(string data)
 {
-	heightData.xSize = 5;
-	heightData.zSize = 5;
+	heightData.xSize = 65;
+	heightData.zSize = 65;
 
 	for (int indexZ = 0; indexZ < heightData.zSize; indexZ++)
 	{
@@ -27,6 +27,7 @@ void Terrain::loadData(string data)
 	}
 	scale = 1.0f;
 
+	fractal();
 	initQuadTree();
 }
 
@@ -39,46 +40,14 @@ void Terrain::setHeight(int x, int z, char height)
 
 char Terrain::getHeight(int x, int z)
 {
-	return 0;
-	//int xSize = heightData.xSize;
-	//return heightData.data[xSize*z + x];
+	int xSize = heightData.xSize;
+	return heightData.data[xSize*z + x];
 }
 
 
 void Terrain::generateRenderAbles()
 {
-	//MyVertex::Vertex vertex;
-	//vector<MyVertex::Vertex> vertexs;
-	//vector<UINT> indexs;
-
-	//fractal();
-
-	//for (int indexZ = 0; indexZ < heightData.zSize; indexZ++)
-	//{
-	//	for (int indexX = 0; indexX < heightData.xSize; indexX++)
-	//	{
-	//		vertex.Pos.x = indexX*scale;
-	//		vertex.Pos.y = getHeight(indexX, indexZ);
-	//		vertex.Pos.z = indexZ*scale;
-
-	//		vertexs.push_back(vertex);
-	//	}
-
-	//	for (int indexZ = 0; indexZ < heightData.zSize - 1; indexZ++)
-	//	{
-	//		for (int indexX = 0; indexX < heightData.xSize - 1; indexX++)
-	//		{
-	//			indexs.push_back(indexX + 1 + (indexZ+1)*heightData.xSize);
-	//			indexs.push_back(indexX + 1 + indexZ*heightData.xSize);
-	//			indexs.push_back(indexX + indexZ*heightData.xSize);
-	//			
-	//			indexs.push_back(indexX + indexZ*heightData.xSize);
-	//			indexs.push_back(indexX + (indexZ + 1)*heightData.xSize);
-	//			indexs.push_back(indexX + 1 + (indexZ + 1)*heightData.xSize);
-	//		}
-	//	}
-	//}
-
+	renderAbleList.clear();
 	generateRenderAblesOnQuadTree();
 
 	Geometry *g = new Geometry();
@@ -131,61 +100,82 @@ void Terrain::initQuadTree()
 {
 	QuadNode *node = new QuadNode;
 	node->isSubdivided = true;
-	node->length = heightData.xSize-1;
+	node->length = (heightData.xSize-1)*scale;
 	rootNode = node;
 	node->centerPos.first = (node->length) / 2;
 	node->centerPos.second = (node->length) / 2;
 
-	createQuadNode(node->length/2, rootNode);
+	if (IsSubdivided(node->centerPos, node->length))
+	{
+		createQuadNode(node->length / 2, node);
+		node->isSubdivided = true;
+	}
+	else
+	{
+		node->isSubdivided = false;
+	}
 }
 
 void Terrain::createQuadNode(float length, QuadNode *parentNode)
 {
-	if (length >= 2.0f)
+	QuadNode *node = new QuadNode;
+	node->length = length;
+	node->centerPos.first = parentNode->centerPos.first - length / 2;
+	node->centerPos.second = parentNode->centerPos.second - length / 2;
+	parentNode->subNodes.push_back(node);
+	if (IsSubdivided(node->centerPos, node->length))
 	{
-		QuadNode *node = new QuadNode;
-		if (length/2 > 1.0f)
-			node->isSubdivided = true;
-		else
-			node->isSubdivided = false;
-		node->length = length;
-		node->centerPos.first = parentNode->centerPos.first - length / 2;
-		node->centerPos.second = parentNode->centerPos.second - length / 2;
-		parentNode->subNodes.push_back(node);
 		createQuadNode(node->length / 2, node);
+		node->isSubdivided = true;
+	}
+	else
+	{
+		node->isSubdivided = false;
+	}
 
-		node = new QuadNode;
-		if (length/2 > 1.0f)
-			node->isSubdivided = true;
-		else
-			node->isSubdivided = false;
-		node->length = length;
-		node->centerPos.first = parentNode->centerPos.first + length / 2;
-		node->centerPos.second = parentNode->centerPos.second - length / 2;
-		parentNode->subNodes.push_back(node);
+	node = new QuadNode;
+	node->length = length;
+	node->centerPos.first = parentNode->centerPos.first + length / 2;
+	node->centerPos.second = parentNode->centerPos.second - length / 2;
+	parentNode->subNodes.push_back(node);
+	if (IsSubdivided(node->centerPos, node->length))
+	{
 		createQuadNode(node->length / 2, node);
+		node->isSubdivided = true;
+	}
+	else
+	{
+		node->isSubdivided = false;
+	}
 
-		node = new QuadNode;
-		if (length/2> 1.0f)
-			node->isSubdivided = true;
-		else
-			node->isSubdivided = false;
-		node->length = length;
-		node->centerPos.first = parentNode->centerPos.first - length / 2;
-		node->centerPos.second = parentNode->centerPos.second + length / 2;
-		parentNode->subNodes.push_back(node);
+	node = new QuadNode;
+	node->length = length;
+	node->centerPos.first = parentNode->centerPos.first - length / 2;
+	node->centerPos.second = parentNode->centerPos.second + length / 2;
+	parentNode->subNodes.push_back(node);
+	if (IsSubdivided(node->centerPos, node->length))
+	{
 		createQuadNode(node->length / 2, node);
+		node->isSubdivided = true;
+	}
+	else
+	{
+		node->isSubdivided = false;
+	}
 
-		node = new QuadNode;
-		if (length/2> 1.0f)
-			node->isSubdivided = true;
-		else
-			node->isSubdivided = false;
-		node->length = length;
-		node->centerPos.first = parentNode->centerPos.first - length / 2;
-		node->centerPos.second = parentNode->centerPos.second - length / 2;
-		parentNode->subNodes.push_back(node);
+	node = new QuadNode;
+	node->length = length;
+	node->centerPos.first = parentNode->centerPos.first + length / 2;
+	node->centerPos.second = parentNode->centerPos.second + length / 2;
+	parentNode->subNodes.push_back(node);
+	if (IsSubdivided(node->centerPos, node->length))
+	{
 		createQuadNode(node->length / 2, node);
+		node->isSubdivided = true;
+	}
+	else
+	{
+		node->isSubdivided = false;
 	}
 }
 
@@ -213,6 +203,26 @@ void Terrain::reSetNode(QuadNode *node)
 		reSetNode(node->subNodes[i]);
 	}
 }
+
+void Terrain::updateQuadTree()
+{
+	reSetNode(rootNode);
+	updateQuadNode(rootNode);
+	generateRenderAbles();
+}
+
+void Terrain::updateQuadNode(QuadNode *node)
+{
+	if (IsSubdivided(node->centerPos, node->length))
+	{
+		node->isSubdivided = true;
+		for (int i = 0; i < node->subNodes.size(); i++)
+		{
+			updateQuadNode(node->subNodes[i]);
+		}
+	}
+}
+
 
 void Terrain::generateRenderAblesOnQuadTree()
 {
@@ -261,7 +271,7 @@ void Terrain::generateRenderAblesOnQuad(QuadNode *node)
 
 void Terrain::renderQuadNode(QuadNode *node)
 {
-	if (node->isSubdivided)
+	if (node->isSubdivided && node->subNodes.size()>0)
 	{
 		for (int i = 0; i < node->subNodes.size(); i++)
 		{
@@ -273,3 +283,16 @@ void Terrain::renderQuadNode(QuadNode *node)
 		generateRenderAblesOnQuad(node);
 	}
 }
+
+bool Terrain::IsSubdivided(std::pair<int, int> center, float length)
+{
+	float constant = 10.0f;
+	Camera *c = gRender->getCamera();
+	XMFLOAT3 camPos = c->GetPosition();
+	XMFLOAT3 nodePos = XMFLOAT3(center.first, getHeight(center.first, center.second), center.second);
+	float distance = fabsf(camPos.x - nodePos.x) + fabsf(camPos.y - nodePos.y) + fabsf(camPos.z - nodePos.z);
+
+	return distance / (length*constant) < 1.0f;
+}
+
+
