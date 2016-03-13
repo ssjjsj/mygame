@@ -50,6 +50,8 @@ Render::Render(RenderDevice *device)
 		int i = 3;
 	}
 
+	renderDevice->d3dDevice->CreateBuffer(&matrixBufferDesc, NULL, &invPosMatrixBuffer);
+
 	
 	D3D11_SAMPLER_DESC samplerDesc;
 	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -106,6 +108,8 @@ void Render::draw(vector<RenderAble*> renderAbles)
 	IDXGISwapChain* swapChain = renderDevice->swapChain;
 
 	XMMATRIX vp = camera->ViewProj();
+	XMFLOAT3 camPos = camera->GetPosition();
+	XMMATRIX invPosM = XMMatrixTranslation(-camPos.x, -camPos.y, -camPos.z);
 
 	float color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	immediateContext->ClearRenderTargetView(renderTargetView, color);
@@ -122,6 +126,8 @@ void Render::draw(vector<RenderAble*> renderAbles)
 		XMMATRIX local = XMLoadFloat4x4(&renderAble->localMatrix);
 		XMMATRIX matrix = local*vp;
 		matrix = XMMatrixTranspose(matrix);
+
+		invPosM = XMMatrixTranspose(invPosM);
 		
 		UINT stride = (UINT)Geometry::getVertexSize(g->getVertexType());
 		UINT offset = 0;
@@ -158,6 +164,14 @@ void Render::draw(vector<RenderAble*> renderAbles)
 		memcpy(dataPtr, &data, sizeof(XMFLOAT4X4));
 		immediateContext->Unmap(matrixBuffer, 0);
 		immediateContext->VSSetConstantBuffers(0, 1, &matrixBuffer);
+
+
+		immediateContext->Map(matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		dataPtr = (XMFLOAT4X4*)mappedResource.pData;
+		XMStoreFloat4x4(&data, invPosM);
+		memcpy(dataPtr, &data, sizeof(XMFLOAT4X4));
+		immediateContext->Unmap(invPosMatrixBuffer, 0);
+		immediateContext->VSSetConstantBuffers(1, 1, &invPosMatrixBuffer);
 
 
 		vector<Texture*> textures = m->getTextures();

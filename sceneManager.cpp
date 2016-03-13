@@ -5,19 +5,27 @@
 SceneManager::SceneManager()
 {
 	terrain = NULL;
+	skyBox = NULL;
 }
 
 SceneManager::~SceneManager()
 {
 	if (terrain != NULL)
 		delete terrain;
+
+	if (skyBox != NULL)
+		delete skyBox;
 }
+
 
 void SceneManager::createTerrain()
 {
 	terrain = new Terrain();
 	terrain->loadData("");
 	terrain->generateRenderAbles();
+
+	skyBox = new SkyBox;
+	skyBox->createSkyBox();
 }
 
 void SceneManager::update(float delta)

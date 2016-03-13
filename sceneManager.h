@@ -6,6 +6,7 @@ using namespace std;
 #include "renderAble.h"
 #include <vector>
 #include "terrain.h"
+#include "SkyBox.h"
 
 class SceneManager
 {
@@ -23,5 +24,6 @@ private:
 	vector<Mesh*> meshAry;
 	vector<RenderAble*> renderAbleAry;
 	Terrain *terrain;
+	SkyBox *skyBox;
 };
 #endif

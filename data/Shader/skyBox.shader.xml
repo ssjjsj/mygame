@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shader vsMainFunction = "VS" psMainFunction = "PS">
+	
+	<properties>
+		<property type="Matrix" name = "gWorldViewProj" />
+		<property type="Matrix" name = "invViewPosition" />
+		<property type="Texture" name = "gDiffuseMap" />
+	</properties>
+	
+	<states>
+		<state type = "" data = "" />
+	</states>
+	
+	<vsShader program = 
+	
+	"
+	cbuffer cbPerObject
+	{
+		float4x4 gWorldViewProj; 
+	};
+	
+	cbuffer cbPerObject
+	{
+		float4x4 invViewPosition; 
+	};
+	
+	
+	struct VertexIn
+	{
+		float3 Pos   : POSITION;
+		float3 Nor :	NORMAL;
+		//float4 Color : COLOR;
+		float2 UV : TEXCOORD0;
+	};
+
+	struct VertexOut
+	{
+		float4 PosH  : SV_POSITION;
+		//float4 Color : COLOR;
+		float2 UV : TEXCOORD0;
+	};
+
+	VertexOut VS(VertexIn vin)
+	{
+		VertexOut vout;
+		
+		float4 invPos = mul(float4(vin.Pos, 1.0f),invViewPosition);
+		vout.PosH = mul(invPos, gWorldViewProj);
+	
+		// Just pass vertex color into the pixel shader.
+		//vout.Color = vin.Color;
+		vout.UV = vin.UV;
+    
+		return vout;
+	}"
+	/>
+	
+	
+	
+	<psShader program = "
+	
+	Texture2D gDiffuseMap;
+	SamplerState samLinear
+	{
+		Filter = MIN_MAG_MIP_LINEAR;
+		AddressU = Wrap;
+		AddressV = Wrap;
+	};
+	
+	struct VertexOut
+	{
+		float4 PosH  : SV_POSITION;
+		//float4 Color : COLOR;
+		float2 UV : TEXCOORD0;
+	};
+	
+	float4 PS(VertexOut pin) : SV_TARGET
+	{
+		return gDiffuseMap.Sample(samLinear, pin.UV);
+		//textureColor = gDiffuseMap.Sample(SampleType, pin.UV);
+	}"
+	/>
+	
+</shader>
+	  

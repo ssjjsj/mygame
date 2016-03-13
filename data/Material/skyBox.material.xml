@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<materials>
+	<material name = "front">
+		<shader name = "skyBox.shader.xml"/>
+		<texture name = "jajlands1_ft.dds"/>
+	</material>
+	
+	<material name = "back">
+		<shader name = "skyBox.shader.xml"/>
+		<texture name = "jajlands1_bk.dds"/>
+	</material>
+	
+	<material name = "left">
+		<shader name = "skyBox.shader.xml"/>
+		<texture name = "jajlands1_lf.dds"/>
+	</material>
+	
+	<material name = "right">
+		<shader name = "skyBox.shader.xml"/>
+		<texture name = "jajlands1_rt.dds"/>
+	</material>
+	
+	<material name = "top">
+		<shader name = "skyBox.shader.xml"/>
+		<texture name = "jajlands1_up.dds"/>
+	</material>
+	
+	<material name = "buttom">
+		<shader name = "skyBox.shader.xml"/>
+		<texture name = "jajlands1_dn.dds"/>
+	</material>
+</materials>
