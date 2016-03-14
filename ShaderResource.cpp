@@ -9,16 +9,16 @@
 
 ShaderResource::ShaderResource(string name)
 {
-	loadShader(ShaderPath + name);
-}
-
-ShaderResource::ShaderResource()
-{
 	renderStates.renderMode = RenderModes::Soild;
 	renderStates.cullMode = CullModes::None;
 	renderStates.blendMode = BlendModes::Replace;
 	renderStates.testMode = TestModes::Always;
 	renderStates.zWriteMode = ZWrite::On;
+	loadShader(ShaderPath + name);
+}
+
+ShaderResource::ShaderResource()
+{
 }
 
 ShaderResource::~ShaderResource()

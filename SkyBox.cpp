@@ -8,19 +8,19 @@ void SkyBox::createSkyBox()
 	//1
 	MyVertex::Vertex v;
 	v.Pos = XMFLOAT3(-50.0f, -50.0f, -50.0f);
-	v.UV = XMFLOAT2(0.0f, 0.0f);
-	frontModelData.vertexs.push_back(v);
-
-	v.Pos = XMFLOAT3(50.0f, -50.0f, -50.0f);
-	v.UV = XMFLOAT2(1.0f, 0.0f);
-	frontModelData.vertexs.push_back(v);
-
-	v.Pos = XMFLOAT3(-50.0f, 50.0f, -50.0f);
 	v.UV = XMFLOAT2(0.0f, 1.0f);
 	frontModelData.vertexs.push_back(v);
 
-	v.Pos = XMFLOAT3(50.0f, 50.0f, -50.0f);
+	v.Pos = XMFLOAT3(50.0f, -50.0f, -50.0f);
 	v.UV = XMFLOAT2(1.0f, 1.0f);
+	frontModelData.vertexs.push_back(v);
+
+	v.Pos = XMFLOAT3(-50.0f, 50.0f, -50.0f);
+	v.UV = XMFLOAT2(0.0f, 0.0f);
+	frontModelData.vertexs.push_back(v);
+
+	v.Pos = XMFLOAT3(50.0f, 50.0f, -50.0f);
+	v.UV = XMFLOAT2(1.0f, 0.0f);
 	frontModelData.vertexs.push_back(v);
 
 	frontModelData.indexs.push_back(0);
@@ -31,7 +31,7 @@ void SkyBox::createSkyBox()
 	frontModelData.indexs.push_back(0);
 
 	Geometry *g = new Geometry();
-	Material *m = new Material(res.getMaterialData("front"));
+	Material *m = new Material(res.getMaterialData("back"));
 	g->setVertexData(frontModelData.vertexs);
 	g->setIndexData(frontModelData.indexs);
 	RenderAble *renderAble = new RenderAble(g, m);
@@ -41,19 +41,19 @@ void SkyBox::createSkyBox()
 	MyVertex::ModelData backModelData;
 	//2
 	v.Pos = XMFLOAT3(-50.0f, -50.0f, 50.0f);
-	v.UV = XMFLOAT2(0.0f, 0.0f);
-	backModelData.vertexs.push_back(v);
-
-	v.Pos = XMFLOAT3(50.0f, -50.0f, 50.0f);
-	v.UV = XMFLOAT2(1.0f, 0.0f);
-	backModelData.vertexs.push_back(v);
-
-	v.Pos = XMFLOAT3(-50.0f, 50.0f, 50.0f);
 	v.UV = XMFLOAT2(0.0f, 1.0f);
 	backModelData.vertexs.push_back(v);
 
-	v.Pos = XMFLOAT3(50.0f, 50.0f, 50.0f);
+	v.Pos = XMFLOAT3(50.0f, -50.0f, 50.0f);
 	v.UV = XMFLOAT2(1.0f, 1.0f);
+	backModelData.vertexs.push_back(v);
+
+	v.Pos = XMFLOAT3(-50.0f, 50.0f, 50.0f);
+	v.UV = XMFLOAT2(0.0f, 0.0f);
+	backModelData.vertexs.push_back(v);
+
+	v.Pos = XMFLOAT3(50.0f, 50.0f, 50.0f);
+	v.UV = XMFLOAT2(1.0f, 0.0f);
 	backModelData.vertexs.push_back(v);
 
 	backModelData.indexs.push_back(0);
@@ -65,7 +65,7 @@ void SkyBox::createSkyBox()
 
 
 	g = new Geometry();
-	m = new Material(res.getMaterialData("back"));
+	m = new Material(res.getMaterialData("front"));
 	g->setVertexData(backModelData.vertexs);
 	g->setIndexData(backModelData.indexs);
 	renderAble = new RenderAble(g, m);
@@ -75,19 +75,19 @@ void SkyBox::createSkyBox()
 	MyVertex::ModelData leftModelData;
 	//3
 	v.Pos = XMFLOAT3(-50.0f, -50.0f, -50.0f);
-	v.UV = XMFLOAT2(0.0f, 0.0f);
-	leftModelData.vertexs.push_back(v);
-
-	v.Pos = XMFLOAT3(-50.0f, -50.0f, 50.0f);
-	v.UV = XMFLOAT2(1.0f, 0.0f);
-	leftModelData.vertexs.push_back(v);
-
-	v.Pos = XMFLOAT3(-50.0f, 50.0f, -50.0f);
 	v.UV = XMFLOAT2(0.0f, 1.0f);
 	leftModelData.vertexs.push_back(v);
 
-	v.Pos = XMFLOAT3(-50.0f, 50.0f, 50.0f);
+	v.Pos = XMFLOAT3(-50.0f, -50.0f, 50.0f);
 	v.UV = XMFLOAT2(1.0f, 1.0f);
+	leftModelData.vertexs.push_back(v);
+
+	v.Pos = XMFLOAT3(-50.0f, 50.0f, -50.0f);
+	v.UV = XMFLOAT2(0.0f, 0.0f);
+	leftModelData.vertexs.push_back(v);
+
+	v.Pos = XMFLOAT3(-50.0f, 50.0f, 50.0f);
+	v.UV = XMFLOAT2(1.0f, 0.0f);
 	leftModelData.vertexs.push_back(v);
 
 
@@ -109,19 +109,19 @@ void SkyBox::createSkyBox()
 	//4
 	MyVertex::ModelData rightModelData;
 	v.Pos = XMFLOAT3(50.0f, -50.0f, -50.0f);
-	v.UV = XMFLOAT2(0.0f, 0.0f);
-	rightModelData.vertexs.push_back(v);
-
-	v.Pos = XMFLOAT3(50.0f, -50.0f, 50.0f);
-	v.UV = XMFLOAT2(1.0f, 0.0f);
-	rightModelData.vertexs.push_back(v);
-
-	v.Pos = XMFLOAT3(50.0f, 50.0f, -50.0f);
 	v.UV = XMFLOAT2(0.0f, 1.0f);
 	rightModelData.vertexs.push_back(v);
 
-	v.Pos = XMFLOAT3(50.0f, 50.0f, 50.0f);
+	v.Pos = XMFLOAT3(50.0f, -50.0f, 50.0f);
 	v.UV = XMFLOAT2(1.0f, 1.0f);
+	rightModelData.vertexs.push_back(v);
+
+	v.Pos = XMFLOAT3(50.0f, 50.0f, -50.0f);
+	v.UV = XMFLOAT2(0.0f, 0.0f);
+	rightModelData.vertexs.push_back(v);
+
+	v.Pos = XMFLOAT3(50.0f, 50.0f, 50.0f);
+	v.UV = XMFLOAT2(1.0f, 0.0f);
 	rightModelData.vertexs.push_back(v);
 
 
@@ -142,19 +142,19 @@ void SkyBox::createSkyBox()
 	//5
 	MyVertex::ModelData topModelData;
 	v.Pos = XMFLOAT3(-50.0f, 50.0f, -50.0f);
-	v.UV = XMFLOAT2(0.0f, 0.0f);
-	topModelData.vertexs.push_back(v);
-
-	v.Pos = XMFLOAT3(50.0f, 50.0f, -50.0f);
-	v.UV = XMFLOAT2(1.0f, 0.0f);
-	topModelData.vertexs.push_back(v);
-
-	v.Pos = XMFLOAT3(-50.0f, 50.0f, 50.0f);
 	v.UV = XMFLOAT2(0.0f, 1.0f);
 	topModelData.vertexs.push_back(v);
 
-	v.Pos = XMFLOAT3(50.0f, 50.0f, 50.0f);
+	v.Pos = XMFLOAT3(50.0f, 50.0f, -50.0f);
 	v.UV = XMFLOAT2(1.0f, 1.0f);
+	topModelData.vertexs.push_back(v);
+
+	v.Pos = XMFLOAT3(-50.0f, 50.0f, 50.0f);
+	v.UV = XMFLOAT2(0.0f, 0.0f);
+	topModelData.vertexs.push_back(v);
+
+	v.Pos = XMFLOAT3(50.0f, 50.0f, 50.0f);
+	v.UV = XMFLOAT2(1.0f, 0.0f);
 	topModelData.vertexs.push_back(v);
 
 
@@ -175,19 +175,19 @@ void SkyBox::createSkyBox()
 	//6
 	MyVertex::ModelData buttomModelData;
 	v.Pos = XMFLOAT3(-50.0f, -50.0f, -50.0f);
-	v.UV = XMFLOAT2(0.0f, 0.0f);
-	buttomModelData.vertexs.push_back(v);
-
-	v.Pos = XMFLOAT3(50.0f, -50.0f, -50.0f);
 	v.UV = XMFLOAT2(1.0f, 0.0f);
 	buttomModelData.vertexs.push_back(v);
 
+	v.Pos = XMFLOAT3(50.0f, -50.0f, -50.0f);
+	v.UV = XMFLOAT2(1.0f, 1.0f);
+	buttomModelData.vertexs.push_back(v);
+
 	v.Pos = XMFLOAT3(-50.0f, -50.0f, 50.0f);
-	v.UV = XMFLOAT2(0.0f, 1.0f);
+	v.UV = XMFLOAT2(0.0f, 0.0f);
 	buttomModelData.vertexs.push_back(v);
 
 	v.Pos = XMFLOAT3(50.0f, -50.0f, 50.0f);
-	v.UV = XMFLOAT2(1.0f, 1.0f);
+	v.UV = XMFLOAT2(0.0f, 1.0f);
 	buttomModelData.vertexs.push_back(v);
 
 

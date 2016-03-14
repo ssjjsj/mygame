@@ -124,19 +124,27 @@ void Mesh::skin()
 	for (int indexSubMesh = 0; indexSubMesh < subMeshAry.size(); indexSubMesh++)
 	{
 		ModelData &modelData = subMeshAry[indexSubMesh];
-		map<int, XMFLOAT3> posMap;
+		int curVertexIndex = -1;
+		XMFLOAT3 curPos;
 		for (int indexBoneAssign = 0; indexBoneAssign < modelData.boneVertexAssigns.size(); indexBoneAssign++)
 		{
 			BoneVertexAssignment &ass = modelData.boneVertexAssigns[indexBoneAssign];
-			posMap[ass.vertexIndex] = XMFLOAT3(0.0f, 0.0f, 0.0f);
-		}
-		for (int indexBoneAssign = 0; indexBoneAssign < modelData.boneVertexAssigns.size(); indexBoneAssign++)
-		{
-			BoneVertexAssignment &ass = modelData.boneVertexAssigns[indexBoneAssign];
+			
+			if (ass.vertexIndex != curVertexIndex)
+			{
+				if (curVertexIndex != -1)
+				{
+					skinedMeshAry[indexSubMesh].vertexs[curVertexIndex].Pos = curPos;
+				}
+				
+				curVertexIndex = ass.vertexIndex;
+				curPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
+			}
+			
+			
 			Vertex &v = subMeshAry[indexSubMesh].vertexs[ass.vertexIndex];
 			Skeleton::Bone *bone = curAnimation->GetSkeleton()->GetBone(ass.boneIndex);
 
-			XMFLOAT3 curPos = posMap[ass.vertexIndex];
 			XMFLOAT4 posTranslate;
 			XMFLOAT4 vPos = XMFLOAT4(v.Pos.x, v.Pos.y, v.Pos.z, 1.0f);
 			XMVECTOR vector = XMVector4Transform(XMLoadFloat4(&vPos), XMLoadFloat4x4(&bone->poseMatrix));
@@ -144,20 +152,18 @@ void Mesh::skin()
 			curPos.x += posTranslate.x*ass.weight;
 			curPos.y += posTranslate.y*ass.weight;
 			curPos.z += posTranslate.z*ass.weight;
-			posMap[ass.vertexIndex] = curPos;
 
-
-			XMMATRIX m = XMMatrixRotationY(3.14f);
-			XMFLOAT4X4 mdata;
-			XMStoreFloat4x4(&mdata, m);
-			int ffjif = 0;
+			//XMMATRIX m = XMMatrixRotationY(3.14f);
+			//XMFLOAT4X4 mdata;
+			//XMStoreFloat4x4(&mdata, m);
+			//int ffjif = 0;
 		}
 
-		for (map<int, XMFLOAT3>::iterator it = posMap.begin(); it != posMap.end(); it++)
-		{
-			XMFLOAT3 pos = it->second;
-			skinedMeshAry[indexSubMesh].vertexs[it->first].Pos = pos;
-		}
+		//for (map<int, XMFLOAT3>::iterator it = posMap.begin(); it != posMap.end(); it++)
+		//{
+		//	XMFLOAT3 pos = it->second;
+		//	skinedMeshAry[indexSubMesh].vertexs[it->first].Pos = pos;
+		//}
 	}
 }
 

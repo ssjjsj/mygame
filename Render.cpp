@@ -16,6 +16,7 @@ Render::Render(RenderDevice *device)
 	renderState.cullMode = CullModes::Back;
 	renderState.renderMode = RenderModes::Soild;
 	renderState.testMode = TestModes::Always;
+	renderState.zWriteMode = ZWrite::On;
 
 	ZeroMemory(&rasterDesc, sizeof(D3D11_RASTERIZER_DESC));
 	rasterDesc.AntialiasedLineEnable = false;
@@ -185,6 +186,20 @@ void Render::draw(vector<RenderAble*> renderAbles)
 			depthState->Release();
 			d3dDevice->CreateDepthStencilState(&depthDesc, &depthState);
 			immediateContext->OMSetDepthStencilState(depthState, 0);
+		}
+
+		CullModes cullMode = shader->getRenderState().cullMode;
+		if (cullMode != renderState.cullMode)
+		{
+			renderState.cullMode = cullMode;
+			if (cullMode == CullModes::Front)
+				rasterDesc.CullMode = D3D11_CULL_FRONT;
+			else if (cullMode == CullModes::Back)
+				rasterDesc.CullMode = D3D11_CULL_BACK;
+
+			rasterState->Release();
+			d3dDevice->CreateRasterizerState(&rasterDesc, &rasterState);
+			immediateContext->RSSetState(rasterState);
 		}
 
 
