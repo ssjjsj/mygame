@@ -4,6 +4,7 @@
 #include "RenderDevice.h"
 #include "renderAble.h"
 #include "Camera.h"
+#include <map>
 //class RenderAble;
 
 class Render
@@ -27,12 +28,13 @@ private:
 	ID3D11RenderTargetView* renderTargetView;
 	ID3D11DepthStencilView* depthStencilView;
 	D3D11_VIEWPORT screenViewport;
-	ID3D11Buffer* matrixBuffer;
-	ID3D11Buffer* invPosMatrixBuffer;
+	map<string, ID3D11Buffer*> matrixBufferAry;
 	ID3D11SamplerState* sampleState;
 	Camera *camera;
 	D3D11_RASTERIZER_DESC rasterDesc;
 	ID3D11RasterizerState* rasterState;
+	D3D11_DEPTH_STENCIL_DESC depthDesc;
+	ID3D11DepthStencilState *depthState;
 	RenderStates renderState;
 };
 #endif

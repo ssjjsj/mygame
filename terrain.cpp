@@ -54,6 +54,8 @@ void Terrain::generateRenderAbles()
 	g->setIndexData(modelData.indexs);
 	g->setVertexData(modelData.vertexs);
 
+
+
 	MaterialRes res = MaterialRes("ogre.material.xml");
 	MaterialRes::MaterialData data = res.getMaterialData("terrain");
 	Material *m = new Material(data);

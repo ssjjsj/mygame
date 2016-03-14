@@ -14,6 +14,11 @@ ShaderResource::ShaderResource(string name)
 
 ShaderResource::ShaderResource()
 {
+	renderStates.renderMode = RenderModes::Soild;
+	renderStates.cullMode = CullModes::None;
+	renderStates.blendMode = BlendModes::Replace;
+	renderStates.testMode = TestModes::Always;
+	renderStates.zWriteMode = ZWrite::On;
 }
 
 ShaderResource::~ShaderResource()
@@ -50,52 +55,49 @@ void ShaderResource::loadShader(string name)
 		string stateType = stateElement->Attribute("type");
 		string data = stateElement->Attribute("data");
 
-		RenderModes renderMode = RenderModes::Soild;
-		CullModes cullMode = CullModes::None;
-		BlendModes blendMode = BlendModes::Replace;
-		TestModes testMode = TestModes::Always;
-
 		if (stateType == "CullMode")
 		{
 			if (data == "Back")
-				cullMode = CullModes::Back;
+				renderStates.cullMode = CullModes::Back;
 			else if (data == "Front")
-				cullMode = CullModes::Front;
+				renderStates.cullMode = CullModes::Front;
 		}
 		else if (stateType == "BlendMode")
 		{
 			if (data == "Add")
-				blendMode = BlendModes::Add;
+				renderStates.blendMode = BlendModes::Add;
 			else if (data == "AddBlended")
-				blendMode = BlendModes::AddBlended;
+				renderStates.blendMode = BlendModes::AddBlended;
 			else if (data == "Blend")
-				blendMode = BlendModes::Blend;
+				renderStates.blendMode = BlendModes::Blend;
 			else if (data == "Mult")
-				blendMode = BlendModes::Mult;
+				renderStates.blendMode = BlendModes::Mult;
 		}
 		else if (stateType == "TestMode")
 		{
 			if (data == "Equal")
-				testMode = TestModes::Equal;
+				renderStates.testMode = TestModes::Equal;
 			else if (data == "Greater")
-				testMode = TestModes::Greater;
+				renderStates.testMode = TestModes::Greater;
 			else if (data == "GreaterEqual")
-				testMode = TestModes::GreaterEqual;
+				renderStates.testMode = TestModes::GreaterEqual;
 			else if (data == "Less")
-				testMode = TestModes::Less;
+				renderStates.testMode = TestModes::Less;
 			else if (data == "LessEqual")
-				testMode = TestModes::LessEqual;
+				renderStates.testMode = TestModes::LessEqual;
 		}
 		else if (stateType == "RenderModes")
 		{
 			if (data == "Wire")
-				renderMode = RenderModes::Wire;
+				renderStates.renderMode = RenderModes::Wire;
 		}
-
-		renderStates.blendMode = blendMode;
-		renderStates.cullMode = cullMode;
-		renderStates.renderMode = renderMode;
-		renderStates.testMode = testMode;
+		else if (stateType == "ZWrite")
+		{
+			if (data == "Off")
+			{
+				renderStates.zWriteMode = ZWrite::Off;
+			}
+		}
 	}
 
 	TiXmlElement *vsProgramElement = (TiXmlElement*)stateRootNode->NextSibling();

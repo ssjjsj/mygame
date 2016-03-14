@@ -21,6 +21,7 @@ Shader::~Shader()
 bool Shader::createShader(ShaderResource *res)
 {
 	states = res->getRenderStates();
+	properties = res->getProperties();
 	SourceCode& sourceCode = res->getVsShaderCode();
 
 	HRESULT hr = gRender->Device()->d3dDevice->CreateVertexShader(
@@ -44,4 +45,19 @@ bool Shader::createShader(ShaderResource *res)
 	inputLayout = res->getInputLayout();
 
 	return !FAILED(hr);
+}
+
+
+bool Shader::constainProperty(string tProperty, ShaderPropery::PropertyType t)
+{
+	for (int i = 0; i < properties.size(); i++)
+	{
+		ShaderPropery &p = properties[i];
+		if (p.variableName == tProperty && p.type == t)
+		{
+			return true;
+		}
+	}
+
+	return false;
 }

@@ -7,9 +7,9 @@ Render::Render(RenderDevice *device)
 	renderTargetView = NULL;
 	depthStencilBuffer = NULL;
 	depthStencilView = NULL;
-	matrixBuffer = NULL;
 	sampleState = NULL;
 	rasterState = NULL;
+	depthState = NULL;
 	camera = new Camera;
 
 	renderState.blendMode = BlendModes::Replace;
@@ -19,23 +19,28 @@ Render::Render(RenderDevice *device)
 
 	ZeroMemory(&rasterDesc, sizeof(D3D11_RASTERIZER_DESC));
 	rasterDesc.AntialiasedLineEnable = false;
-	rasterDesc.CullMode = D3D11_CULL_BACK;
+	rasterDesc.CullMode = D3D11_CULL_NONE;
 	rasterDesc.DepthBias = 0;
 	rasterDesc.DepthBiasClamp = 0.0f;
 	rasterDesc.DepthClipEnable = true;
-	rasterDesc.FillMode = D3D11_FILL_WIREFRAME;
+	rasterDesc.FillMode = D3D11_FILL_SOLID;
 	rasterDesc.FrontCounterClockwise = false;
 	rasterDesc.MultisampleEnable = false;
 	rasterDesc.ScissorEnable = false;
 	rasterDesc.SlopeScaledDepthBias = 0.0f;
 	renderDevice->d3dDevice->CreateRasterizerState(&rasterDesc, &rasterState);
 
-	//D3D11_BUFFER_DESC matrixBufferDesc;
-	//ZeroMemory(&matrixBufferDesc, sizeof(D3D11_BUFFER_DESC));
-	//matrixBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	//matrixBufferDesc.ByteWidth = sizeof(XMFLOAT4X4);
-	//matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	//matrixBufferDesc.CPUAccessFlags = 0;
+
+	ZeroMemory(&depthDesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
+	depthDesc.DepthEnable = true;
+	depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	depthDesc.DepthFunc = D3D11_COMPARISON_LESS;
+	depthDesc.StencilEnable = false;
+	depthDesc.StencilReadMask = 0xff;
+	depthDesc.StencilWriteMask = 0xff;
+
+	renderDevice->d3dDevice->CreateDepthStencilState(&depthDesc, &depthState);
+
 
 	D3D11_BUFFER_DESC matrixBufferDesc;
 	ZeroMemory(&matrixBufferDesc, sizeof(D3D11_BUFFER_DESC));
@@ -45,12 +50,13 @@ Render::Render(RenderDevice *device)
 	matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
 	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-	if FAILED(renderDevice->d3dDevice->CreateBuffer(&matrixBufferDesc, NULL, &matrixBuffer))
-	{
-		int i = 3;
-	}
-
+	ID3D11Buffer *matrixBuffer;
+	ID3D11Buffer *invPosMatrixBuffer;
+	renderDevice->d3dDevice->CreateBuffer(&matrixBufferDesc, NULL, &matrixBuffer);
 	renderDevice->d3dDevice->CreateBuffer(&matrixBufferDesc, NULL, &invPosMatrixBuffer);
+
+	matrixBufferAry["gWorldViewProj"] = matrixBuffer;
+	matrixBufferAry["invViewPosition"] = invPosMatrixBuffer;
 
 	
 	D3D11_SAMPLER_DESC samplerDesc;
@@ -78,8 +84,10 @@ Render::~Render()
 {
 	delete renderDevice;
 
-	if (matrixBuffer != NULL)
-		matrixBuffer->Release();
+	for (map<string, ID3D11Buffer*>::iterator it = matrixBufferAry.begin(); it != matrixBufferAry.end(); it++)
+	{
+		it->second->Release();
+	}
 
 	if (rasterState != NULL)
 		rasterState->Release();
@@ -98,6 +106,9 @@ Render::~Render()
 
 	if (sampleState != NULL)
 		depthStencilView->Release();
+
+	if (depthState != NULL)
+		depthState->Release();
 }
 
 
@@ -108,8 +119,14 @@ void Render::draw(vector<RenderAble*> renderAbles)
 	IDXGISwapChain* swapChain = renderDevice->swapChain;
 
 	XMMATRIX vp = camera->ViewProj();
-	XMFLOAT3 camPos = camera->GetPosition();
-	XMMATRIX invPosM = XMMatrixTranslation(-camPos.x, -camPos.y, -camPos.z);
+	
+	XMMATRIX view = camera->View();
+	view._41 = 0.0f;
+	view._42 = 0.0f;
+	view._43 = 0.0f;
+	XMMATRIX proj = camera->Proj();
+	XMMATRIX invPosM = view * proj;
+	invPosM = XMMatrixTranspose(invPosM);
 
 	float color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	immediateContext->ClearRenderTargetView(renderTargetView, color);
@@ -126,8 +143,6 @@ void Render::draw(vector<RenderAble*> renderAbles)
 		XMMATRIX local = XMLoadFloat4x4(&renderAble->localMatrix);
 		XMMATRIX matrix = local*vp;
 		matrix = XMMatrixTranspose(matrix);
-
-		invPosM = XMMatrixTranspose(invPosM);
 		
 		UINT stride = (UINT)Geometry::getVertexSize(g->getVertexType());
 		UINT offset = 0;
@@ -141,7 +156,6 @@ void Render::draw(vector<RenderAble*> renderAbles)
 
 		Shader *shader = m->getShader();
 		RenderModes renderMode = shader->getRenderState().renderMode;
-		rasterState->GetDesc(&rasterDesc);
 		if (renderMode != renderState.renderMode)
 		{
 			renderState.renderMode = renderMode;
@@ -149,29 +163,58 @@ void Render::draw(vector<RenderAble*> renderAbles)
 				rasterDesc.FillMode = D3D11_FILL_SOLID;
 			else if (renderMode == RenderModes::Wire)
 				rasterDesc.FillMode = D3D11_FILL_WIREFRAME;
+
+			rasterState->Release();
+			d3dDevice->CreateRasterizerState(&rasterDesc, &rasterState);
+			immediateContext->RSSetState(rasterState);
 		}
 
-		immediateContext->RSSetState(rasterState);
+		ZWrite zMode = shader->getRenderState().zWriteMode;
+		if (zMode != renderState.zWriteMode)
+		{
+			if (zMode == ZWrite::Off)
+			{
+				depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+			}
+			else
+			{
+				depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+			}
+			renderState.zWriteMode = zMode;
+
+			depthState->Release();
+			d3dDevice->CreateDepthStencilState(&depthDesc, &depthState);
+			immediateContext->OMSetDepthStencilState(depthState, 0);
+		}
+
 
 		immediateContext->VSSetShader(shader->getVsShader(), NULL, 0);
 		immediateContext->PSSetShader(shader->getPsShader(), NULL, 0);
 
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
-		immediateContext->Map(matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-		XMFLOAT4X4* dataPtr = (XMFLOAT4X4*)mappedResource.pData;
-		XMFLOAT4X4 data;
-		XMStoreFloat4x4(&data, matrix);
-		memcpy(dataPtr, &data, sizeof(XMFLOAT4X4));
-		immediateContext->Unmap(matrixBuffer, 0);
-		immediateContext->VSSetConstantBuffers(0, 1, &matrixBuffer);
+		if (shader->constainProperty("gWorldViewProj", ShaderPropery::PropertyType::Matrix))
+		{
+			ID3D11Buffer *matrixBuffer = matrixBufferAry["gWorldViewProj"];
+			immediateContext->Map(matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+			XMFLOAT4X4* dataPtr = (XMFLOAT4X4*)mappedResource.pData;
+			XMFLOAT4X4 data;
+			XMStoreFloat4x4(&data, matrix);
+			memcpy(dataPtr, &data, sizeof(XMFLOAT4X4));
+			immediateContext->Unmap(matrixBuffer, 0);
+			immediateContext->VSSetConstantBuffers(0, 1, &matrixBuffer);
+		}
 
-
-		immediateContext->Map(matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-		dataPtr = (XMFLOAT4X4*)mappedResource.pData;
-		XMStoreFloat4x4(&data, invPosM);
-		memcpy(dataPtr, &data, sizeof(XMFLOAT4X4));
-		immediateContext->Unmap(invPosMatrixBuffer, 0);
-		immediateContext->VSSetConstantBuffers(1, 1, &invPosMatrixBuffer);
+		if (shader->constainProperty("invViewPosition", ShaderPropery::PropertyType::Matrix))
+		{
+			ID3D11Buffer *invPosMatrixBuffer = matrixBufferAry["invViewPosition"];
+			immediateContext->Map(invPosMatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+			XMFLOAT4X4* dataPtr = (XMFLOAT4X4*)mappedResource.pData;
+			XMFLOAT4X4 data;
+			XMStoreFloat4x4(&data, invPosM);
+			memcpy(dataPtr, &data, sizeof(XMFLOAT4X4));
+			immediateContext->Unmap(invPosMatrixBuffer, 0);
+			immediateContext->VSSetConstantBuffers(0, 1, &invPosMatrixBuffer);
+		}
 
 
 		vector<Texture*> textures = m->getTextures();

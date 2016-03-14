@@ -62,6 +62,12 @@ enum TestModes
 	Always
 };
 
+enum ZWrite
+{
+	On,
+	Off,
+};
+
 enum CullModes
 {
 	Back,
@@ -82,6 +88,7 @@ struct RenderStates
 	TestModes testMode;
 	RenderModes renderMode;
 	BlendModes blendMode;
+	ZWrite zWriteMode;
 };
 
 class ShaderResource

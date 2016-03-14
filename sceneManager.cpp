@@ -30,19 +30,26 @@ void SceneManager::createTerrain()
 
 void SceneManager::update(float delta)
 {
-	for (int i = 0; i < meshAry.size(); i++)
-	{
-		meshAry[i]->update(delta);
-	}
+	//for (int i = 0; i < meshAry.size(); i++)
+	//{
+	//	meshAry[i]->update(delta);
+	//}
 
-	if (terrain)
-		terrain->updateQuadTree();
+	//if (terrain)
+	//	terrain->updateQuadTree();
 }
 
 
 void SceneManager::render()
 {
 	renderAbleAry.clear();
+
+	//vector<RenderAble*>& renderAbles = skyBox->getRenderAble();
+	//for (int i = 0; i < renderAbles.size(); i++)
+	//{
+	//	RenderAble *obj = renderAbles[i];
+	//	renderAbleAry.push_back(obj);
+	//}
 
 	for (int i = 0; i < meshAry.size(); i++)
 	{
@@ -61,6 +68,6 @@ void SceneManager::render()
 			renderAbleAry.push_back(renderAbles[j]);
 		}
 	}
-
+	
 	gRender->draw(renderAbleAry);
 }
