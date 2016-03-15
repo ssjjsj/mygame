@@ -233,6 +233,7 @@ void Render::draw(vector<RenderAble*> renderAbles)
 
 
 		vector<Texture*> textures = m->getTextures();
+		int num = textures.size();
 		for (int i = 0; i < textures.size(); i++)
 		{
 			Texture *tex = textures[i];
