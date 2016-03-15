@@ -35,8 +35,8 @@ void SceneManager::update(float delta)
 		meshAry[i]->update(delta);
 	}
 
-	/*if (terrain)
-		terrain->updateQuadTree();*/
+	//if (terrain)
+	//	terrain->updateQuadTree();
 }
 
 

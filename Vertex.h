@@ -17,6 +17,18 @@ namespace MyVertex
 		XMFLOAT3 Pos;
 		XMFLOAT3 Nor;
 		XMFLOAT2 UV;
+
+		Vertex()
+		{
+			Pos.x = 0.0f;
+			Pos.y = 0.0f;
+			Pos.z = 0.0f;
+			Nor.x = 0.0f;
+			Nor.y = 0.0f;
+			Nor.z = 0.0f;
+			UV.x = 0.0f;
+			UV.y = 0.0f;
+		}
 	};
 
 	struct Vertex_P4_C

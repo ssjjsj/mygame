@@ -28,6 +28,7 @@ void Terrain::loadData(string data)
 	scale = 1.0f;
 
 	fractal();
+	procedualTexture();
 	initQuadTree();
 }
 
@@ -241,6 +242,8 @@ void Terrain::generateRenderAblesOnQuad(QuadNode *node)
 	float z = node->centerPos.second + node->length / 2;
 	float y = getHeight(x, z);
 	v.Pos = XMFLOAT3(x, y, z);
+	v.Nor = heightData.precent[x + z*heightData.xSize];
+	v.UV = XMFLOAT2(1.0f, 1.0f);
 	modelData.vertexs.push_back(v);
 
 
@@ -248,18 +251,24 @@ void Terrain::generateRenderAblesOnQuad(QuadNode *node)
 	z = node->centerPos.second - node->length / 2;
 	y = getHeight(x, z);
 	v.Pos = XMFLOAT3(x, y, z);
+	v.Nor = heightData.precent[x + z*heightData.xSize];
+	v.UV = XMFLOAT2(1.0f, 0.0f);
 	modelData.vertexs.push_back(v);
 
 	x = node->centerPos.first - node->length / 2;
 	z = node->centerPos.second - node->length / 2;
 	y = getHeight(x, z);
 	v.Pos = XMFLOAT3(x, y, z);
+	v.Nor = heightData.precent[x + z*heightData.xSize];
+	v.UV = XMFLOAT2(0.0f, 0.0f);
 	modelData.vertexs.push_back(v);
 
 	x = node->centerPos.first - node->length / 2;
 	z = node->centerPos.second + node->length / 2;
 	y = getHeight(x, z);
 	v.Pos = XMFLOAT3(x, y, z);
+	v.Nor = heightData.precent[x + z*heightData.xSize];
+	v.UV = XMFLOAT2(0.0f, 1.0f);
 	modelData.vertexs.push_back(v);
 
 	modelData.indexs.push_back(vertexIndex);
@@ -295,6 +304,63 @@ bool Terrain::IsSubdivided(std::pair<int, int> center, float length)
 	float distance = fabsf(camPos.x - nodePos.x) + fabsf(camPos.y - nodePos.y) + fabsf(camPos.z - nodePos.z);
 
 	return distance / (length*constant) < 1.0f;
+}
+
+
+void Terrain::procedualTexture()
+{
+	HeightRegion groundReigion;
+	groundReigion.minHeight = 0;
+	groundReigion.optimalHeight = 60;
+	groundReigion.maxHeight = 120;
+
+	HeightRegion grassReigion;
+	grassReigion.minHeight = 60;
+	grassReigion.optimalHeight = 120;
+	grassReigion.maxHeight = 250;
+
+	vector<HeightRegion> heightRegions;
+	heightRegions.push_back(groundReigion);
+	heightRegions.push_back(grassReigion);
+
+
+	for (int x = 0; x < heightData.xSize; x++)
+	{
+		for (int z = 0; z < heightData.zSize; z++)
+		{
+			XMFLOAT3 data = XMFLOAT3(0.0f, 0.0f, 0.0f);
+			for (int i = 0; i < heightRegions.size(); i++)
+			{
+				HeightRegion& reigion = heightRegions[i];
+				int index = x + z*heightData.xSize;
+				float height = heightData.data[index];
+				float precent = 0.0f;
+
+				if (height <= reigion.minHeight)
+				{
+					precent = 0.0f;
+				}
+				else if (height <= reigion.optimalHeight && height > reigion.minHeight)
+				{
+					precent = (float)(height - reigion.minHeight) / (float)(groundReigion.optimalHeight - groundReigion.minHeight);
+				}
+				else if (height>reigion.optimalHeight && height < reigion.maxHeight)
+				{
+					precent = 1.0f - (float)(height - reigion.optimalHeight) / (float)(groundReigion.maxHeight - groundReigion.optimalHeight);
+				}
+				else if (height >= reigion.maxHeight)
+				{
+					precent = 0.0f;
+				}
+
+				if (i == 0)
+					data.x = precent;
+				else if (i == 1)
+					data.y = precent;
+			}
+			heightData.precent.push_back(data);
+		}
+	}
 }
 
 

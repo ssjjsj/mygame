@@ -14,11 +14,19 @@ class Terrain
 		vector<QuadNode*> subNodes;
 	};
 
+	struct HeightRegion
+	{
+		int minHeight;
+		int optimalHeight;
+		int maxHeight;
+	};
+
 	struct HeightData
 	{
 		vector<float> data;
 		int xSize;
 		int zSize;
+		vector<XMFLOAT3> precent;
 	};
 
 public:
@@ -32,6 +40,7 @@ public:
 	vector<RenderAble*>& getRenderAbles() { return renderAbleList; }
 	void loadData(string name);
 	void fractal();
+	void procedualTexture();
 	void updateQuadTree();
 
 private:

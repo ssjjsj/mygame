@@ -233,13 +233,13 @@ void Render::draw(vector<RenderAble*> renderAbles)
 
 
 		vector<Texture*> textures = m->getTextures();
-		if (textures.size() > 0)
+		for (int i = 0; i < textures.size(); i++)
 		{
-			Texture *tex = textures[0];
+			Texture *tex = textures[i];
 			ID3D11ShaderResourceView* texRes = tex->getTexture();
 
-			immediateContext->PSSetShaderResources(0, 1, &texRes);
-			immediateContext->PSSetSamplers(0, 1, &sampleState);
+			immediateContext->PSSetShaderResources(i, 1, &texRes);
+			immediateContext->PSSetSamplers(i, 1, &sampleState);
 		}
 
 		//immediateContext->OMSetDepthStencilState()
