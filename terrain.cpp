@@ -15,8 +15,8 @@ Terrain::~Terrain()
 
 void Terrain::loadData(string data)
 {
-	heightData.xSize = 65;
-	heightData.zSize = 65;
+	heightData.xSize = 257;
+	heightData.zSize = 257;
 
 	for (int indexZ = 0; indexZ < heightData.zSize; indexZ++)
 	{
@@ -41,8 +41,9 @@ void Terrain::setHeight(int x, int z, char height)
 
 char Terrain::getHeight(int x, int z)
 {
-	int xSize = heightData.xSize;
-	return heightData.data[xSize*z + x];
+	return 0;
+	//int xSize = heightData.xSize;
+	//return heightData.data[xSize*z + x];
 }
 
 
@@ -67,14 +68,14 @@ void Terrain::generateRenderAbles()
 
 void Terrain::fractal()
 {
-	float maxHeight = 5.0f;
+	float maxHeight = 2.5f;
 	float minHeight = 0.0f;
 
 	int iteratorTime = 10;
 
 	for (int curIterator = 0; curIterator < iteratorTime; curIterator++)
 	{
-		float height = (maxHeight - minHeight) / iteratorTime*(iteratorTime - curIterator);
+		float height = maxHeight - (maxHeight - minHeight) * curIterator *1.0f / iteratorTime;
 
 		int startX = rand() % 100;
 		int startZ = rand() % 100;
@@ -311,13 +312,13 @@ void Terrain::procedualTexture()
 {
 	HeightRegion groundReigion;
 	groundReigion.minHeight = 0;
-	groundReigion.optimalHeight = 60;
-	groundReigion.maxHeight = 120;
+	groundReigion.optimalHeight = 6;
+	groundReigion.maxHeight = 12;
 
 	HeightRegion grassReigion;
-	grassReigion.minHeight = 60;
-	grassReigion.optimalHeight = 120;
-	grassReigion.maxHeight = 250;
+	grassReigion.minHeight = 6;
+	grassReigion.optimalHeight = 12;
+	grassReigion.maxHeight = 25;
 
 	vector<HeightRegion> heightRegions;
 	heightRegions.push_back(groundReigion);

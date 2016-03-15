@@ -34,8 +34,12 @@ void MaterialRes::load(string name)
 
 		data.res = shared_ptr<ShaderResource>(new ShaderResource(shaderName));
 
-		TiXmlElement *texNode = (TiXmlElement*)shaderNode->NextSibling();
-		data.texName = texNode->Attribute("name");
+		TiXmlNode *texRootNode = shaderNode->NextSibling();
+		for (TiXmlNode *curTexNode = texRootNode->FirstChild(); curTexNode != NULL; curTexNode = curTexNode->NextSibling())
+		{
+			TiXmlElement *texNode = (TiXmlElement*)curTexNode;
+			data.texName.push_back(texNode->Attribute("name"));
+		}
 
 		dataMap[materialName] = data;
 	}

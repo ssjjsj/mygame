@@ -12,8 +12,11 @@ Material::Material(MaterialRes::MaterialData &data)
 
 	if (!data.texName.empty())
 	{
-		Texture *tex = new Texture(data.texName);
-		textures.push_back(tex);
+		for (int i = 0; i < data.texName.size(); i++)
+		{
+			Texture *tex = new Texture(data.texName[i]);
+			textures.push_back(tex);
+		}
 	}
 }
 

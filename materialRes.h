@@ -14,7 +14,7 @@ public:
 	struct MaterialData
 	{
 		shared_ptr<ShaderResource> res;
-		string texName;
+		vector<string> texName;
 	};
 public:
 	MaterialRes(string resName);
