@@ -240,7 +240,7 @@ void Render::draw(vector<RenderAble*> renderAbles)
 			ID3D11ShaderResourceView* texRes = tex->getTexture();
 
 			immediateContext->PSSetShaderResources(i, 1, &texRes);
-			immediateContext->PSSetSamplers(i, 1, &sampleState);
+			//immediateContext->PSSetSamplers(i, 1, &sampleState);
 		}
 
 		//immediateContext->OMSetDepthStencilState()

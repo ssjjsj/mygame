@@ -15,8 +15,10 @@ Terrain::~Terrain()
 
 void Terrain::loadData(string data)
 {
-	heightData.xSize = 257;
-	heightData.zSize = 257;
+	heightData.xSize = 513;
+	heightData.zSize = 513;
+
+	nodeLayout.resize((heightData.xSize - 1)*(heightData.zSize - 1));
 
 	for (int indexZ = 0; indexZ < heightData.zSize; indexZ++)
 	{
@@ -41,9 +43,8 @@ void Terrain::setHeight(int x, int z, char height)
 
 char Terrain::getHeight(int x, int z)
 {
-	return 0;
-	//int xSize = heightData.xSize;
-	//return heightData.data[xSize*z + x];
+	int xSize = heightData.xSize;
+	return heightData.data[xSize*z + x];
 }
 
 
@@ -68,7 +69,7 @@ void Terrain::generateRenderAbles()
 
 void Terrain::fractal()
 {
-	float maxHeight = 2.5f;
+	float maxHeight = 10.0f;
 	float minHeight = 0.0f;
 
 	int iteratorTime = 10;
@@ -77,26 +78,32 @@ void Terrain::fractal()
 	{
 		float height = maxHeight - (maxHeight - minHeight) * curIterator *1.0f / iteratorTime;
 
-		int startX = rand() % 100;
-		int startZ = rand() % 100;
-		int endX = rand() % 100;
-		int endZ = rand() % 100;
+		int startX = rand() % heightData.xSize;
+		int startZ = rand() % heightData.zSize;
+		int endX = rand() % heightData.xSize;
+		int endZ = rand() % heightData.zSize;
 
 		XMFLOAT2 randLine = XMFLOAT2(endX - startX, endZ - startZ);
+		float length = sqrtf(randLine.x*randLine.x + randLine.y*randLine.y);
+		randLine.x /= length;
+		randLine.y /= length;
 		
-		for (int x = 0; x < heightData.xSize; x++)
+		int addNum = 0;
+		for (int z = 0; z < heightData.zSize; z++)
 		{
-			for (int z = 0; z < heightData.zSize; z++)
+			for (int x = 0; x < heightData.xSize; x++)
 			{
-				XMFLOAT2 dir = XMFLOAT2(x - startX, z - startZ);
+				XMFLOAT2 dir = XMFLOAT2(x, z);
+				float length = sqrtf(dir.x*dir.x + dir.y*dir.y);
+				dir.x /= length;
+				dir.y /= length;
 				if (randLine.x*dir.x + randLine.y*dir.y > 0)
 				{
 					heightData.data[x + heightData.xSize*z] += height;
+					addNum++;
 				}
 			}
 		}
-
-
 	}
 }
 
@@ -127,6 +134,8 @@ void Terrain::createQuadNode(float length, QuadNode *parentNode)
 	node->centerPos.first = parentNode->centerPos.first - length / 2;
 	node->centerPos.second = parentNode->centerPos.second - length / 2;
 	parentNode->subNodes.push_back(node);
+	node->parentNode = parentNode;
+	node->pos = QuadNode::Pos::DownLeft;
 	if (IsSubdivided(node->centerPos, node->length))
 	{
 		createQuadNode(node->length / 2, node);
@@ -141,6 +150,8 @@ void Terrain::createQuadNode(float length, QuadNode *parentNode)
 	node->length = length;
 	node->centerPos.first = parentNode->centerPos.first + length / 2;
 	node->centerPos.second = parentNode->centerPos.second - length / 2;
+	node->parentNode = parentNode;
+	node->pos = QuadNode::Pos::UpLeft;
 	parentNode->subNodes.push_back(node);
 	if (IsSubdivided(node->centerPos, node->length))
 	{
@@ -156,6 +167,8 @@ void Terrain::createQuadNode(float length, QuadNode *parentNode)
 	node->length = length;
 	node->centerPos.first = parentNode->centerPos.first - length / 2;
 	node->centerPos.second = parentNode->centerPos.second + length / 2;
+	node->parentNode = parentNode;
+	node->pos = QuadNode::Pos::DownRight;
 	parentNode->subNodes.push_back(node);
 	if (IsSubdivided(node->centerPos, node->length))
 	{
@@ -171,6 +184,8 @@ void Terrain::createQuadNode(float length, QuadNode *parentNode)
 	node->length = length;
 	node->centerPos.first = parentNode->centerPos.first + length / 2;
 	node->centerPos.second = parentNode->centerPos.second + length / 2;
+	node->parentNode = parentNode;
+	node->pos = QuadNode::Pos::UpRight;
 	parentNode->subNodes.push_back(node);
 	if (IsSubdivided(node->centerPos, node->length))
 	{
@@ -239,9 +254,9 @@ void Terrain::generateRenderAblesOnQuad(QuadNode *node)
 {
 	int vertexIndex = modelData.vertexs.size();
 	MyVertex::Vertex v;
-	float x = node->centerPos.first + node->length / 2;
-	float z = node->centerPos.second + node->length / 2;
-	float y = getHeight(x, z);
+	int x = node->centerPos.first + node->length / 2;
+	int z = node->centerPos.second + node->length / 2;
+	int y = getHeight(x, z);
 	v.Pos = XMFLOAT3(x, y, z);
 	v.Nor = heightData.precent[x + z*heightData.xSize];
 	v.UV = XMFLOAT2(1.0f, 1.0f);
@@ -312,22 +327,22 @@ void Terrain::procedualTexture()
 {
 	HeightRegion groundReigion;
 	groundReigion.minHeight = 0;
-	groundReigion.optimalHeight = 6;
-	groundReigion.maxHeight = 12;
+	groundReigion.optimalHeight = 12;
+	groundReigion.maxHeight = 24;
 
 	HeightRegion grassReigion;
-	grassReigion.minHeight = 6;
-	grassReigion.optimalHeight = 12;
-	grassReigion.maxHeight = 25;
+	grassReigion.minHeight = 12;
+	grassReigion.optimalHeight = 24;
+	grassReigion.maxHeight = 50;
 
 	vector<HeightRegion> heightRegions;
 	heightRegions.push_back(groundReigion);
 	heightRegions.push_back(grassReigion);
 
 
-	for (int x = 0; x < heightData.xSize; x++)
+	for (int z = 0; z < heightData.zSize; z++)
 	{
-		for (int z = 0; z < heightData.zSize; z++)
+		for (int x = 0; x < heightData.xSize; x++)
 		{
 			XMFLOAT3 data = XMFLOAT3(0.0f, 0.0f, 0.0f);
 			for (int i = 0; i < heightRegions.size(); i++)
@@ -343,11 +358,11 @@ void Terrain::procedualTexture()
 				}
 				else if (height <= reigion.optimalHeight && height > reigion.minHeight)
 				{
-					precent = (float)(height - reigion.minHeight) / (float)(groundReigion.optimalHeight - groundReigion.minHeight);
+					precent = (float)(height - reigion.minHeight) / (float)(reigion.optimalHeight - reigion.minHeight);
 				}
 				else if (height>reigion.optimalHeight && height < reigion.maxHeight)
 				{
-					precent = 1.0f - (float)(height - reigion.optimalHeight) / (float)(groundReigion.maxHeight - groundReigion.optimalHeight);
+					precent = 1.0f - (float)(height - reigion.optimalHeight) / (float)(reigion.maxHeight - reigion.optimalHeight);
 				}
 				else if (height >= reigion.maxHeight)
 				{
@@ -361,6 +376,40 @@ void Terrain::procedualTexture()
 			}
 			heightData.precent.push_back(data);
 		}
+	}
+}
+
+
+bool Terrain::IsCracked(QuadNode *node)
+{
+	return false;
+}
+
+void Terrain::generateNodeLayoutOnQuad(QuadNode *node, int level)
+{
+	if (node->isSubdivided == false)
+	{
+		for (int x = 0; x < node->length; x++)
+		{
+			for (int z = 0; z < node->length; z++)
+			{
+				switch (node->pos)
+				{
+				case QuadNode::Pos::DownLeft:
+					break;
+				case QuadNode::Pos::DownRight:
+					break;
+				case QuadNode::Pos::UpLeft:
+					break;
+				case QuadNode::Pos::UpRight:
+					break;
+				}
+			}
+		}
+	}
+	else
+	{
+
 	}
 }
 

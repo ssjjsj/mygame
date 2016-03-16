@@ -8,10 +8,31 @@ class Terrain
 {
 	struct QuadNode
 	{
+		enum Pos
+		{
+			UpLeft,
+			UpRight,
+			DownLeft,
+			DownRight,
+		};
 		std::pair<int, int> centerPos;
 		bool isSubdivided;
 		float length;
+		Pos pos;
+		QuadNode *parentNode;
 		vector<QuadNode*> subNodes;
+
+		QuadNode* getChildNode(Pos pos)
+		{
+			for (int i = 0; i < subNodes.size(); i++)
+			{
+				QuadNode *node = subNodes[i];
+				if (node->pos == pos)
+					return node;
+			}
+
+			return NULL;
+		}
 	};
 
 	struct HeightRegion
@@ -54,10 +75,13 @@ private:
 	void generateRenderAblesOnQuadTree();
 	void generateRenderAblesOnQuad(QuadNode *node);
 	bool IsSubdivided(std::pair<int, int> center, float length);
+	bool IsCracked(QuadNode *node);
+	void generateNodeLayoutOnQuad(QuadNode *node, int level);
 
 private:
 	float scale;
 	HeightData heightData;
+	vector<int> nodeLayout;
 	vector<RenderAble*> renderAbleList;
 	QuadNode *rootNode;
 	MyVertex::ModelData modelData;

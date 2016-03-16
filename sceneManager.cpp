@@ -44,21 +44,21 @@ void SceneManager::render()
 {
 	renderAbleAry.clear();
 
-	//vector<RenderAble*>& renderAbles = skyBox->getRenderAble();
-	//for (int i = 0; i < renderAbles.size(); i++)
-	//{
-	//	RenderAble *obj = renderAbles[i];
-	//	renderAbleAry.push_back(obj);
-	//}
+	vector<RenderAble*>& renderAbles = skyBox->getRenderAble();
+	for (int i = 0; i < renderAbles.size(); i++)
+	{
+		RenderAble *obj = renderAbles[i];
+		renderAbleAry.push_back(obj);
+	}
 
-	//for (int i = 0; i < meshAry.size(); i++)
-	//{
-	//	vector<RenderAble*>& renderAbles = meshAry[i]->getRenderAble();
-	//	for (int j = 0; j < renderAbles.size(); j++)
-	//	{
-	//		renderAbleAry.push_back(renderAbles[j]);
-	//	}
-	//}
+	for (int i = 0; i < meshAry.size(); i++)
+	{
+		vector<RenderAble*>& renderAbles = meshAry[i]->getRenderAble();
+		for (int j = 0; j < renderAbles.size(); j++)
+		{
+			renderAbleAry.push_back(renderAbles[j]);
+		}
+	}
 
 	if (terrain != NULL)
 	{
