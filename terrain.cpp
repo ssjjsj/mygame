@@ -62,8 +62,13 @@ void Terrain::generateRenderAbles()
 	MaterialRes res = MaterialRes("ogre.material.xml");
 	MaterialRes::MaterialData data = res.getMaterialData("terrain");
 	Material *m = new Material(data);
-
+	
 	RenderAble *obj = new RenderAble(g, m);
+	renderAbleList.push_back(obj);
+
+	data = res.getMaterialData("terrainwire");
+	m = new Material(data);
+	obj = new RenderAble(g, m);
 	renderAbleList.push_back(obj);
 }
 
@@ -125,6 +130,8 @@ void Terrain::initQuadTree()
 	{
 		node->isSubdivided = false;
 	}
+
+	generateNodeLayoutOnQuad(rootNode, 0);
 }
 
 void Terrain::createQuadNode(float length, QuadNode *parentNode)
@@ -151,7 +158,7 @@ void Terrain::createQuadNode(float length, QuadNode *parentNode)
 	node->centerPos.first = parentNode->centerPos.first + length / 2;
 	node->centerPos.second = parentNode->centerPos.second - length / 2;
 	node->parentNode = parentNode;
-	node->pos = QuadNode::Pos::UpLeft;
+	node->pos = QuadNode::Pos::DownRight;
 	parentNode->subNodes.push_back(node);
 	if (IsSubdivided(node->centerPos, node->length))
 	{
@@ -168,7 +175,7 @@ void Terrain::createQuadNode(float length, QuadNode *parentNode)
 	node->centerPos.first = parentNode->centerPos.first - length / 2;
 	node->centerPos.second = parentNode->centerPos.second + length / 2;
 	node->parentNode = parentNode;
-	node->pos = QuadNode::Pos::DownRight;
+	node->pos = QuadNode::Pos::UpLeft;
 	parentNode->subNodes.push_back(node);
 	if (IsSubdivided(node->centerPos, node->length))
 	{
@@ -227,6 +234,7 @@ void Terrain::updateQuadTree()
 {
 	reSetNode(rootNode);
 	updateQuadNode(rootNode);
+	generateNodeLayoutOnQuad(rootNode, 0);
 	generateRenderAbles();
 }
 
@@ -253,47 +261,216 @@ void Terrain::generateRenderAblesOnQuadTree()
 void Terrain::generateRenderAblesOnQuad(QuadNode *node)
 {
 	int vertexIndex = modelData.vertexs.size();
-	MyVertex::Vertex v;
+
+
+	MyVertex::Vertex rightUp;
 	int x = node->centerPos.first + node->length / 2;
 	int z = node->centerPos.second + node->length / 2;
 	int y = getHeight(x, z);
-	v.Pos = XMFLOAT3(x, y, z);
-	v.Nor = heightData.precent[x + z*heightData.xSize];
-	v.UV = XMFLOAT2(1.0f, 1.0f);
-	modelData.vertexs.push_back(v);
+	rightUp.Pos = XMFLOAT3(x, y, z);
+	rightUp.Nor = heightData.precent[x + z*heightData.xSize];
+	rightUp.UV = XMFLOAT2(1.0f, 1.0f);
 
 
+	MyVertex::Vertex rightDown;
 	x = node->centerPos.first + node->length / 2;
 	z = node->centerPos.second - node->length / 2;
 	y = getHeight(x, z);
-	v.Pos = XMFLOAT3(x, y, z);
-	v.Nor = heightData.precent[x + z*heightData.xSize];
-	v.UV = XMFLOAT2(1.0f, 0.0f);
-	modelData.vertexs.push_back(v);
+	rightDown.Pos = XMFLOAT3(x, y, z);
+	rightDown.Nor = heightData.precent[x + z*heightData.xSize];
+	rightDown.UV = XMFLOAT2(1.0f, 0.0f);
 
+	MyVertex::Vertex leftDown;
 	x = node->centerPos.first - node->length / 2;
 	z = node->centerPos.second - node->length / 2;
 	y = getHeight(x, z);
-	v.Pos = XMFLOAT3(x, y, z);
-	v.Nor = heightData.precent[x + z*heightData.xSize];
-	v.UV = XMFLOAT2(0.0f, 0.0f);
-	modelData.vertexs.push_back(v);
+	leftDown.Pos = XMFLOAT3(x, y, z);
+	leftDown.Nor = heightData.precent[x + z*heightData.xSize];
+	leftDown.UV = XMFLOAT2(0.0f, 0.0f);
 
+	MyVertex::Vertex leftUp;
 	x = node->centerPos.first - node->length / 2;
 	z = node->centerPos.second + node->length / 2;
 	y = getHeight(x, z);
-	v.Pos = XMFLOAT3(x, y, z);
-	v.Nor = heightData.precent[x + z*heightData.xSize];
-	v.UV = XMFLOAT2(0.0f, 1.0f);
-	modelData.vertexs.push_back(v);
+	leftUp.Pos = XMFLOAT3(x, y, z);
+	leftUp.Nor = heightData.precent[x + z*heightData.xSize];
+	leftUp.UV = XMFLOAT2(0.0f, 1.0f);
 
-	modelData.indexs.push_back(vertexIndex);
-	modelData.indexs.push_back(vertexIndex + 1);
-	modelData.indexs.push_back(vertexIndex + 2);
+	MyVertex::Vertex left;
+	left.Pos.x = (leftUp.Pos.x + leftDown.Pos.x) / 2;
+	left.Pos.y = (leftUp.Pos.y + leftDown.Pos.y) / 2;
+	left.Pos.z = (leftUp.Pos.z + leftDown.Pos.z) / 2;
+	left.Nor.x = (leftUp.Nor.x + leftDown.Nor.x) / 2;
+	left.Nor.y = (leftUp.Nor.y + leftDown.Nor.y) / 2;
+	left.Nor.z = (leftUp.Nor.z + leftDown.Nor.z) / 2;
+	left.UV.x = (leftUp.UV.x + leftDown.UV.x) / 2;
+	left.UV.y = (leftUp.UV.y + leftDown.UV.y) / 2;
 
-	modelData.indexs.push_back(vertexIndex + 2);
-	modelData.indexs.push_back(vertexIndex + 3);
-	modelData.indexs.push_back(vertexIndex);
+	MyVertex::Vertex right;
+	right.Pos.x = (rightUp.Pos.x + rightDown.Pos.x) / 2;
+	right.Pos.y = (rightUp.Pos.y + rightDown.Pos.y) / 2;
+	right.Pos.z = (rightUp.Pos.z + rightDown.Pos.z) / 2;
+	right.Nor.x = (rightUp.Nor.x + rightDown.Nor.x) / 2;
+	right.Nor.y = (rightUp.Nor.y + rightDown.Nor.y) / 2;
+	right.Nor.z = (rightUp.Nor.z + rightDown.Nor.z) / 2;
+	right.UV.x = (rightUp.UV.x + rightDown.UV.x) / 2;
+	right.UV.y = (rightUp.UV.y + rightDown.UV.y) / 2;
+
+
+	MyVertex::Vertex up;
+	up.Pos.x = (leftUp.Pos.x + rightUp.Pos.x) / 2;
+	up.Pos.y = (leftUp.Pos.y + rightUp.Pos.y) / 2;
+	up.Pos.z = (leftUp.Pos.z + rightUp.Pos.z) / 2;
+	up.Nor.x = (leftUp.Nor.x + rightUp.Nor.x) / 2;
+	up.Nor.y = (leftUp.Nor.y + rightUp.Nor.y) / 2;
+	up.Nor.z = (leftUp.Nor.z + rightUp.Nor.z) / 2;
+	up.UV.x = (leftUp.UV.x + rightUp.UV.x) / 2;
+	up.UV.y = (leftUp.UV.y + rightUp.UV.y) / 2;
+
+	MyVertex::Vertex down;
+	down.Pos.x = (leftDown.Pos.x + rightDown.Pos.x) / 2;
+	down.Pos.y = (leftDown.Pos.y + rightDown.Pos.y) / 2;
+	down.Pos.z = (leftDown.Pos.z + rightDown.Pos.z) / 2;
+	down.Nor.x = (leftDown.Nor.x + rightDown.Nor.x) / 2;
+	down.Nor.y = (leftDown.Nor.y + rightDown.Nor.y) / 2;
+	down.Nor.z = (leftDown.Nor.z + rightDown.Nor.z) / 2;
+	down.UV.x = (leftDown.UV.x + rightDown.UV.x) / 2;
+	down.UV.y = (leftDown.UV.y + rightDown.UV.y) / 2;
+
+	
+	
+	set<QuadNode::Pos> bPos = IsCracked(node);
+	if (bPos.size() > 1)
+	{
+		int i = 3;
+	}
+	bool includeLeft = bPos.count(QuadNode::Left) > 0;
+	bool includeRight = bPos.count(QuadNode::Right) > 0;
+	bool includeDown = bPos.count(QuadNode::Down) > 0;
+	bool includeUp = bPos.count(QuadNode::Up) > 0;
+	
+	if (includeDown && includeRight)
+	{
+		modelData.vertexs.push_back(leftDown);
+		modelData.vertexs.push_back(down);
+		modelData.vertexs.push_back(rightDown);
+		modelData.vertexs.push_back(right);
+		modelData.vertexs.push_back(rightUp);
+
+		modelData.indexs.push_back(vertexIndex + 4);
+		modelData.indexs.push_back(vertexIndex + 3);
+		modelData.indexs.push_back(vertexIndex + 0);
+
+		modelData.indexs.push_back(vertexIndex + 3);
+		modelData.indexs.push_back(vertexIndex + 2);
+		modelData.indexs.push_back(vertexIndex + 1);
+
+		modelData.indexs.push_back(vertexIndex + 3);
+		modelData.indexs.push_back(vertexIndex + 1);
+		modelData.indexs.push_back(vertexIndex + 0);
+	}
+	else if (includeDown)
+	{
+		modelData.vertexs.push_back(leftDown);
+		modelData.vertexs.push_back(down);
+		modelData.vertexs.push_back(rightDown);
+		modelData.vertexs.push_back(rightUp);
+
+		modelData.indexs.push_back(vertexIndex + 3);
+		modelData.indexs.push_back(vertexIndex + 1);
+		modelData.indexs.push_back(vertexIndex + 0);
+
+		modelData.indexs.push_back(vertexIndex + 3);
+		modelData.indexs.push_back(vertexIndex + 2);
+		modelData.indexs.push_back(vertexIndex + 1);
+	}
+	else if (includeRight)
+	{
+		modelData.vertexs.push_back(leftDown);
+		modelData.vertexs.push_back(rightDown);
+		modelData.vertexs.push_back(right);
+		modelData.vertexs.push_back(rightUp);
+
+		modelData.indexs.push_back(vertexIndex + 2);
+		modelData.indexs.push_back(vertexIndex + 1);
+		modelData.indexs.push_back(vertexIndex + 0);
+
+		modelData.indexs.push_back(vertexIndex + 3);
+		modelData.indexs.push_back(vertexIndex + 2);
+		modelData.indexs.push_back(vertexIndex + 0);
+	}
+	else
+	{
+		modelData.vertexs.push_back(leftDown);
+		modelData.vertexs.push_back(rightDown);
+		modelData.vertexs.push_back(rightUp);
+
+		modelData.indexs.push_back(vertexIndex + 2);
+		modelData.indexs.push_back(vertexIndex + 1);
+		modelData.indexs.push_back(vertexIndex + 0);
+	}
+	
+	vertexIndex = modelData.vertexs.size();
+	if (includeLeft && includeUp)
+	{
+		modelData.vertexs.push_back(leftDown);
+		modelData.vertexs.push_back(left);
+		modelData.vertexs.push_back(leftUp);
+		modelData.vertexs.push_back(up);
+		modelData.vertexs.push_back(rightUp);
+
+		modelData.indexs.push_back(vertexIndex + 0);
+		modelData.indexs.push_back(vertexIndex + 1);
+		modelData.indexs.push_back(vertexIndex + 4);
+
+		modelData.indexs.push_back(vertexIndex + 1);
+		modelData.indexs.push_back(vertexIndex + 2);
+		modelData.indexs.push_back(vertexIndex + 3);
+
+		modelData.indexs.push_back(vertexIndex + 1);
+		modelData.indexs.push_back(vertexIndex + 3);
+		modelData.indexs.push_back(vertexIndex + 4);
+	}
+	else if (includeLeft)
+	{
+		modelData.vertexs.push_back(leftDown);
+		modelData.vertexs.push_back(left);
+		modelData.vertexs.push_back(leftUp);
+		modelData.vertexs.push_back(rightUp);
+
+		modelData.indexs.push_back(vertexIndex + 0);
+		modelData.indexs.push_back(vertexIndex + 1);
+		modelData.indexs.push_back(vertexIndex + 3);
+
+		modelData.indexs.push_back(vertexIndex + 1);
+		modelData.indexs.push_back(vertexIndex + 2);
+		modelData.indexs.push_back(vertexIndex + 3);
+	}
+	else if (includeUp)
+	{
+		modelData.vertexs.push_back(leftDown);
+		modelData.vertexs.push_back(leftUp);
+		modelData.vertexs.push_back(up);
+		modelData.vertexs.push_back(rightUp);
+
+		modelData.indexs.push_back(vertexIndex + 0);
+		modelData.indexs.push_back(vertexIndex + 1);
+		modelData.indexs.push_back(vertexIndex + 2);
+
+		modelData.indexs.push_back(vertexIndex + 0);
+		modelData.indexs.push_back(vertexIndex + 2);
+		modelData.indexs.push_back(vertexIndex + 3);
+	}
+	else
+	{
+		modelData.vertexs.push_back(leftDown);
+		modelData.vertexs.push_back(leftUp);
+		modelData.vertexs.push_back(rightUp);
+
+		modelData.indexs.push_back(vertexIndex + 0);
+		modelData.indexs.push_back(vertexIndex + 1);
+		modelData.indexs.push_back(vertexIndex + 2);
+	}
 }
 
 void Terrain::renderQuadNode(QuadNode *node)
@@ -380,36 +557,69 @@ void Terrain::procedualTexture()
 }
 
 
-bool Terrain::IsCracked(QuadNode *node)
+set<Terrain::QuadNode::Pos> Terrain::IsCracked(QuadNode *node)
 {
-	return false;
+	set<QuadNode::Pos> bPos;
+	int downLeftNodeIndex = node->centerPos.first - node->length / 2 + (heightData.xSize - 1)*(node->centerPos.second - node->length / 2);
+	int downRightNodeIndex = downLeftNodeIndex + node->length - 1;
+	int upLeftNodeIndex = downLeftNodeIndex + (node->length - 1)*(heightData.xSize-1);
+	int upRightNodeIndex = downLeftNodeIndex + (node->length - 1)*(heightData.xSize - 1) + node->length-1;
+
+
+	int x = node->centerPos.first - node->length / 2;
+	int z = node->centerPos.second - node->length / 2;
+	if (x > 0 && x < heightData.xSize - 1)
+	{
+		if (nodeLayout[downLeftNodeIndex - 1] > nodeLayout[downLeftNodeIndex])
+			bPos.insert(QuadNode::Pos::Left);
+	}
+
+	if (z>0 && z < heightData.zSize - 1)
+	{
+		if (nodeLayout[downLeftNodeIndex - heightData.zSize + 1] > nodeLayout[downLeftNodeIndex])
+			bPos.insert(QuadNode::Pos::Down);
+	}
+
+	x = node->centerPos.first + node->length / 2;
+	z = node->centerPos.second - node->length / 2;
+	if (x > 0 && x < heightData.xSize - 1)
+	{
+		if (nodeLayout[downRightNodeIndex + 1] > nodeLayout[downRightNodeIndex])
+			bPos.insert(QuadNode::Pos::Right);
+	}
+
+
+	x = node->centerPos.first - node->length / 2;
+	z = node->centerPos.second + node->length / 2;
+	if (z>0 && z < heightData.zSize - 1)
+	{
+		if (nodeLayout[upLeftNodeIndex + heightData.zSize - 1] > nodeLayout[upLeftNodeIndex])
+			bPos.insert(QuadNode::Pos::Up);
+	}
+
+	return bPos;
 }
 
 void Terrain::generateNodeLayoutOnQuad(QuadNode *node, int level)
 {
 	if (node->isSubdivided == false)
 	{
+		int startIndex = node->centerPos.first - node->length/2 + (heightData.xSize - 1)*(node->centerPos.second - node->length/2);
 		for (int x = 0; x < node->length; x++)
 		{
 			for (int z = 0; z < node->length; z++)
 			{
-				switch (node->pos)
-				{
-				case QuadNode::Pos::DownLeft:
-					break;
-				case QuadNode::Pos::DownRight:
-					break;
-				case QuadNode::Pos::UpLeft:
-					break;
-				case QuadNode::Pos::UpRight:
-					break;
-				}
+				nodeLayout[startIndex + x + (heightData.xSize - 1)*z] = level;
 			}
 		}
 	}
 	else
 	{
-
+		for (int i = 0; i < node->subNodes.size(); i++)
+		{
+			QuadNode *childNode = node->subNodes[i];
+			generateNodeLayoutOnQuad(childNode, level + 1);
+		}
 	}
 }
 

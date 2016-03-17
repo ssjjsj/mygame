@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include "renderAble.h"
+#include <set>
 using namespace std;
 
 class Terrain
@@ -14,10 +15,14 @@ class Terrain
 			UpRight,
 			DownLeft,
 			DownRight,
+			Up,
+			Down,
+			Left,
+			Right,
 		};
 		std::pair<int, int> centerPos;
 		bool isSubdivided;
-		float length;
+		int length;
 		Pos pos;
 		QuadNode *parentNode;
 		vector<QuadNode*> subNodes;
@@ -75,7 +80,7 @@ private:
 	void generateRenderAblesOnQuadTree();
 	void generateRenderAblesOnQuad(QuadNode *node);
 	bool IsSubdivided(std::pair<int, int> center, float length);
-	bool IsCracked(QuadNode *node);
+	set<QuadNode::Pos> IsCracked(QuadNode *node);
 	void generateNodeLayoutOnQuad(QuadNode *node, int level);
 
 private:
