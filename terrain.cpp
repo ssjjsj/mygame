@@ -15,8 +15,8 @@ Terrain::~Terrain()
 
 void Terrain::loadData(string data)
 {
-	heightData.xSize = 513;
-	heightData.zSize = 513;
+	heightData.xSize = 65;
+	heightData.zSize = 65;
 
 	nodeLayout.resize((heightData.xSize - 1)*(heightData.zSize - 1));
 
@@ -77,7 +77,7 @@ void Terrain::fractal()
 	float maxHeight = 10.0f;
 	float minHeight = 0.0f;
 
-	int iteratorTime = 10;
+	int iteratorTime = 4;
 
 	for (int curIterator = 0; curIterator < iteratorTime; curIterator++)
 	{
@@ -92,20 +92,22 @@ void Terrain::fractal()
 		float length = sqrtf(randLine.x*randLine.x + randLine.y*randLine.y);
 		randLine.x /= length;
 		randLine.y /= length;
+
+		XMFLOAT2 normalRandline;
+		XMVECTOR v = XMVector2Orthogonal(XMLoadFloat2(&randLine));
+		XMStoreFloat2(&normalRandline, v);
 		
-		int addNum = 0;
 		for (int z = 0; z < heightData.zSize; z++)
 		{
 			for (int x = 0; x < heightData.xSize; x++)
 			{
-				XMFLOAT2 dir = XMFLOAT2(x, z);
+				XMFLOAT2 dir = XMFLOAT2(x-startX, z-startZ);
 				float length = sqrtf(dir.x*dir.x + dir.y*dir.y);
 				dir.x /= length;
 				dir.y /= length;
-				if (randLine.x*dir.x + randLine.y*dir.y > 0)
+				if (normalRandline.x*dir.x + normalRandline.y*dir.y > 0)
 				{
 					heightData.data[x + heightData.xSize*z] += height;
-					addNum++;
 				}
 			}
 		}
@@ -298,8 +300,8 @@ void Terrain::generateRenderAblesOnQuad(QuadNode *node)
 
 	MyVertex::Vertex left;
 	left.Pos.x = (leftUp.Pos.x + leftDown.Pos.x) / 2;
-	left.Pos.y = (leftUp.Pos.y + leftDown.Pos.y) / 2;
 	left.Pos.z = (leftUp.Pos.z + leftDown.Pos.z) / 2;
+	left.Pos.y = getHeight(left.Pos.x, left.Pos.z);
 	left.Nor.x = (leftUp.Nor.x + leftDown.Nor.x) / 2;
 	left.Nor.y = (leftUp.Nor.y + leftDown.Nor.y) / 2;
 	left.Nor.z = (leftUp.Nor.z + leftDown.Nor.z) / 2;
@@ -308,8 +310,8 @@ void Terrain::generateRenderAblesOnQuad(QuadNode *node)
 
 	MyVertex::Vertex right;
 	right.Pos.x = (rightUp.Pos.x + rightDown.Pos.x) / 2;
-	right.Pos.y = (rightUp.Pos.y + rightDown.Pos.y) / 2;
 	right.Pos.z = (rightUp.Pos.z + rightDown.Pos.z) / 2;
+	right.Pos.y = getHeight(right.Pos.x, right.Pos.z);
 	right.Nor.x = (rightUp.Nor.x + rightDown.Nor.x) / 2;
 	right.Nor.y = (rightUp.Nor.y + rightDown.Nor.y) / 2;
 	right.Nor.z = (rightUp.Nor.z + rightDown.Nor.z) / 2;
@@ -319,8 +321,8 @@ void Terrain::generateRenderAblesOnQuad(QuadNode *node)
 
 	MyVertex::Vertex up;
 	up.Pos.x = (leftUp.Pos.x + rightUp.Pos.x) / 2;
-	up.Pos.y = (leftUp.Pos.y + rightUp.Pos.y) / 2;
 	up.Pos.z = (leftUp.Pos.z + rightUp.Pos.z) / 2;
+	up.Pos.y = getHeight(up.Pos.x, up.Pos.z);
 	up.Nor.x = (leftUp.Nor.x + rightUp.Nor.x) / 2;
 	up.Nor.y = (leftUp.Nor.y + rightUp.Nor.y) / 2;
 	up.Nor.z = (leftUp.Nor.z + rightUp.Nor.z) / 2;
@@ -329,8 +331,8 @@ void Terrain::generateRenderAblesOnQuad(QuadNode *node)
 
 	MyVertex::Vertex down;
 	down.Pos.x = (leftDown.Pos.x + rightDown.Pos.x) / 2;
-	down.Pos.y = (leftDown.Pos.y + rightDown.Pos.y) / 2;
 	down.Pos.z = (leftDown.Pos.z + rightDown.Pos.z) / 2;
+	down.Pos.y = getHeight(down.Pos.x, down.Pos.z);
 	down.Nor.x = (leftDown.Nor.x + rightDown.Nor.x) / 2;
 	down.Nor.y = (leftDown.Nor.y + rightDown.Nor.y) / 2;
 	down.Nor.z = (leftDown.Nor.z + rightDown.Nor.z) / 2;
@@ -490,6 +492,9 @@ void Terrain::renderQuadNode(QuadNode *node)
 
 bool Terrain::IsSubdivided(std::pair<int, int> center, float length)
 {
+	if (length <= 2)
+		return false;
+
 	float constant = 10.0f;
 	Camera *c = gRender->getCamera();
 	XMFLOAT3 camPos = c->GetPosition();

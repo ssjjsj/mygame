@@ -8,6 +8,10 @@ Material::Material()
 
 Material::Material(MaterialRes::MaterialData &data)
 {
+	ambient = data.ambient;
+	specular = data.specular;
+	diffuse = data.diffuse;
+	
 	shader = new Shader(data.res.get());
 
 	if (!data.texName.empty())

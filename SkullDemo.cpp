@@ -16,6 +16,7 @@
 #include "shaderResource.h"
 #include "global.h"
 #include "Render.h"
+#include "FreeImage.h"
  
 
 
@@ -90,12 +91,15 @@ SkullApp::SkullApp(HINSTANCE hInstance)
 
 SkullApp::~SkullApp()
 {
+	FreeImage_DeInitialise();
 }
 
 bool SkullApp::Init()
 {
 	if(!D3DApp::Init())
 		return false;
+
+	FreeImage_Initialise(TRUE);
 
 	XMVECTOR pos = XMVectorSet(50.0f, 50.0f, 0.0f, 1.0f);
 	XMVECTOR target = XMVectorSet(50.0f, 0.0f, 50.0f, 1.0f);
@@ -105,12 +109,21 @@ bool SkullApp::Init()
 	gRender->getCamera()->LookAt(pos, target, up);
 	gRender->getCamera()->UpdateViewMatrix();
 
-	Mesh *m = new Mesh("Sinbad.mesh.xml");
-	m->setMaterial("ogre.material.xml");
+	Mesh *m = new Mesh("sponza.obj");
+	m->setMaterial("sponza.material.xml");
 	m->playAnimation("Sinbad");
 	gSceneManager.addMesh(m);
 
 	gSceneManager.createTerrain();
+
+	Light *l = new Light;
+	l->ambient = XMFLOAT3(1.0f, 1.0f, 1.0f);
+	l->diffuse = XMFLOAT3(1.0f, 1.0f, 1.0f);
+	l->specular = XMFLOAT3(1.0f, 1.0f, 1.0f);
+	l->pos = XMFLOAT3(10.0f, 10.0f, 10.0f);
+	l->k0 = 1.0f;
+	l->k1 = 2.0f;
+	l->k2 = 3.0f;
 
 	return true;
 }

@@ -12,7 +12,7 @@ ShaderResource::ShaderResource(string name)
 	renderStates.renderMode = RenderModes::Soild;
 	renderStates.cullMode = CullModes::None;
 	renderStates.blendMode = BlendModes::Replace;
-	renderStates.testMode = TestModes::Always;
+	renderStates.testMode = TestModes::Less;
 	renderStates.zWriteMode = ZWrite::On;
 	loadShader(ShaderPath + name);
 }
@@ -29,6 +29,7 @@ ShaderResource::~ShaderResource()
 
 void ShaderResource::loadShader(string name)
 {
+	shaderName = name;
 	TiXmlDocument doc = TiXmlDocument(name.c_str());
 	doc.LoadFile();
 
@@ -81,8 +82,8 @@ void ShaderResource::loadShader(string name)
 				renderStates.testMode = TestModes::Greater;
 			else if (data == "GreaterEqual")
 				renderStates.testMode = TestModes::GreaterEqual;
-			else if (data == "Less")
-				renderStates.testMode = TestModes::Less;
+			else if (data == "Always")
+				renderStates.testMode = TestModes::Always;
 			else if (data == "LessEqual")
 				renderStates.testMode = TestModes::LessEqual;
 		}

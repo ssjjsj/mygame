@@ -27,7 +27,11 @@ Mesh::~Mesh()
 
 void Mesh::loadFile(string filename)
 {
-	subMeshAry = OrgeMeshPaser::parseMesh(filename);
+	string format = filename.substr(filename.size() - 3, 3);
+	if (format == "xml")
+		subMeshAry = OrgeMeshPaser::parseMesh(filename);
+	else if (format == "obj")
+		subMeshAry = OrgeMeshPaser::parseObjMesh(filename);
 }
 
 void Mesh::setMaterial(string name) 

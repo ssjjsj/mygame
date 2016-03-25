@@ -7,6 +7,7 @@ using namespace std;
 #include <vector>
 #include "terrain.h"
 #include "SkyBox.h"
+#include "light.h"
 
 class SceneManager
 {
@@ -19,11 +20,13 @@ public:
 	void render();
 	void addMesh(Mesh *m) { meshAry.push_back(m); }
 	void createTerrain();
+	void addLight(Light *l);
 
 private:
 	vector<Mesh*> meshAry;
 	vector<RenderAble*> renderAbleAry;
 	Terrain *terrain;
 	SkyBox *skyBox;
+	vector<Light*> lights;
 };
 #endif

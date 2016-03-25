@@ -29,7 +29,20 @@ void MaterialRes::load(string name)
 
 		MaterialData data;
 
-		TiXmlElement *shaderNode = (TiXmlElement*)materialElement->FirstChild();
+		TiXmlElement *ambientNode = (TiXmlElement*)materialElement->FirstChild();
+		data.ambient.x = atof(ambientNode->Attribute("r"));
+		data.ambient.y = atof(ambientNode->Attribute("g"));
+		data.ambient.z = atof(ambientNode->Attribute("b"));
+		TiXmlElement *diffuseNode = (TiXmlElement*)ambientNode->NextSibling();
+		data.diffuse.x = atof(diffuseNode->Attribute("r"));
+		data.diffuse.y = atof(diffuseNode->Attribute("g"));
+		data.diffuse.z = atof(diffuseNode->Attribute("b"));
+		TiXmlElement *specularNode = (TiXmlElement*)diffuseNode->NextSibling();
+		data.specular.x = atof(specularNode->Attribute("r"));
+		data.specular.y = atof(specularNode->Attribute("g"));
+		data.specular.z = atof(specularNode->Attribute("b"));
+		
+		TiXmlElement *shaderNode = (TiXmlElement*)specularNode->NextSibling();
 		string shaderName = shaderNode->Attribute("name");
 
 		data.res = shared_ptr<ShaderResource>(new ShaderResource(shaderName));

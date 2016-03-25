@@ -1,13 +1,14 @@
 #include "OrgeMeshPaser.h"
 #include <vector>
 #include <map>
+#include <fstream>
 
 namespace OrgeMeshPaser
 {
 	vector<MyVertex::ModelData> parseMeshUseShardedVertex(string fileName)
 	{
 		vector<MyVertex::ModelData> modelDatas;
-		
+
 		TiXmlDocument doc = TiXmlDocument(fileName.c_str());
 		doc.LoadFile();
 
@@ -75,11 +76,11 @@ namespace OrgeMeshPaser
 			//	ass.weight = atof(curBoneVertexElement->Attribute("weight"));
 			//	model.boneVertexAssigns.push_back(ass);
 			//}
-			
+
 
 			modelDatas.push_back(model);
 		}
-		
+
 		return modelDatas;
 	}
 
@@ -149,7 +150,7 @@ namespace OrgeMeshPaser
 				TiXmlElement *uvElement = curUVNode->FirstChildElement();
 				model.vertexs[i].UV.x = atof(uvElement->Attribute("u"));
 				model.vertexs[i].UV.y = atof(uvElement->Attribute("v"));
-				i++; 
+				i++;
 			}
 
 			TiXmlNode *boneVertexAssignRootNode = geometryRootNode->NextSibling();
@@ -196,5 +197,204 @@ namespace OrgeMeshPaser
 		}
 
 		return modelDatas;
+	}
+
+
+	vector<MyVertex::ModelData> parseObjMesh(string fileName)
+	{
+		vector<XMFLOAT3> posList;
+		vector<XMFLOAT2> uvList;
+		vector<XMFLOAT3> normalList;
+
+		map<string, int> cache;
+		vector<MyVertex::ModelData> data;
+		vector<MyVertex::Vertex> vertexList;
+		vector<UINT> indexs;
+		string materialName;
+
+		ifstream f;
+		f.open(fileName, ios::in);
+
+		if (f.is_open())
+		{
+			int a = 3;
+		}
+
+		while (!f.eof())
+		{
+			char buf[100];
+			string line;
+			line.clear();
+			f.getline(buf, 100);
+			line = string(buf);
+			if (line.size() > 0)
+			{
+				if (line.substr(0, 6) == "mtllib")
+				{
+					int a = 3;
+					//string matLibName = line.substr(7);
+					//matDic = parseMat("media/" + matLibName);
+				}
+				else if (line.substr(0, 2) == "vt")
+				{
+					float u, v;
+					sscanf(line.c_str(), "vt %f %f", &u, &v);
+					XMFLOAT2 uv;
+					uv.x = u;
+					uv.y = v;
+
+					uvList.push_back(uv);
+				}
+				else if (line.substr(0, 2) == "vn")
+				{
+					float x, y, z;
+					sscanf(line.c_str(), "vn %f %f %f", &x, &y, &z);
+					XMFLOAT3 nor;
+					nor.x = x;
+					nor.y = y;
+					nor.z = z;
+
+					normalList.push_back(nor);
+				}
+				else if (line.substr(0, 1) == "v")
+				{
+					float x, y, z;
+					sscanf(line.c_str(), "v  %f %f %f", &x, &y, &z);
+					XMFLOAT3 pos;
+					pos.x = x;
+					pos.y = y;
+					pos.z = z;
+
+					posList.push_back(pos);
+				}
+				else if (line.substr(0, 6) == "usemtl")
+				{
+					if (vertexList.size() > 0)
+					{
+						MyVertex::ModelData m;
+						m.vertexs = vertexList;
+						m.indexs = indexs;
+						m.materialName = materialName;
+						data.push_back(m);
+
+						//if (data.size() == 16)
+						//{
+						//	data.clear();
+						//	data.push_back(m);
+						//	break;
+						//}
+
+						vertexList.clear();
+						indexs.clear();
+					}
+
+					materialName = line.substr(7, line.size() - 7);
+				}
+				else if (line.substr(0, 1) == "f")
+				{
+					string tempAry[3];
+					char buf0[100], buf1[100], buf2[100];
+					sscanf(line.c_str(), "f %s %s %s", buf0, buf1, buf2);
+					tempAry[0] = string(buf0);
+					tempAry[1] = string(buf1);
+					tempAry[2] = string(buf2);
+
+					for (int i = 2; i >= 0; i--)
+					{
+						string s = tempAry[i];
+						if (s.empty())
+							continue;
+
+						int count = 0;
+						for (int i = 0; i < s.size(); i++)
+						{
+							if (s[i] == '/')
+								count++;
+						}
+						if (count == 0)
+						{
+							int posIndex = atoi(s.c_str());
+							string cacheString = "pos" + s;
+							if (cache.count(cacheString) > 0)
+							{
+								int index = cache[cacheString];
+								indexs.push_back(index);
+							}
+							else
+							{
+								MyVertex::Vertex newVertex;
+								newVertex.Pos = posList[posIndex];
+								vertexList.push_back(newVertex);
+								indexs[i] = vertexList.size() - 1;
+								cache[cacheString] = vertexList.size() - 1;
+							}
+						}
+						else if (count == 1)
+						{
+							int posIndex;
+							int uvIndex;
+							sscanf(s.c_str(), "%i/%i", &posIndex, &uvIndex);
+							string cacheString;
+							sprintf((char*)cacheString.c_str(), "pos%iuv%i", posIndex, uvIndex);
+							if (cache.count(cacheString) > 0)
+							{
+								int index = cache[cacheString];
+								indexs.push_back(index);
+							}
+							else
+							{
+								MyVertex::Vertex newVertex;
+								newVertex.Pos = posList[posIndex];
+								newVertex.UV = uvList[uvIndex];
+								vertexList.push_back(newVertex);
+								indexs[i] = vertexList.size() - 1;
+								cache[cacheString] = vertexList.size() - 1;
+							}
+						}
+						else if (count == 2)
+						{
+							int posIndex;
+							int uvIndex;
+							int norIndex;
+							int num = 0;
+
+							sscanf(s.c_str(), "%i/%i/%i", &posIndex, &uvIndex, &norIndex);
+							if (posIndex == 905 && uvIndex == 285 && norIndex == 931)
+							{
+								int i = 3;
+							}
+							string cacheString;
+							char buf[100];
+							sprintf(buf, "pos%iuv%inor%i", posIndex, uvIndex, norIndex);
+							cacheString = string(buf);
+							if (cache.count(cacheString) > 0)
+							{
+								int index = cache[cacheString];
+								indexs.push_back(index);
+							}
+							else
+							{
+								MyVertex::Vertex newVertex;
+								newVertex.Pos = posList[posIndex - 1];
+								newVertex.UV = uvList[uvIndex - 1];
+								newVertex.Nor = normalList[norIndex - 1];
+								vertexList.push_back(newVertex);
+								indexs.push_back(vertexList.size() - 1);
+								cache[cacheString] = vertexList.size() - 1;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		MyVertex::ModelData m;
+		m.vertexs = vertexList;
+		m.indexs = indexs;
+		m.materialName = materialName;
+		data.push_back(m);
+		f.close();
+
+		return data;
 	}
 }

@@ -15,6 +15,17 @@ SceneManager::~SceneManager()
 
 	if (skyBox != NULL)
 		delete skyBox;
+
+	for (int i = 0; i < lights.size(); i++)
+	{
+		delete lights[i];
+	}
+}
+
+
+void SceneManager::addLight(Light *light)
+{
+	lights.push_back(light);
 }
 
 
@@ -44,12 +55,15 @@ void SceneManager::render()
 {
 	renderAbleAry.clear();
 
-	vector<RenderAble*>& renderAbles = skyBox->getRenderAble();
-	for (int i = 0; i < renderAbles.size(); i++)
-	{
-		RenderAble *obj = renderAbles[i];
-		renderAbleAry.push_back(obj);
-	}
+	//if (skyBox != NULL)
+	//{
+	//	vector<RenderAble*>& renderAbles = skyBox->getRenderAble();
+	//	for (int i = 0; i < renderAbles.size(); i++)
+	//	{
+	//		RenderAble *obj = renderAbles[i];
+	//		renderAbleAry.push_back(obj);
+	//	}
+	//}
 
 	for (int i = 0; i < meshAry.size(); i++)
 	{
@@ -60,14 +74,18 @@ void SceneManager::render()
 		}
 	}
 
-	if (terrain != NULL)
+	//if (terrain != NULL)
+	//{
+	//	vector<RenderAble*>& renderAbles = terrain->getRenderAbles();
+	//	for (int j = 0; j < renderAbles.size(); j++)
+	//	{
+	//		renderAbleAry.push_back(renderAbles[j]);
+	//	}
+	//}
+
+	gRender->preDraw();
+	if (lights.size() > 0)
 	{
-		vector<RenderAble*>& renderAbles = terrain->getRenderAbles();
-		for (int j = 0; j < renderAbles.size(); j++)
-		{
-			renderAbleAry.push_back(renderAbles[j]);
-		}
+		gRender->draw(renderAbleAry, lights);
 	}
-	
-	gRender->draw(renderAbleAry);
 }

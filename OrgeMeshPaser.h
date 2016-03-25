@@ -11,5 +11,6 @@ namespace OrgeMeshPaser
 {
 	vector<MyVertex::ModelData> parseMesh(string fileName);
 	vector<MyVertex::ModelData> parseMeshUseShardedVertex(string filename);
+	vector<MyVertex::ModelData> parseObjMesh(string fileName);
 };
 #endif;
