@@ -16,6 +16,7 @@ class Render
 		XMFLOAT3 ambient;
 		XMFLOAT3 diffuse;
 		XMFLOAT3 specular;
+		int pad1, pad2, pad3;
 	};
 
 	struct LightData
@@ -26,6 +27,7 @@ class Render
 		XMFLOAT3 diffuse;
 		XMFLOAT3 specular;
 		float k0, k1, k2;
+		int pad;
 	};
 public:
 	Render() {};

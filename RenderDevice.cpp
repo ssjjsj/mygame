@@ -8,8 +8,8 @@ bool RenderDevice::init(HWND wnd, int width, int height)
 	this->width = width;
 	this->height = height;
 
-	//UINT createDeviceFlags = D3D11_CREATE_DEVICE_DEBUG;
-	UINT createDeviceFlags = 0;
+	UINT createDeviceFlags = D3D11_CREATE_DEVICE_DEBUG;
+	//UINT createDeviceFlags = 0;
 #if defined(DEBUG) || defined(_DEBUG)  
 	//createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif

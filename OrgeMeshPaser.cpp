@@ -277,7 +277,7 @@ namespace OrgeMeshPaser
 						m.materialName = materialName;
 						data.push_back(m);
 
-						//if (data.size() == 16)
+						//if (data.size() == 10)
 						//{
 						//	data.clear();
 						//	data.push_back(m);
@@ -359,10 +359,6 @@ namespace OrgeMeshPaser
 							int num = 0;
 
 							sscanf(s.c_str(), "%i/%i/%i", &posIndex, &uvIndex, &norIndex);
-							if (posIndex == 905 && uvIndex == 285 && norIndex == 931)
-							{
-								int i = 3;
-							}
 							string cacheString;
 							char buf[100];
 							sprintf(buf, "pos%iuv%inor%i", posIndex, uvIndex, norIndex);

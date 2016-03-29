@@ -1,5 +1,6 @@
 #include "Render.h"
 #include "MathHelp.h"
+#include <comdef.h>
 
 Render::Render(RenderDevice *device)
 {
@@ -11,6 +12,8 @@ Render::Render(RenderDevice *device)
 	sampleState = NULL;
 	rasterState = NULL;
 	depthState = NULL;
+	lightBuff = NULL;
+	materialBuffer = NULL;
 	camera = new Camera;
 	gpuResManager = new GpuResManager();
 
@@ -52,20 +55,6 @@ Render::Render(RenderDevice *device)
 	matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
-	D3D11_BUFFER_DESC materialBufferDesc;
-	ZeroMemory(&materialBufferDesc, sizeof(D3D11_BUFFER_DESC));
-	materialBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	materialBufferDesc.ByteWidth = sizeof(float);
-	materialBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	materialBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-
-	D3D11_BUFFER_DESC lightBufferDesc;
-	ZeroMemory(&lightBufferDesc, sizeof(D3D11_BUFFER_DESC));
-	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	lightBufferDesc.ByteWidth = sizeof(LightData);
-	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	lightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-
 	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
 	ID3D11Buffer *matrixBuffer = NULL;
 	ID3D11Buffer *invPosMatrixBuffer = NULL;
@@ -79,9 +68,23 @@ Render::Render(RenderDevice *device)
 	matrixBufferAry["viewMatrix"] = viewMatrixBuffer;
 
 
+	D3D11_BUFFER_DESC lightBufferDesc;
+	ZeroMemory(&lightBufferDesc, sizeof(D3D11_BUFFER_DESC));
+	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	lightBufferDesc.ByteWidth = sizeof(LightData);
+	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	lightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	renderDevice->d3dDevice->CreateBuffer(&lightBufferDesc, NULL, &lightBuff);
+
+
+	D3D11_BUFFER_DESC materialBufferDesc;
+	ZeroMemory(&materialBufferDesc, sizeof(D3D11_BUFFER_DESC));
+	materialBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	materialBufferDesc.ByteWidth = sizeof(SurfaceData);
+	materialBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	materialBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
 	renderDevice->d3dDevice->CreateBuffer(&materialBufferDesc, NULL, &materialBuffer);
-	renderDevice->d3dDevice->CreateBuffer(&lightBufferDesc, NULL, &lightBuff);
 
 	
 	D3D11_SAMPLER_DESC samplerDesc;
@@ -165,6 +168,7 @@ void Render::draw(vector<RenderAble*> renderAbles, vector<Light*> &lights)
 
 	for (int i = 0; i < renderAbles.size(); i++)
 	{
+		bufferIndex = 0;
 		RenderAble *renderAble = renderAbles[i];
 
 		Geometry *g = renderAble->getGeometry();
@@ -340,11 +344,16 @@ void Render::setLightData(Light *l)
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	gRender->Device()->immediateContext->Map(lightBuff, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	LightData* dataPtr = (LightData*)mappedResource.pData;
+	dataPtr->pos = l->pos;
 	dataPtr->ambient = l->ambient;
 	dataPtr->diffuse = l->diffuse;
 	dataPtr->specular = l->specular;
+	dataPtr->k0 = l->k0;
+	dataPtr->k1 = l->k1;
+	dataPtr->k2 = l->k2;
 	immediateContext->Unmap(lightBuff, 0);
-	immediateContext->VSSetConstantBuffers(2, 1, &lightBuff);
+	immediateContext->VSSetConstantBuffers(bufferIndex, 1, &lightBuff);
+	bufferIndex++;
 }
 
 

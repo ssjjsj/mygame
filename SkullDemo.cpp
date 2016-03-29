@@ -117,13 +117,15 @@ bool SkullApp::Init()
 	gSceneManager.createTerrain();
 
 	Light *l = new Light;
-	l->ambient = XMFLOAT3(1.0f, 1.0f, 1.0f);
+	l->ambient = XMFLOAT3(0.25f, 0.25f, 0.25f);
 	l->diffuse = XMFLOAT3(1.0f, 1.0f, 1.0f);
 	l->specular = XMFLOAT3(1.0f, 1.0f, 1.0f);
-	l->pos = XMFLOAT3(10.0f, 10.0f, 10.0f);
+	l->pos = XMFLOAT3(0.0f, 5.0f, 0.0f);
 	l->k0 = 1.0f;
 	l->k1 = 2.0f;
 	l->k2 = 3.0f;
+
+	gSceneManager.addLight(l);
 
 	return true;
 }
