@@ -17,6 +17,9 @@ public:
 private:
 	Material *mat;
 	Geometry *geometry;
+
+public:
+	bool lighted;
 };
 
 #endif

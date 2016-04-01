@@ -15,6 +15,7 @@ ShaderResource::ShaderResource(string name)
 	renderStates.testMode = TestModes::Less;
 	renderStates.zWriteMode = ZWrite::On;
 	loadShader(ShaderPath + name);
+	isLightOn = false;
 }
 
 ShaderResource::ShaderResource()
@@ -42,9 +43,9 @@ void ShaderResource::loadShader(string name)
 	{
 		TiXmlElement *propertyElement = (TiXmlElement*)curPropertyNode;
 		ShaderPropery p;
-		string sType = propertyElement->Attribute("type");
-		p.type = ShaderPropery::getType(sType);
+		p.type = propertyElement->Attribute("type");
 		p.variableName = propertyElement->Attribute("name");
+		p.slot = atoi(propertyElement->Attribute("slot"));
 
 		properties.push_back(p);
 	}
@@ -56,7 +57,12 @@ void ShaderResource::loadShader(string name)
 		string stateType = stateElement->Attribute("type");
 		string data = stateElement->Attribute("data");
 
-		if (stateType == "CullMode")
+		if (stateType == "Light")
+		{
+			if (data == "On")
+				isLightOn = true;
+		}
+		else if (stateType == "CullMode")
 		{
 			if (data == "Back")
 				renderStates.cullMode = CullModes::Back;

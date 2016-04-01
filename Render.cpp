@@ -254,47 +254,25 @@ void Render::draw(vector<RenderAble*> renderAbles, vector<Light*> &lights)
 		immediateContext->VSSetShader(shader->getVsShader(), NULL, 0);
 		immediateContext->PSSetShader(shader->getPsShader(), NULL, 0);
 
-		setLightData(lights[0]);
-		setSurfaceData(m);
-
-		D3D11_MAPPED_SUBRESOURCE mappedResource;
-		if (shader->constainProperty("gWorldViewProj", ShaderPropery::PropertyType::Matrix))
+		if (shader->constainProperty("gWorldViewProj"))
 		{
-			ID3D11Buffer *matrixBuffer = matrixBufferAry["gWorldViewProj"];
-			immediateContext->Map(matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-			XMFLOAT4X4* dataPtr = (XMFLOAT4X4*)mappedResource.pData;
 			XMFLOAT4X4 data;
 			XMStoreFloat4x4(&data, matrix);
-			memcpy(dataPtr, &data, sizeof(XMFLOAT4X4));
-			immediateContext->Unmap(matrixBuffer, 0);
-			immediateContext->VSSetConstantBuffers(bufferIndex, 1, &matrixBuffer);
-			bufferIndex++;
+			setMatrixData("gWorldViewProj", shader->getPropertySlot("gWorldViewProj"), data);
 		}
 
-		if (shader->constainProperty("invViewPosition", ShaderPropery::PropertyType::Matrix))
+		if (shader->constainProperty("viewMatrix"))
 		{
-			ID3D11Buffer *invPosMatrixBuffer = matrixBufferAry["invViewPosition"];
-			immediateContext->Map(invPosMatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-			XMFLOAT4X4* dataPtr = (XMFLOAT4X4*)mappedResource.pData;
-			XMFLOAT4X4 data;
-			XMStoreFloat4x4(&data, invPosM);
-			memcpy(dataPtr, &data, sizeof(XMFLOAT4X4));
-			immediateContext->Unmap(invPosMatrixBuffer, 0);
-			immediateContext->VSSetConstantBuffers(bufferIndex, 1, &invPosMatrixBuffer);
-			bufferIndex++;
-		}
-
-		if (shader->constainProperty("viewMatrix", ShaderPropery::PropertyType::Matrix))
-		{
-			ID3D11Buffer *viewMatrixBuffer = matrixBufferAry["viewMatrix"];
-			immediateContext->Map(viewMatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-			XMFLOAT4X4* dataPtr = (XMFLOAT4X4*)mappedResource.pData;
 			XMFLOAT4X4 data;
 			XMStoreFloat4x4(&data, view);
-			memcpy(dataPtr, &data, sizeof(XMFLOAT4X4));
-			immediateContext->Unmap(viewMatrixBuffer, 0);
-			immediateContext->VSSetConstantBuffers(bufferIndex, 1, &viewMatrixBuffer);
-			bufferIndex++;
+			setMatrixData("viewMatrix", shader->getPropertySlot("viewMatrix"), data);
+		}
+
+		if (shader->constainProperty("invViewPosition"))
+		{
+			XMFLOAT4X4 data;
+			XMStoreFloat4x4(&data, invPosM);
+			setMatrixData("invViewPosition", shader->getPropertySlot("invViewPosition"), data);
 		}
 
 		vector<Texture*> textures = m->getTextures();
@@ -312,15 +290,26 @@ void Render::draw(vector<RenderAble*> renderAbles, vector<Light*> &lights)
 
 		//immediateContext->OMSetDepthStencilState()
 
-
-		immediateContext->DrawIndexed(g->getIndexCount(), 0, 0);
+		if (renderAble->lighted)
+		{
+			setSurfaceData(m, shader->getPropertySlot("surface"));
+			for (int i = 0; i < lights.size(); i++)
+			{
+				setLightData(lights[i], shader->getPropertySlot("light"));
+				immediateContext->DrawIndexed(g->getIndexCount(), 0, 0);
+			}
+		}
+		else
+		{
+			immediateContext->DrawIndexed(g->getIndexCount(), 0, 0);
+		}
 	}
 
 	renderDevice->swapChain->Present(0, 0);
 }
 
 
-void Render::setSurfaceData(Material *m)
+void Render::setSurfaceData(Material *m, int slot)
 {
 	ID3D11DeviceContext* immediateContext = renderDevice->immediateContext;
 
@@ -331,13 +320,26 @@ void Render::setSurfaceData(Material *m)
 	dataPtr->diffuse = m->getDiffuse();
 	dataPtr->specular = m->getSpecular();
 	immediateContext->Unmap(materialBuffer, 0);
-	immediateContext->VSSetConstantBuffers(bufferIndex, 1, &materialBuffer);
-	bufferIndex++;
+	immediateContext->VSSetConstantBuffers(slot, 1, &materialBuffer);
+}
+
+
+void Render::setMatrixData(string name, int slot, XMFLOAT4X4 data)
+{
+	ID3D11DeviceContext* immediateContext = renderDevice->immediateContext;
+
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	ID3D11Buffer *viewMatrixBuffer = matrixBufferAry[name];
+	immediateContext->Map(viewMatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	XMFLOAT4X4* dataPtr = (XMFLOAT4X4*)mappedResource.pData;
+	memcpy(dataPtr, &data, sizeof(XMFLOAT4X4));
+	immediateContext->Unmap(viewMatrixBuffer, 0);
+	immediateContext->VSSetConstantBuffers(slot, 1, &viewMatrixBuffer);
 }
 
 
 
-void Render::setLightData(Light *l)
+void Render::setLightData(Light *l, int slot)
 {
 	ID3D11DeviceContext* immediateContext = renderDevice->immediateContext;
 
@@ -348,11 +350,9 @@ void Render::setLightData(Light *l)
 	dataPtr->ambient = l->ambient;
 	dataPtr->diffuse = l->diffuse;
 	dataPtr->specular = l->specular;
-	dataPtr->k0 = l->k0;
-	dataPtr->k1 = l->k1;
-	dataPtr->k2 = l->k2;
+	dataPtr->k = l->k;
 	immediateContext->Unmap(lightBuff, 0);
-	immediateContext->VSSetConstantBuffers(bufferIndex, 1, &lightBuff);
+	immediateContext->VSSetConstantBuffers(slot, 1, &lightBuff);
 	bufferIndex++;
 }
 

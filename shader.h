@@ -21,13 +21,16 @@ public:
 	void setInputLayout(ID3D11InputLayout* layout) { inputLayout = layout; }
 	RenderStates getRenderState() { return states; }
 	vector<ShaderPropery>& getProperties() { return properties; }
-	bool constainProperty(string tProperty, ShaderPropery::PropertyType t);
+	bool constainProperty(string tProperty);
+	int getPropertySlot(string tProperty);
+	bool IsLighted() { return isLighted; }
 private:
 	ID3D11VertexShader *vsShader;
 	ID3D11PixelShader *psShader;
 	ID3D11InputLayout* inputLayout;
 	RenderStates states;
 	vector<ShaderPropery> properties;
+	bool isLighted;
 };
 
 

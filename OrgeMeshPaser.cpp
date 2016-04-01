@@ -277,7 +277,7 @@ namespace OrgeMeshPaser
 						m.materialName = materialName;
 						data.push_back(m);
 
-						//if (data.size() == 10)
+						//if (data.size() == 2)
 						//{
 						//	data.clear();
 						//	data.push_back(m);

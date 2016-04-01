@@ -55,15 +55,15 @@ void SceneManager::render()
 {
 	renderAbleAry.clear();
 
-	//if (skyBox != NULL)
-	//{
-	//	vector<RenderAble*>& renderAbles = skyBox->getRenderAble();
-	//	for (int i = 0; i < renderAbles.size(); i++)
-	//	{
-	//		RenderAble *obj = renderAbles[i];
-	//		renderAbleAry.push_back(obj);
-	//	}
-	//}
+	if (skyBox != NULL)
+	{
+		vector<RenderAble*>& renderAbles = skyBox->getRenderAble();
+		for (int i = 0; i < renderAbles.size(); i++)
+		{
+			RenderAble *obj = renderAbles[i];
+			renderAbleAry.push_back(obj);
+		}
+	}
 
 	for (int i = 0; i < meshAry.size(); i++)
 	{
@@ -74,14 +74,23 @@ void SceneManager::render()
 		}
 	}
 
-	//if (terrain != NULL)
-	//{
-	//	vector<RenderAble*>& renderAbles = terrain->getRenderAbles();
-	//	for (int j = 0; j < renderAbles.size(); j++)
-	//	{
-	//		renderAbleAry.push_back(renderAbles[j]);
-	//	}
-	//}
+	if (terrain != NULL)
+	{
+		vector<RenderAble*>& renderAbles = terrain->getRenderAbles();
+		for (int j = 0; j < renderAbles.size(); j++)
+		{
+			renderAbleAry.push_back(renderAbles[j]);
+		}
+	}
+
+	for (int i = 0; i < lights.size(); i++)
+	{
+		vector<RenderAble*>& renderAbles = lights[i]->getRenderAble();
+		for (int j = 0; j < renderAbles.size(); j++)
+		{
+			renderAbleAry.push_back(renderAbles[j]);
+		}
+	}
 
 	gRender->preDraw();
 	if (lights.size() > 0)

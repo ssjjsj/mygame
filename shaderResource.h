@@ -17,20 +17,9 @@ struct ShaderPropery
 		Texture = 4,
 	};
 
-	PropertyType type;
+	string type;
 	string variableName;
-
-	static PropertyType getType(string type)
-	{
-		if (type == "Matrix")
-			return  PropertyType::Matrix;
-		else if (type == "Vector4")
-			return  PropertyType::Vector4;
-		else if (type == "Color")
-			return  PropertyType::Color;
-		else if (type == "Float")
-			return  PropertyType::Float;
-	}
+	int slot;
 };
 
 
@@ -104,6 +93,7 @@ private:
 	string vsMainFunction;
 	string psMainFunction;
 	RenderStates renderStates;
+	bool isLightOn;
 
 	ID3D11InputLayout* inputLayout;
 
@@ -119,6 +109,7 @@ public:
 	vector<ShaderPropery>& getProperties() { return properties; }
 	RenderStates getRenderStates() { return renderStates; }
 	ID3D11InputLayout* getInputLayout() { return inputLayout; }
+	bool IsLighted() { return isLightOn; }
 };
 
 #endif

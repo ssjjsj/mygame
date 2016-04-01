@@ -49,6 +49,10 @@ private:
 	Animation *curAnimation;
 	vector<RenderAble*> renderAbleList;
 	string MatName;
+
+public:
+	XMFLOAT4X4 localMatrix;
+	bool lighted;
 };
 
 #endif

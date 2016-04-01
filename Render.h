@@ -14,20 +14,26 @@ class Render
 	struct SurfaceData
 	{
 		XMFLOAT3 ambient;
+		int pad1;
 		XMFLOAT3 diffuse;
+		int pad2;
 		XMFLOAT3 specular;
-		int pad1, pad2, pad3;
+		int pad3;
 	};
 
 	struct LightData
 	{
 		XMFLOAT3 pos;
+		int pad1;
 		//XMFLOAT3 direction;
 		XMFLOAT3 ambient;
+		int pad2;
 		XMFLOAT3 diffuse;
+		int pad3;
 		XMFLOAT3 specular;
-		float k0, k1, k2;
-		int pad;
+		int pad4;
+		XMFLOAT3 k;
+		int pad5;
 	};
 public:
 	Render() {};
@@ -46,8 +52,9 @@ public:
 	Camera * getCamera() { return camera; }
 	GpuResManager *gpuResManager;
 
-	void setSurfaceData(Material *m);
-	void setLightData(Light *l);
+	void setSurfaceData(Material *m, int slot);
+	void setLightData(Light *l, int slot);
+	void setMatrixData(string name, int slot, XMFLOAT4X4 matrix);
 
 private:
 	ID3D11Texture2D* depthStencilBuffer;

@@ -20,7 +20,7 @@ Shader::~Shader()
 
 bool Shader::createShader(ShaderResource *res)
 {
-	
+	isLighted = res->IsLighted();
 	states = res->getRenderStates();
 	properties = res->getProperties();
 	inputLayout = res->getInputLayout();
@@ -60,16 +60,31 @@ bool Shader::createShader(ShaderResource *res)
 }
 
 
-bool Shader::constainProperty(string tProperty, ShaderPropery::PropertyType t)
+bool Shader::constainProperty(string tProperty)
 {
 	for (int i = 0; i < properties.size(); i++)
 	{
 		ShaderPropery &p = properties[i];
-		if (p.variableName == tProperty && p.type == t)
+		if (p.variableName == tProperty)
 		{
 			return true;
 		}
 	}
 
 	return false;
+}
+
+
+int Shader::getPropertySlot(string tProperty)
+{
+	for (int i = 0; i < properties.size(); i++)
+	{
+		ShaderPropery &p = properties[i];
+		if (p.variableName == tProperty)
+		{
+			return p.slot;
+		}
+	}
+
+	return -1;
 }
