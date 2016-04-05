@@ -1,4 +1,5 @@
 #include "gpuResManger.h"
+#include "shaderResource.h"
 
 
 GpuResManager::GpuResManager()
@@ -21,4 +22,11 @@ GpuResManager::~GpuResManager()
 	{
 		it->second->Release();
 	}
+}
+
+
+void GpuResManager::createLightShader()
+{
+	ShaderResource *res = new ShaderResource("light.shader.xml");
+	lightShader = new Shader(res);
 }

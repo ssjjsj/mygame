@@ -71,5 +71,7 @@ private:
 	D3D11_DEPTH_STENCIL_DESC depthDesc;
 	ID3D11DepthStencilState *depthState;
 	RenderStates renderState;
+	ID3D11BlendState *addBlenderState;
+	ID3D11BlendState *oneSrcBlenderState;
 };
 #endif

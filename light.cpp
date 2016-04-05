@@ -2,7 +2,7 @@
 
 Light::Light()
 {
-	createBox();
+	//createBox();
 }
 
 Light::~Light()

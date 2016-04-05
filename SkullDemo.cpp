@@ -101,6 +101,8 @@ bool SkullApp::Init()
 
 	FreeImage_Initialise(TRUE);
 
+	gRender->gpuResManager->createLightShader();
+
 	XMVECTOR pos = XMVectorSet(50.0f, 50.0f, 0.0f, 1.0f);
 	XMVECTOR target = XMVectorSet(50.0f, 0.0f, 50.0f, 1.0f);
 	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
@@ -130,7 +132,7 @@ bool SkullApp::Init()
 	float range = 50.0f;
 	Light *l = new Light;
 	l->ambient = XMFLOAT3(1.0f, 0.0f, 0.0f);
-	l->diffuse = XMFLOAT3(1.0f, 0.0f, 0.0f);
+	l->diffuse = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	l->specular = XMFLOAT3(1.0f, 0.0f, 0.0f);
 	l->pos = XMFLOAT3(0.0f, 10.0f, -30.0f);
 	l->k = XMFLOAT3(range, 0.02, 0.02);
@@ -139,7 +141,7 @@ bool SkullApp::Init()
 
 	l = new Light();
 	l->ambient = XMFLOAT3(0.0f, 1.0f, 0.0f);
-	l->diffuse = XMFLOAT3(0.0f, 1.0f, 0.0f);
+	l->diffuse = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	l->specular = XMFLOAT3(0.0f, 1.0f, 0.0f);
 	l->pos = XMFLOAT3(0.0f, 10.0f, -15.0f);
 	l->k = XMFLOAT3(range, 0.02, 0.02);
@@ -147,7 +149,7 @@ bool SkullApp::Init()
 
 	l = new Light();
 	l->ambient = XMFLOAT3(1.0f, 1.0f, 0.0f);
-	l->diffuse = XMFLOAT3(1.0f, 1.0f, 0.0f);
+	l->diffuse = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	l->specular = XMFLOAT3(1.0f, 1.0f, 0.0f);
 	l->pos = XMFLOAT3(0.0f, 10.0f, 15.0f);
 	l->k = XMFLOAT3(range, 0.02, 0.02);
@@ -155,7 +157,7 @@ bool SkullApp::Init()
 
 	l = new Light();
 	l->ambient = XMFLOAT3(0.0f, 0.0f, 1.0f);
-	l->diffuse = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	l->diffuse = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	l->specular = XMFLOAT3(0.0f, 0.0f, 1.0f);
 	l->pos = XMFLOAT3(0.0f, 10.0f, 30.0f);
 	l->k = XMFLOAT3(range, 0.02, 0.02);

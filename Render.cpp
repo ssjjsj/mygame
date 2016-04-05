@@ -102,6 +102,35 @@ Render::Render(RenderDevice *device)
 	samplerDesc.MinLOD = 0;
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
+
+	D3D11_RENDER_TARGET_BLEND_DESC rendertargetBlenderDesc;
+	rendertargetBlenderDesc.BlendEnable = false;
+	rendertargetBlenderDesc.BlendOp = D3D11_BLEND_OP_ADD;
+	rendertargetBlenderDesc.SrcBlend = D3D11_BLEND_ZERO;
+	rendertargetBlenderDesc.DestBlend = D3D11_BLEND_ONE;
+	rendertargetBlenderDesc.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	rendertargetBlenderDesc.SrcBlendAlpha = D3D11_BLEND_ONE;
+	rendertargetBlenderDesc.DestBlendAlpha = D3D11_BLEND_ZERO;
+
+	D3D11_BLEND_DESC blenderDesc;
+	blenderDesc.AlphaToCoverageEnable = false;
+	blenderDesc.IndependentBlendEnable = false;
+	for (int i = 0; i < 8; i++)
+		blenderDesc.RenderTarget[i] = rendertargetBlenderDesc;
+
+	renderDevice->d3dDevice->CreateBlendState(&blenderDesc, &addBlenderState);
+
+
+	rendertargetBlenderDesc.BlendEnable = false;
+
+	blenderDesc.AlphaToCoverageEnable = false;
+	blenderDesc.IndependentBlendEnable = false;
+	blenderDesc.RenderTarget[0] = rendertargetBlenderDesc;
+
+	renderDevice->d3dDevice->CreateBlendState(&blenderDesc, &oneSrcBlenderState);
+
+
+
 	// Create the texture sampler state.
 	renderDevice->d3dDevice->CreateSamplerState(&samplerDesc, &sampleState);
 
@@ -165,6 +194,8 @@ void Render::draw(vector<RenderAble*> renderAbles, vector<Light*> &lights)
 	float color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	immediateContext->ClearRenderTargetView(renderTargetView, color);
 	immediateContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+	immediateContext->OMGetBlendState(&oneSrcBlenderState, NULL, NULL);
 
 	for (int i = 0; i < renderAbles.size(); i++)
 	{
@@ -288,20 +319,37 @@ void Render::draw(vector<RenderAble*> renderAbles, vector<Light*> &lights)
 			}
 		}
 
+		immediateContext->DrawIndexed(g->getIndexCount(), 0, 0);
 		//immediateContext->OMSetDepthStencilState()
 
 		if (renderAble->lighted)
 		{
-			setSurfaceData(m, shader->getPropertySlot("surface"));
+			renderState.testMode = TestModes::LessEqual;
+			renderState.zWriteMode = ZWrite::Off;
+			depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+			depthDesc.DepthFunc = D3D11_COMPARISON_EQUAL;
+			depthState->Release();
+			d3dDevice->CreateDepthStencilState(&depthDesc, &depthState);
+			immediateContext->OMSetDepthStencilState(depthState, 0);
+			
+			Shader *lightedShader = gpuResManager->lightShader;
+			immediateContext->VSSetShader(lightedShader->getVsShader(), NULL, 0);
+			immediateContext->PSSetShader(lightedShader->getPsShader(), NULL, 0);
+
+			XMFLOAT4X4 data;
+			XMStoreFloat4x4(&data, matrix);
+			setMatrixData("gWorldViewProj", lightedShader->getPropertySlot("gWorldViewProj"), data);
+
+			XMStoreFloat4x4(&data, view);
+			setMatrixData("viewMatrix", lightedShader->getPropertySlot("viewMatrix"), data);
+
+			immediateContext->OMGetBlendState(&addBlenderState, NULL, NULL);
+			setSurfaceData(m, lightedShader->getPropertySlot("surface"));
 			for (int i = 0; i < lights.size(); i++)
 			{
-				setLightData(lights[i], shader->getPropertySlot("light"));
+				setLightData(lights[i], lightedShader->getPropertySlot("light"));
 				immediateContext->DrawIndexed(g->getIndexCount(), 0, 0);
 			}
-		}
-		else
-		{
-			immediateContext->DrawIndexed(g->getIndexCount(), 0, 0);
 		}
 	}
 

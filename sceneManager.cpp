@@ -83,14 +83,14 @@ void SceneManager::render()
 		}
 	}
 
-	for (int i = 0; i < lights.size(); i++)
-	{
-		vector<RenderAble*>& renderAbles = lights[i]->getRenderAble();
-		for (int j = 0; j < renderAbles.size(); j++)
-		{
-			renderAbleAry.push_back(renderAbles[j]);
-		}
-	}
+	//for (int i = 0; i < lights.size(); i++)
+	//{
+	//	vector<RenderAble*>& renderAbles = lights[i]->getRenderAble();
+	//	for (int j = 0; j < renderAbles.size(); j++)
+	//	{
+	//		renderAbleAry.push_back(renderAbles[j]);
+	//	}
+	//}
 
 	gRender->preDraw();
 	if (lights.size() > 0)
