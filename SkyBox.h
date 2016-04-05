@@ -7,7 +7,11 @@ class SkyBox
 {
 public:
 	SkyBox() {};
-	~SkyBox() {};
+	~SkyBox() 
+	{
+		for (int i = 0; i < renderAbles.size(); i++)
+			delete renderAbles[i];
+	};
 
 	void createSkyBox();
 	vector<RenderAble*>& getRenderAble() { return renderAbles; }

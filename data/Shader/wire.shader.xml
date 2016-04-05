@@ -3,13 +3,10 @@
 	
 	<properties>
 		<property type="Matrix" name = "gWorldViewProj" slot = "0" />
-		<property type="Texture" name = "Diffuse1" slot = "0" />
-		<property type="Texture" name = "Diffuse2" slot = "1" />
 	</properties>
 	
 	<states>
-		<state type = "ZWrite" data = "On" />
-		<state type = "RenderModes" data = "Solid" />
+		<state type = "RenderModes" data = "Wire" />
 	</states>
 	
 	<vsShader program = 
@@ -32,9 +29,8 @@
 	struct VertexOut
 	{
 		float4 PosH  : SV_POSITION;
-		float3 Nor :	NORMAL;
-		float2 UV : TEXCOORD0;
 		//float4 Color : COLOR;
+		float2 UV : TEXCOORD0;
 	};
 
 	VertexOut VS(VertexIn vin)
@@ -44,7 +40,9 @@
 		// Transform to homogeneous clip space.
 		
 		vout.PosH = mul(float4(vin.Pos, 1.0f), gWorldViewProj);
-		vout.Nor = vin.Nor;
+	
+		// Just pass vertex color into the pixel shader.
+		//vout.Color = vin.Color;
 		vout.UV = vin.UV;
     
 		return vout;
@@ -54,25 +52,21 @@
 	
 	
 	<psShader program = "
-	Texture2D diffuse1 : register(t0);
-	Texture2D diffuse2 : register(t1);
-	SamplerState samLinear1 : register(s0);
-	SamplerState samLinear2 : register(s1);
+	
+	Texture2D gDiffuseMap : register(t0);
+	SamplerState samLinear : register(s0);
 	
 	struct VertexOut
 	{
 		float4 PosH  : SV_POSITION;
 		//float4 Color : COLOR;
-		float3 Nor :	NORMAL;
 		float2 UV : TEXCOORD0;
 	};
 	
 	float4 PS(VertexOut pin) : SV_TARGET
 	{
-		return float4(pin.Nor.x, pin.Nor.x, pin.Nor.x, pin.Nor.x) * diffuse1.Sample(samLinear1, pin.UV) 
-		+ float4(pin.Nor.y, pin.Nor.y, pin.Nor.y, pin.Nor.y) * diffuse2.Sample(samLinear2, pin.UV);
-		
-		//return diffuse1.Sample(samLinear1, pin.UV);
+		return float4(1.0, 0.0, 0.0, 1.0);
+		//textureColor = gDiffuseMap.Sample(SampleType, pin.UV);
 	}"
 	/>
 	

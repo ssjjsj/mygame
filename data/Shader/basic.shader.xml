@@ -2,13 +2,13 @@
 <shader vsMainFunction = "VS" psMainFunction = "PS">
 	
 	<properties>
-		<property type="Matrix" name = "gWorldViewProj">
-		<property type="Texture" name = "gDiffuseMap">
-	<properties>
+		<property type="Matrix" name = "gWorldViewProj" slot = "0" />
+		<property type="Texture" name = "gDiffuseMap"  slot = "0"/>
+	</properties>
 	
 	<states>
-		<state type = "" data = "">
-	<states>
+		<state type = "ZWrite" data = "On" />
+	</states>
 	
 	<vsShader program = 
 	
@@ -22,8 +22,8 @@
 	struct VertexIn
 	{
 		float3 Pos   : POSITION;
-		//float3 Nor :	NORMAL;
-		//   float4 Color : COLOR;
+		float3 Nor :	NORMAL;
+		//float4 Color : COLOR;
 		float2 UV : TEXCOORD0;
 	};
 
@@ -39,7 +39,30 @@
 		VertexOut vout;
 	
 		// Transform to homogeneous clip space.
+		float4x4 vp;
+		vp[0][0] = 0.0750597417;
+		vp[0][1] = 0.0;
+		vp[0][2] = 0.0;
+		vp[0][3] = 0.0;
+		
+		vp[1][0] = 0.0;
+		vp[1][1] = 0.100079656;
+		vp[1][2] =  0.0;
+		vp[1][3] = 0.0;
+		
+		vp[2][0] = 0.0;
+		vp[2][1] = 0.0;
+		vp[2][2] = 0.101010099;
+		vp[2][3] = 0.0;
+		
+		vp[3][0] = 0.0;
+		vp[3][1] = 0.0;
+		vp[3][2] = -1.01010096;
+		vp[3][3] = 0.0;
+		
 		vout.PosH = mul(float4(vin.Pos, 1.0f), gWorldViewProj);
+		//vout.PosH = float4(vin.Pos, 1.0f);
+		//vout.PosH = vin.Pos;
 	
 		// Just pass vertex color into the pixel shader.
 		//vout.Color = vin.Color;
@@ -47,14 +70,15 @@
     
 		return vout;
 	}"
-	>
-	<vsShader>
+	/>
 	
 	
 	
 	<psShader program = "
 	
-	Texture2D gDiffuseMap;
+	Texture2D gDiffuseMap : register(t0);
+	SamplerState samLinear : register(s0);
+	
 	struct VertexOut
 	{
 		float4 PosH  : SV_POSITION;
@@ -62,13 +86,13 @@
 		float2 UV : TEXCOORD0;
 	};
 	
-	float4 PS(VertexOut pin) : SV_Target
+	float4 PS(VertexOut pin) : SV_TARGET
 	{
-	//return float4(1.0f, 0.0f, 0.0f, 1.0f);
-	return gDiffuseMap.Sample(samAnisotropic, pin.UV);
+		//return gDiffuseMap.Sample(samLinear, pin.UV);
+		//textureColor = gDiffuseMap.Sample(SampleType, pin.UV);
+		return float4(0.5, 0.5, 0.5, 1.0);
 	}"
-	>
-	<psShader>
+	/>
 	
-<shader>
+</shader>
 	  

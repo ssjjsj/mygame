@@ -11,6 +11,9 @@ Terrain::Terrain()
 Terrain::~Terrain()
 {
 	destoryQuadTree();
+
+	for (int i = 0; i < renderAbleList.size(); i++)
+		delete renderAbleList[i];
 }
 
 void Terrain::loadData(string data)

@@ -1,73 +1,153 @@
 <?xml version="1.0" encoding="utf-8"?>
 <materials>
 	<material name = "Sinbad/Body">
+		<ambient r = "0.0"  g="0.0"  b="0.0"/>
+		<diffuse r = "0.0"  g="0.0"  b="0.0"/>
+		<specular r = "0.0"  g="0.0"  b="0.0"/>
 		<shader name = "basic.shader.xml"/>
 		<texture name = "sinbad_body.dds"/>
 	</material>
 	
 	
 	<material name = "Sinbad/Gold">
+		<ambient r = "0.0"  g="0.0"  b="0.0"/>
+		<diffuse r = "0.0"  g="0.0"  b="0.0"/>
+		<specular r = "0.0"  g="0.0"  b="0.0"/>
 		<shader name = "basic.shader.xml"/>
-		<texture name = "sinbad_clothes.dds"/>
+		<textures> 
+			<texture name = "sinbad_clothes.dds"/>
+		</textures>
 	</material>
 	
 	<material name = "Sinbad/Sheaths">
+		<ambient r = "0.0"  g="0.0"  b="0.0"/>
+		<diffuse r = "0.0"  g="0.0"  b="0.0"/>
+		<specular r = "0.0"  g="0.0"  b="0.0"/>
 		<shader name = "basic.shader.xml" />
-		<texture name = "sinbad_sword.dds" />
+		<textures> 
+			<texture name = "sinbad_sword.dds"/>
+		</textures>
 	</material>
 	
 	<material name = "Sinbad/Clothes">
+		<ambient r = "0.0"  g="0.0"  b="0.0"/>
+		<diffuse r = "0.0"  g="0.0"  b="0.0"/>
+		<specular r = "0.0"  g="0.0"  b="0.0"/>
 		<shader name = "basic.shader.xml" />
-		<texture name = "sinbad_clothes.dds" />
+		<textures> 
+			<texture name = "sinbad_clothes.dds"/>
+		</textures>
 	</material>
 	
 	<material name = "Sinbad/Teeth">
+		<ambient r = "0.0"  g="0.0"  b="0.0"/>
+		<diffuse r = "0.0"  g="0.0"  b="0.0"/>
+		<specular r = "0.0"  g="0.0"  b="0.0"/>
 		<shader name = "basic.shader.xml" />
-		<texture name = "sinbad_body.dds" />
+		<textures> 
+			<texture name = "sinbad_body.dds"/>
+		</textures>
 	</material>
 	
 	<material name = "Sinbad/Eyes">
+		<ambient r = "0.0"  g="0.0"  b="0.0"/>
+		<diffuse r = "0.0"  g="0.0"  b="0.0"/>
+		<specular r = "0.0"  g="0.0"  b="0.0"/>
 		<shader name = "basic.shader.xml" />
-		<texture name = "sinbad_body.dds" />
+		<textures> 
+			<texture name = "sinbad_body.dds"/>
+		</textures>
 	</material>
 	
 	<material name = "Sinbad/Spikes">
+		<ambient r = "0.0"  g="0.0"  b="0.0"/>
+		<diffuse r = "0.0"  g="0.0"  b="0.0"/>
+		<specular r = "0.0"  g="0.0"  b="0.0"/>
 		<shader name = "basic.shader.xml"/>
-		<texture name = "sinbad_clothes.dds"/>
+		<textures> 
+			<texture name = "sinbad_clothes.dds"/>
+		</textures>
 	</material>
 	
 	<material name = "Sinbad/Blade">
+		<ambient r = "0.0"  g="0.0"  b="0.0"/>
+		<diffuse r = "0.0"  g="0.0"  b="0.0"/>
+		<specular r = "0.0"  g="0.0"  b="0.0"/>
 		<shader name = "basic.shader.xml"/>
-		<texture name = "sinbad_sword.dds"/>
+		<textures> 
+			<texture name = "sinbad_sword.dds"/>
+		</textures>
 	</material>
 	
 	<material name = "Sinbad/Ruby">
+		<ambient r = "0.0"  g="0.0"  b="0.0"/>
+		<diffuse r = "0.0"  g="0.0"  b="0.0"/>
+		<specular r = "0.0"  g="0.0"  b="0.0"/>
 		<shader name = "basic.shader.xml"/>
-		<texture name = "sinbad_sword.dds"/>
+		<textures> 
+			<texture name = "sinbad_sword.dds"/>
+		</textures>
 	</material>
 	
 	<material name = "Sinbad/Hilt">
+		<ambient r = "0.0"  g="0.0"  b="0.0"/>
+		<diffuse r = "0.0"  g="0.0"  b="0.0"/>
+		<specular r = "0.0"  g="0.0"  b="0.0"/>
 		<shader name = "basic.shader.xml"/>
-		<texture name = "sinbad_sword.dds"/>
+		<textures> 
+			<texture name = "sinbad_sword.dds"/>
+		</textures>
 	</material>
 	
 	<material name = "Cat">
+		<ambient r = "0.0"  g="0.0"  b="0.0"/>
+		<diffuse r = "0.0"  g="0.0"  b="0.0"/>
+		<specular r = "0.0"  g="0.0"  b="0.0"/>
 		<shader name = "basic.shader.xml"/>
-		<texture name = "cat_pet.dds"/>
+		<textures> 
+			<texture name = "cat_pet.dds"/>
+		</textures>
 	</material>
 	
 	<material name = "BaseWhite">
+		<ambient r = "0.0"  g="0.0"  b="0.0"/>
+		<diffuse r = "0.0"  g="0.0"  b="0.0"/>
+		<specular r = "0.0"  g="0.0"  b="0.0"/>
 		<shader name = "basic.shader.xml"/>
-		<texture name = "cat_pet.dds"/>
+		<textures> 
+			<texture name = "cat_pet.dds"/>
+		</textures>
 	</material>
 	
 	<material name = "Sinbad/Handle">
+		<ambient r = "0.0"  g="0.0"  b="0.0"/>
+		<diffuse r = "0.0"  g="0.0"  b="0.0"/>
+		<specular r = "0.0"  g="0.0"  b="0.0"/>
 		<shader name = "basic.shader.xml"/>
-		<texture name = "sinbad_sword.dds"/>
+		<textures> 
+			<texture name = "sinbad_sword.dds"/>
+		</textures>
 	</material>
 	
 	<material name = "terrain">
+		<ambient r = "0.0"  g="0.0"  b="0.0"/>
+		<diffuse r = "0.0"  g="0.0"  b="0.0"/>
+		<specular r = "0.0"  g="0.0"  b="0.0"/>
 		<shader name = "terrain.shader.xml"/>
-		<texture name = ""/>
+		<textures> 
+			<texture name = "ground.dds"/>
+			<texture name = "grass.dds"/>
+		</textures>
+	</material>
+	
+	<material name = "terrainwire">
+		<ambient r = "0.0"  g="0.0"  b="0.0"/>
+		<diffuse r = "0.0"  g="0.0"  b="0.0"/>
+		<specular r = "0.0"  g="0.0"  b="0.0"/>
+		<shader name = "terrainwire.shader.xml"/>
+		<textures> 
+			<texture name = "grass.dds"/>
+			<texture name = "ground.dds"/>
+		</textures>
 	</material>
 </materials>

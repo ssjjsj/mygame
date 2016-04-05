@@ -14,6 +14,8 @@ Render::Render(RenderDevice *device)
 	depthState = NULL;
 	lightBuff = NULL;
 	materialBuffer = NULL;
+	oneSrcBlenderState = NULL;
+	addBlenderState = NULL;
 	camera = new Camera;
 	gpuResManager = new GpuResManager();
 
@@ -59,13 +61,16 @@ Render::Render(RenderDevice *device)
 	ID3D11Buffer *matrixBuffer = NULL;
 	ID3D11Buffer *invPosMatrixBuffer = NULL;
 	ID3D11Buffer *viewMatrixBuffer = NULL;
+	ID3D11Buffer *normalMatrixBuffer = NULL;
 	renderDevice->d3dDevice->CreateBuffer(&matrixBufferDesc, NULL, &matrixBuffer);
 	renderDevice->d3dDevice->CreateBuffer(&matrixBufferDesc, NULL, &invPosMatrixBuffer);
 	renderDevice->d3dDevice->CreateBuffer(&matrixBufferDesc, NULL, &viewMatrixBuffer);
+	renderDevice->d3dDevice->CreateBuffer(&matrixBufferDesc, NULL, &normalMatrixBuffer);
 
 	matrixBufferAry["gWorldViewProj"] = matrixBuffer;
 	matrixBufferAry["invViewPosition"] = invPosMatrixBuffer;
 	matrixBufferAry["viewMatrix"] = viewMatrixBuffer;
+	matrixBufferAry["normalMatrix"] = normalMatrixBuffer;
 
 
 	D3D11_BUFFER_DESC lightBufferDesc;
@@ -102,37 +107,41 @@ Render::Render(RenderDevice *device)
 	samplerDesc.MinLOD = 0;
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
+	// Create the texture sampler state.
+	renderDevice->d3dDevice->CreateSamplerState(&samplerDesc, &sampleState);
+
 
 	D3D11_RENDER_TARGET_BLEND_DESC rendertargetBlenderDesc;
-	rendertargetBlenderDesc.BlendEnable = false;
+	rendertargetBlenderDesc.BlendEnable = true;
 	rendertargetBlenderDesc.BlendOp = D3D11_BLEND_OP_ADD;
-	rendertargetBlenderDesc.SrcBlend = D3D11_BLEND_ZERO;
+	rendertargetBlenderDesc.SrcBlend = D3D11_BLEND_ONE;
 	rendertargetBlenderDesc.DestBlend = D3D11_BLEND_ONE;
 	rendertargetBlenderDesc.BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	rendertargetBlenderDesc.SrcBlendAlpha = D3D11_BLEND_ONE;
 	rendertargetBlenderDesc.DestBlendAlpha = D3D11_BLEND_ZERO;
+	rendertargetBlenderDesc.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
 	D3D11_BLEND_DESC blenderDesc;
 	blenderDesc.AlphaToCoverageEnable = false;
 	blenderDesc.IndependentBlendEnable = false;
-	for (int i = 0; i < 8; i++)
-		blenderDesc.RenderTarget[i] = rendertargetBlenderDesc;
+	blenderDesc.RenderTarget[0] = rendertargetBlenderDesc;
 
-	renderDevice->d3dDevice->CreateBlendState(&blenderDesc, &addBlenderState);
-
+	HRESULT hr = renderDevice->d3dDevice->CreateBlendState(&blenderDesc, &addBlenderState);
 
 	rendertargetBlenderDesc.BlendEnable = false;
+	rendertargetBlenderDesc.BlendOp = D3D11_BLEND_OP_ADD;
+	rendertargetBlenderDesc.SrcBlend = D3D11_BLEND_ONE;
+	rendertargetBlenderDesc.DestBlend = D3D11_BLEND_ZERO;
+	rendertargetBlenderDesc.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	rendertargetBlenderDesc.SrcBlendAlpha = D3D11_BLEND_ONE;
+	rendertargetBlenderDesc.DestBlendAlpha = D3D11_BLEND_ZERO;
+	rendertargetBlenderDesc.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
 	blenderDesc.AlphaToCoverageEnable = false;
 	blenderDesc.IndependentBlendEnable = false;
 	blenderDesc.RenderTarget[0] = rendertargetBlenderDesc;
 
 	renderDevice->d3dDevice->CreateBlendState(&blenderDesc, &oneSrcBlenderState);
-
-
-
-	// Create the texture sampler state.
-	renderDevice->d3dDevice->CreateSamplerState(&samplerDesc, &sampleState);
 
 	onReset();
 }
@@ -166,6 +175,12 @@ Render::~Render()
 
 	if (depthState != NULL)
 		depthState->Release();
+
+	if (oneSrcBlenderState != NULL)
+		oneSrcBlenderState->Release();
+
+	if (addBlenderState != NULL)
+		addBlenderState->Release();
 }
 
 void Render::preDraw()
@@ -195,11 +210,10 @@ void Render::draw(vector<RenderAble*> renderAbles, vector<Light*> &lights)
 	immediateContext->ClearRenderTargetView(renderTargetView, color);
 	immediateContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	immediateContext->OMGetBlendState(&oneSrcBlenderState, NULL, NULL);
-
 	for (int i = 0; i < renderAbles.size(); i++)
 	{
-		bufferIndex = 0;
+		immediateContext->OMSetBlendState(oneSrcBlenderState, NULL, 0xffffffff);
+
 		RenderAble *renderAble = renderAbles[i];
 
 		Geometry *g = renderAble->getGeometry();
@@ -327,7 +341,7 @@ void Render::draw(vector<RenderAble*> renderAbles, vector<Light*> &lights)
 			renderState.testMode = TestModes::LessEqual;
 			renderState.zWriteMode = ZWrite::Off;
 			depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-			depthDesc.DepthFunc = D3D11_COMPARISON_EQUAL;
+			depthDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 			depthState->Release();
 			d3dDevice->CreateDepthStencilState(&depthDesc, &depthState);
 			immediateContext->OMSetDepthStencilState(depthState, 0);
@@ -343,7 +357,12 @@ void Render::draw(vector<RenderAble*> renderAbles, vector<Light*> &lights)
 			XMStoreFloat4x4(&data, view);
 			setMatrixData("viewMatrix", lightedShader->getPropertySlot("viewMatrix"), data);
 
-			immediateContext->OMGetBlendState(&addBlenderState, NULL, NULL);
+			XMMATRIX normalMatrix = XMMatrixInverse(&XMMatrixDeterminant(view), view);
+			normalMatrix = XMMatrixTranspose(normalMatrix);
+			XMStoreFloat4x4(&data, normalMatrix);
+			setMatrixData("normalMatrix", lightedShader->getPropertySlot("normalMatrix"), data);
+
+			immediateContext->OMSetBlendState(addBlenderState, NULL, 0xffffffff);
 			setSurfaceData(m, lightedShader->getPropertySlot("surface"));
 			for (int i = 0; i < lights.size(); i++)
 			{

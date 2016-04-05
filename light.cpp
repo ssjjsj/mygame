@@ -2,12 +2,14 @@
 
 Light::Light()
 {
-	//createBox();
+	cube = NULL;
+	createBox();
 }
 
 Light::~Light()
 {
-	delete cube;
+	if (cube != NULL)
+		delete cube;
 }
 
 void Light::createBox()

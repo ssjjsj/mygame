@@ -2,22 +2,17 @@
 <shader vsMainFunction = "VS" psMainFunction = "PS">
 	
 	<properties>
-		<property type="Matrix" name = "gWorldViewProj" />
-		<property type="Matrix" name = "invViewPosition" />
-		<property type="Texture" name = "gDiffuseMap" />
+		<property type="Matrix" name = "invViewPosition" slot = "0" />
+		<property type="Texture" name = "gDiffuseMap" slot = "0" />
 	</properties>
 	
 	<states>
-		<state type = "" data = "" />
+		<state type = "ZWrite" data = "Off" />
 	</states>
 	
 	<vsShader program = 
 	
 	"
-	cbuffer cbPerObject
-	{
-		float4x4 gWorldViewProj; 
-	};
 	
 	cbuffer cbPerObject
 	{
@@ -44,8 +39,9 @@
 	{
 		VertexOut vout;
 		
-		float4 invPos = mul(float4(vin.Pos, 1.0f),invViewPosition);
-		vout.PosH = mul(invPos, gWorldViewProj);
+		//float4 invPos = mul(float4(vin.Pos, 1.0f),invViewPosition);
+		float4 invPos = float4(vin.Pos, 1.0f);
+		vout.PosH = mul(invPos, invViewPosition);
 	
 		// Just pass vertex color into the pixel shader.
 		//vout.Color = vin.Color;
@@ -59,12 +55,12 @@
 	
 	<psShader program = "
 	
-	Texture2D gDiffuseMap;
-	SamplerState samLinear
+	Texture2D gDiffuseMap : register(t0);
+	SamplerState samLinear : register(s0)
 	{
 		Filter = MIN_MAG_MIP_LINEAR;
-		AddressU = Wrap;
-		AddressV = Wrap;
+		AddressU = Clamp;
+		AddressV = Clamp;
 	};
 	
 	struct VertexOut

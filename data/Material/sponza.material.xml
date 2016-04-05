@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<materials>
+	<material name = "sponza_00SG">
+		<ambient r = "0.59"  g="0.59"  b="0.59"/>
+		<diffuse r = "0.50"  g="0.50"  b="0.50"/>
+		<specular r = "0.18"  g="0.18"  b="0.18"/>
+		<shader name = "basic.shader.xml"/>
+		<textures> 
+			<texture name = "sponza\sponza_thorn_diff.dds"/>
+		</textures>
+	</material>
+	
+	
+	<material name = "sponza_01SG">
+		<ambient r = "0.59"  g="0.59"  b="0.59"/>
+		<diffuse r = "0.50"  g="0.50"  b="0.50"/>
+		<specular r = "0.9"  g="0.9"  b="0.9"/>
+		<shader name = "basic.shader.xml"/>
+		<textures> 
+			<texture name = "sponza\vase_plant.dds"/>
+		</textures>
+	</material>
+	
+	<material name = "sponza_01SG1">
+		<ambient r = "0.59"  g="0.59"  b="0.59"/>
+		<diffuse r = "0.50"  g="0.50"  b="0.50"/>
+		<specular r = "0.9"  g="0.9"  b="0.9"/>
+		<shader name = "basic.shader.xml" />
+		<textures> 
+			<texture name = "sponza\vase_round.dds"/>
+		</textures>
+	</material>
+	
+	<material name = "sponza_03SG">
+		<ambient r = "0.59"  g="0.59"  b="0.59"/>
+		<diffuse r = "0.50"  g="0.50"  b="0.50"/>
+		<specular r = "0.9"  g="0.9"  b="0.9"/>
+		<shader name = "basic.shader.xml" />
+		<textures> 
+			<texture name = "sponza\background.dds"/>
+		</textures>
+	</material>
+	
+	<material name = "sponza_05SG">
+		<ambient r = "0.59"  g="0.59"  b="0.59"/>
+		<diffuse r = "0.50"  g="0.50"  b="0.50"/>
+		<specular r = "0.9"  g="0.9"  b="0.9"/>
+		<shader name = "basic.shader.xml" />
+		<textures> 
+			<texture name = "sponza\spnza_bricks_a_diff.dds"/>
+		</textures>
+	</material>
+	
+	<material name = "sponza_07SG">
+		<ambient r = "0.59"  g="0.59"  b="0.59"/>
+		<diffuse r = "0.50"  g="0.50"  b="0.50"/>
+		<specular r = "0.3"  g="0.3"  b="0.3"/>
+		<shader name = "basic.shader.xml" />
+		<textures> 
+			<texture name = "sponza\sponza_arch_diff.dds"/>
+		</textures>
+	</material>
+	
+	<material name = "sponza_08SG">
+		<ambient r = "0.59"  g="0.59"  b="0.59"/>
+		<diffuse r = "0.50"  g="0.50"  b="0.50"/>
+		<specular r = "0.9"  g="0.9"  b="0.9"/>
+		<shader name = "basic.shader.xml"/>
+		<textures> 
+			<texture name = "sponza\sponza_ceiling_a_diff.dds"/>
+		</textures>
+	</material>
+	
+	<material name = "sponza_09SG">
+		<ambient r = "0.59"  g="0.59"  b="0.59"/>
+		<diffuse r = "0.50"  g="0.50"  b="0.50"/>
+		<specular r = "0.3"  g="0.3"  b="0.3"/>
+		<shader name = "basic.shader.xml"/>
+		<textures> 
+			<texture name = "sponza\sponza_column_a_diff.dds"/>
+		</textures>
+	</material>
+	
+	<material name = "sponza_18SG">
+		<ambient r = "0.59"  g="0.59"  b="0.59"/>
+		<diffuse r = "0.50"  g="0.50"  b="0.50"/>
+		<specular r = "0.33"  g="0.33"  b="0.33"/>
+		<shader name = "basic.shader.xml"/>
+		<textures> 
+			<texture name = "sponza\sponza_floor_a_diff.dds"/>
+		</textures>
+	</material>
+	
+	<material name = "sponza_22SG">
+		<ambient r = "0.59"  g="0.59"  b="0.59"/>
+		<diffuse r = "0.50"  g="0.50"  b="0.50"/>
+		<specular r = "0.3"  g="0.3"  b="0.3"/>
+		<shader name = "basic.shader.xml"/>
+		<textures> 
+			<texture name = "sponza\sponza_column_c_diff.dds"/>
+		</textures>
+	</material>
+	
+	<material name = "sponza_70SG">
+		<ambient r = "0.59"  g="0.59"  b="0.59"/>
+		<diffuse r = "0.50"  g="0.50"  b="0.50"/>
+		<specular r = "0.3"  g="0.3"  b="0.3"/>
+		<shader name = "basic.shader.xml"/>
+		<textures> 
+			<texture name = "sponza\sponza_details_diff.dds"/>
+		</textures>
+	</material>
+	
+	<material name = "sponza_125SG">
+		<ambient r = "0.59"  g="0.59"  b="0.59"/>
+		<diffuse r = "0.50"  g="0.50"  b="0.50"/>
+		<specular r = "0.3"  g="0.3"  b="0.3"/>
+		<shader name = "basic.shader.xml"/>
+		<textures> 
+			<texture name = "sponza\sponza_column_b_diff.dds"/>
+		</textures>
+	</material>
+	
+	<material name = "sponza_259SG">
+		<ambient r = "0.59"  g="0.59"  b="0.59"/>
+		<diffuse r = "0.50"  g="0.50"  b="0.50"/>
+		<specular r = "0.68"  g="0.68"  b="0.68"/>
+		<shader name = "basic.shader.xml"/>
+		<textures> 
+			<texture name = "sponza\sponza_flagpole_diff.dds"/>
+		</textures>
+	</material>
+	
+	<material name = "sponza_282SG">
+		<ambient r = "0.59"  g="0.59"  b="0.59"/>
+		<diffuse r = "0.50"  g="0.50"  b="0.50"/>
+		<specular r = "0.85"  g="0.85"  b="0.85"/>
+		<shader name = "basic.shader.xml"/>
+		<textures> 
+			<texture name = "sponza\sponza_fabric_green_diff.dds"/>
+		</textures>
+	</material>
+	
+	<material name = "sponza_283SG">
+		<ambient r = "0.59"  g="0.59"  b="0.59"/>
+		<diffuse r = "0.50"  g="0.50"  b="0.50"/>
+		<specular r = "0.85"  g="0.85"  b="0.85"/>
+		<shader name = "basic.shader.xml"/>
+		<textures> 
+			<texture name = "sponza\sponza_fabric_blue_diff.dds"/>
+		</textures>
+	</material>
+	
+	<material name = "sponza_284SG">
+		<ambient r = "0.59"  g="0.59"  b="0.59"/>
+		<diffuse r = "0.50"  g="0.50"  b="0.50"/>
+		<specular r = "0.85"  g="0.85"  b="0.85"/>
+		<shader name = "basic.shader.xml"/>
+		<textures> 
+			<texture name = "sponza\sponza_fabric_diff.dds"/>
+		</textures>
+	</material>
+	
+	<material name = "sponza_320SG">
+		<ambient r = "0.59"  g="0.59"  b="0.59"/>
+		<diffuse r = "0.50"  g="0.50"  b="0.50"/>
+		<specular r = "0.85"  g="0.85"  b="0.85"/>
+		<shader name = "basic.shader.xml"/>
+		<textures> 
+			<texture name = "sponza\sponza_curtain_blue_diff.dds"/>
+		</textures>
+	</material>
+	
+	
+	<material name = "sponza_321SG">
+		<ambient r = "0.59"  g="0.59"  b="0.59"/>
+		<diffuse r = "0.50"  g="0.50"  b="0.50"/>
+		<specular r = "0.85"  g="0.85"  b="0.85"/>
+		<shader name = "basic.shader.xml"/>
+		<textures> 
+			<texture name = "sponza\sponza_curtain_diff.dds"/>
+		</textures>
+	</material>
+	
+	
+	<material name = "sponza_322SG">
+		<ambient r = "0.59"  g="0.59"  b="0.59"/>
+		<diffuse r = "0.50"  g="0.50"  b="0.50"/>
+		<specular r = "0.85"  g="0.85"  b="0.85"/>
+		<shader name = "basic.shader.xml"/>
+		<textures> 
+			<texture name = "sponza\sponza_curtain_green_diff.dds"/>
+		</textures>
+	</material>
+	
+	
+	<material name = "sponza_330SG">
+		<ambient r = "0.59"  g="0.59"  b="0.59"/>
+		<diffuse r = "0.50"  g="0.50"  b="0.50"/>
+		<specular r = "0.72"  g="0.72"  b="0.72"/>
+		<shader name = "basic.shader.xml"/>
+		<textures> 
+			<texture name = "sponza\chain_texture.dds"/>
+		</textures>
+	</material>
+	
+	<material name = "sponza_334SG">
+		<ambient r = "0.59"  g="0.59"  b="0.59"/>
+		<diffuse r = "0.50"  g="0.50"  b="0.50"/>
+		<specular r = "0.72"  g="0.72"  b="0.72"/>
+		<shader name = "basic.shader.xml"/>
+		<textures> 
+			<texture name = "sponza\vase_hanging.dds"/>
+		</textures>
+	</material>
+	
+	
+	<material name = "sponza_373SG">
+		<ambient r = "0.59"  g="0.59"  b="0.59"/>
+		<diffuse r = "0.50"  g="0.50"  b="0.50"/>
+		<specular r = "0.9"  g="0.9"  b="0.9"/>
+		<shader name = "basic.shader.xml"/>
+		<textures> 
+			<texture name = "sponza\vase_dif.dds"/>
+		</textures>
+	</material>
+	
+	
+	<material name = "sponza_377SG">
+		<ambient r = "0.59"  g="0.59"  b="0.59"/>
+		<diffuse r = "0.50"  g="0.50"  b="0.50"/>
+		<specular r = "0.9"  g="0.9"  b="0.9"/>
+		<shader name = "basic.shader.xml"/>
+		<textures> 
+			<texture name = "sponza\lion.dds"/>
+		</textures>
+	</material>
+	
+	<material name = "sponza_380SG">
+		<ambient r = "0.59"  g="0.59"  b="0.59"/>
+		<diffuse r = "0.50"  g="0.50"  b="0.50"/>
+		<specular r = "0.3"  g="0.3"  b="0.3"/>
+		<shader name = "basic.shader.xml"/>
+		<textures> 
+			<texture name = "sponza\sponza_roof_diff.dds"/>
+		</textures>
+	</material>
+</materials>

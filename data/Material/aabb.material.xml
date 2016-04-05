@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<materials>
+	<material name = "cube">
+		<ambient r = "0.0"  g="0.0"  b="0.0"/>
+		<diffuse r = "0.0"  g="0.0"  b="0.0"/>
+		<specular r = "0.0"  g="0.0"  b="0.0"/>
+		<shader name = "wire.shader.xml"/>
+		<textures>
+		</textures>
+	</material>
+</materials>

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shader vsMainFunction = "VS" psMainFunction = "PS">
+	
+	<properties>
+		<property type="Matrix" name = "gWorldViewProj" slot = "2" />
+		<property type="Texture" name = "gDiffuseMap" slot = "0" />
+		<property type="Matrix" name = "viewMatrix" slot = "3" />
+		<property type="Matrix" name = "normalMatrix" slot = "4" />
+		<property type="Light" name = "light" slot = "0" />
+		<property type="Surface" name = "surface" slot = "1" />
+	</properties>
+	
+	<states>
+		<state type = "ZWrite" data = "On" />
+		<state type = "Light"  data = "On" />
+	</states>
+	
+	<vsShader program = 
+	
+	"
+	#define NUM_LIGHT = 4;
+	
+	
+	cbuffer light
+	{
+		float3 lightPosition;
+		float3 lightAmbient;
+		float3 lightDiffuse;
+		float3 lightSpecular;
+		float3 k;
+	}
+	
+	
+	cbuffer surface
+	{
+		float3 surfaceAmbient;
+		float3 surfaceDiffuse;
+		float3 surfaceSpecular;
+	}
+	
+	
+	cbuffer cbPerObject
+	{
+		float4x4 gWorldViewProj; 
+	}
+	
+	cbuffer viewMatrix
+	{
+		float4x4 viewMatrix;
+	}
+	
+	
+	cbuffer cbPerObject
+	{
+		float4x4 normalMatrix; 
+	}
+	
+	
+	struct VertexIn
+	{
+		float3 Pos   : POSITION;
+		float3 Nor :	NORMAL;
+		//float4 Color : COLOR;
+		float2 UV : TEXCOORD0;
+	};
+
+	struct VertexOut
+	{
+		float4 PosH  : SV_POSITION;
+		float2 UV : TEXCOORD0;
+		float3 diffuse : TEXCOORD1;
+		float3 ambient : TEXCOORD2;
+		float  att: TEXCOORD3;
+		float speAtt : TEXCOORD4;
+	};
+
+	VertexOut VS(VertexIn vin)
+	{
+		VertexOut vout;
+		vout.PosH = mul(float4(vin.Pos, 1.0f), gWorldViewProj);
+		vout.UV = vin.UV;
+
+		vout.ambient = surfaceAmbient * lightAmbient;
+		vout.diffuse = surfaceDiffuse * lightDiffuse;
+		
+		float4 vPos = mul(float4(vin.Pos, 1.0f), viewMatrix);
+		vPos.xyz = vPos.xyz/vPos.w;
+		float4 lightPos = mul(float4(lightPosition, 1.0f), viewMatrix);
+		lightPos.xyz = lightPos.xyz/lightPos.w;
+		
+		float3 dir = normalize(vPos.xyz - lightPos.xyz);
+		float3 nor = normalize(mul(float4(vin.Nor,0.0f), normalMatrix)).xyz;
+		
+		float att = max(0.0, dot(nor, dir));
+		vout.diffuse = vout.diffuse * float3(att, att, att);
+		
+		float d = distance(vPos, lightPos);
+		
+		vout.att = max(0.0, 1-d/k.x);
+		
+		
+		float3 eyeDir = normalize(float3(-vPos.x, -vPos.y, -vPos.z));
+		float shn = k.y;
+		vout.speAtt = pow (max(dot(nor,(eyeDir + dir)/2), 0.0), shn);
+		
+		return vout;
+	}"
+	/>
+	
+	
+	
+	<psShader program = "
+	
+	Texture2D gDiffuseMap : register(t0);
+	SamplerState samLinear : register(s0);
+	
+	struct VertexOut
+	{
+		float4 PosH  : SV_POSITION;
+		float2 UV : TEXCOORD0;
+		float3 diffuse : TEXCOORD1;
+		float3 ambient : TEXCOORD2;
+		float  att: TEXCOORD3;
+		float speAtt : TEXCOORD4;
+	};
+	
+	float4 PS(VertexOut pin) : SV_TARGET
+	{
+		//float4 texCol = gDiffuseMap.Sample(samLinear, pin.UV);
+		float4 col = float4(pin.diffuse, 1.0)*float4(pin.att, pin.att, pin.att, 1.0) + float4(pin.diffuse, 1.0)*float4(pin.speAtt, pin.speAtt, pin.speAtt, 1.0);
+		//col = float4(0.0, 1.0, 0.0, 1.0);
+		return col;
+	}"
+	/>
+	
+</shader>
+	  

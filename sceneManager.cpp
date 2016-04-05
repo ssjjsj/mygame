@@ -10,6 +10,12 @@ SceneManager::SceneManager()
 
 SceneManager::~SceneManager()
 {
+	for (int i = 0; i < meshAry.size(); i++)
+	{
+		delete meshAry[i];
+	}
+
+
 	if (terrain != NULL)
 		delete terrain;
 

@@ -135,32 +135,35 @@ bool SkullApp::Init()
 	l->diffuse = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	l->specular = XMFLOAT3(1.0f, 0.0f, 0.0f);
 	l->pos = XMFLOAT3(0.0f, 10.0f, -30.0f);
-	l->k = XMFLOAT3(range, 0.02, 0.02);
+	l->k = XMFLOAT3(range, 0.2, 0.02);
+	gSceneManager.addLight(l);
+
+
+
+
+	l = new Light();
+	l->ambient = XMFLOAT3(1.0f, 1.0f, 0.0f);
+	l->diffuse = XMFLOAT3(1.0f, 1.0f, 0.0f);
+	l->specular = XMFLOAT3(1.0f, 1.0f, 0.0f);
+	l->pos = XMFLOAT3(0.0f, 10.0f, 15.0f);
+	l->k = XMFLOAT3(range, 0.2, 0.02);
+	gSceneManager.addLight(l);
+
+	l = new Light();
+	l->ambient = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	l->diffuse = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	l->specular = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	l->pos = XMFLOAT3(0.0f, 10.0f, 30.0f);
+	l->k = XMFLOAT3(range, 0.2, 0.02);
 	gSceneManager.addLight(l);
 
 
 	l = new Light();
 	l->ambient = XMFLOAT3(0.0f, 1.0f, 0.0f);
-	l->diffuse = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	l->diffuse = XMFLOAT3(0.0f, 1.0f, 0.0f);
 	l->specular = XMFLOAT3(0.0f, 1.0f, 0.0f);
 	l->pos = XMFLOAT3(0.0f, 10.0f, -15.0f);
-	l->k = XMFLOAT3(range, 0.02, 0.02);
-	gSceneManager.addLight(l);
-
-	l = new Light();
-	l->ambient = XMFLOAT3(1.0f, 1.0f, 0.0f);
-	l->diffuse = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	l->specular = XMFLOAT3(1.0f, 1.0f, 0.0f);
-	l->pos = XMFLOAT3(0.0f, 10.0f, 15.0f);
-	l->k = XMFLOAT3(range, 0.02, 0.02);
-	gSceneManager.addLight(l);
-
-	l = new Light();
-	l->ambient = XMFLOAT3(0.0f, 0.0f, 1.0f);
-	l->diffuse = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	l->specular = XMFLOAT3(0.0f, 0.0f, 1.0f);
-	l->pos = XMFLOAT3(0.0f, 10.0f, 30.0f);
-	l->k = XMFLOAT3(range, 0.02, 0.02);
+	l->k = XMFLOAT3(range, 0.2, 0.02);
 	gSceneManager.addLight(l);
 
 	return true;

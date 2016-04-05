@@ -2,14 +2,12 @@
 <shader vsMainFunction = "VS" psMainFunction = "PS">
 	
 	<properties>
-		<property type="Matrix" name = "gWorldViewProj" slot = "0" />
-		<property type="Texture" name = "Diffuse1" slot = "0" />
-		<property type="Texture" name = "Diffuse2" slot = "1" />
+		<property type="Matrix" name = "gWorldViewProj" />
+		<property type="Texture" name = "gDiffuseMap" />
 	</properties>
 	
 	<states>
 		<state type = "ZWrite" data = "On" />
-		<state type = "RenderModes" data = "Solid" />
 	</states>
 	
 	<vsShader program = 
@@ -32,9 +30,8 @@
 	struct VertexOut
 	{
 		float4 PosH  : SV_POSITION;
-		float3 Nor :	NORMAL;
-		float2 UV : TEXCOORD0;
 		//float4 Color : COLOR;
+		float2 UV : TEXCOORD0;
 	};
 
 	VertexOut VS(VertexIn vin)
@@ -42,9 +39,33 @@
 		VertexOut vout;
 	
 		// Transform to homogeneous clip space.
+		float4x4 vp;
+		vp[0][0] = 0.0750597417;
+		vp[0][1] = 0.0;
+		vp[0][2] = 0.0;
+		vp[0][3] = 0.0;
+		
+		vp[1][0] = 0.0;
+		vp[1][1] = 0.100079656;
+		vp[1][2] =  0.0;
+		vp[1][3] = 0.0;
+		
+		vp[2][0] = 0.0;
+		vp[2][1] = 0.0;
+		vp[2][2] = 0.101010099;
+		vp[2][3] = 0.0;
+		
+		vp[3][0] = 0.0;
+		vp[3][1] = 0.0;
+		vp[3][2] = -1.01010096;
+		vp[3][3] = 0.0;
 		
 		vout.PosH = mul(float4(vin.Pos, 1.0f), gWorldViewProj);
-		vout.Nor = vin.Nor;
+		//vout.PosH = float4(vin.Pos, 1.0f);
+		//vout.PosH = vin.Pos;
+	
+		// Just pass vertex color into the pixel shader.
+		//vout.Color = vin.Color;
 		vout.UV = vin.UV;
     
 		return vout;
@@ -54,25 +75,24 @@
 	
 	
 	<psShader program = "
-	Texture2D diffuse1 : register(t0);
-	Texture2D diffuse2 : register(t1);
-	SamplerState samLinear1 : register(s0);
-	SamplerState samLinear2 : register(s1);
+	
+	Texture2D gDiffuseMap : register(t0);
+	SamplerState samLinear : register(s0);
 	
 	struct VertexOut
 	{
 		float4 PosH  : SV_POSITION;
 		//float4 Color : COLOR;
-		float3 Nor :	NORMAL;
 		float2 UV : TEXCOORD0;
 	};
 	
 	float4 PS(VertexOut pin) : SV_TARGET
 	{
-		return float4(pin.Nor.x, pin.Nor.x, pin.Nor.x, pin.Nor.x) * diffuse1.Sample(samLinear1, pin.UV) 
-		+ float4(pin.Nor.y, pin.Nor.y, pin.Nor.y, pin.Nor.y) * diffuse2.Sample(samLinear2, pin.UV);
-		
-		//return diffuse1.Sample(samLinear1, pin.UV);
+		float4 color = gDiffuseMap.Sample(samLinear, pin.UV);
+		if (color.a < 0.1)
+			discard;
+		return color;
+		//textureColor = gDiffuseMap.Sample(SampleType, pin.UV);
 	}"
 	/>
 	

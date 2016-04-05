@@ -1,32 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <materials>
 	<material name = "front">
+		<ambient r = "0.0"  g="0.0"  b="0.0"/>
+		<diffuse r = "0.0"  g="0.0"  b="0.0"/>
+		<specular r = "0.0"  g="0.0"  b="0.0"/>
 		<shader name = "skyBox.shader.xml"/>
-		<texture name = "jajlands1_ft.dds"/>
+		<textures>
+			<texture name = "miramar_ft.dds"/>
+		</textures>
 	</material>
 	
 	<material name = "back">
+		<ambient r = "0.0"  g="0.0"  b="0.0"/>
+		<diffuse r = "0.0"  g="0.0"  b="0.0"/>
+		<specular r = "0.0"  g="0.0"  b="0.0"/>
 		<shader name = "skyBox.shader.xml"/>
-		<texture name = "jajlands1_bk.dds"/>
+		<textures>
+			<texture name = "miramar_bk.dds"/>
+		</textures>
 	</material>
 	
 	<material name = "left">
+		<ambient r = "0.0"  g="0.0"  b="0.0"/>
+		<diffuse r = "0.0"  g="0.0"  b="0.0"/>
+		<specular r = "0.0"  g="0.0"  b="0.0"/>
 		<shader name = "skyBox.shader.xml"/>
-		<texture name = "jajlands1_lf.dds"/>
+		<textures>
+			<texture name = "miramar_lf.dds"/>
+		</textures>
 	</material>
 	
 	<material name = "right">
+		<ambient r = "0.0"  g="0.0"  b="0.0"/>
+		<diffuse r = "0.0"  g="0.0"  b="0.0"/>
+		<specular r = "0.0"  g="0.0"  b="0.0"/>
 		<shader name = "skyBox.shader.xml"/>
-		<texture name = "jajlands1_rt.dds"/>
+		<textures>
+			<texture name = "miramar_rt.dds"/>
+		</textures>
 	</material>
 	
 	<material name = "top">
+		<ambient r = "0.0"  g="0.0"  b="0.0"/>
+		<diffuse r = "0.0"  g="0.0"  b="0.0"/>
+		<specular r = "0.0"  g="0.0"  b="0.0"/>
 		<shader name = "skyBox.shader.xml"/>
-		<texture name = "jajlands1_up.dds"/>
+		<textures>
+			<texture name = "miramar_up.dds"/>
+		</textures>
 	</material>
 	
 	<material name = "buttom">
+		<ambient r = "0.0"  g="0.0"  b="0.0"/>
+		<diffuse r = "0.0"  g="0.0"  b="0.0"/>
+		<specular r = "0.0"  g="0.0"  b="0.0"/>
 		<shader name = "skyBox.shader.xml"/>
-		<texture name = "jajlands1_dn.dds"/>
+		<textures>
+			<texture name = "miramar_dn.dds"/>
+		</textures>
 	</material>
 </materials>
