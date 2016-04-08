@@ -7,6 +7,7 @@
 #include "gpuResManger.h"
 #include "light.h"
 #include <map>
+#include "textureRenderTarget.h"
 //class RenderAble;
 
 class Render
@@ -73,5 +74,6 @@ private:
 	RenderStates renderState;
 	ID3D11BlendState *addBlenderState;
 	ID3D11BlendState *oneSrcBlenderState;
+	vector<TextureRenderTarget*> textureRTList;
 };
 #endif

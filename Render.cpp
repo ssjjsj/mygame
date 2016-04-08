@@ -497,6 +497,14 @@ void Render::onReset()
 	camera->SetLens(3.14, (float)width / (float)height, 1.0f, 1000.0f);
 
 	immediateContext->RSSetViewports(1, &screenViewport);
+
+
+	for (int i = 0; i < 4; i++)
+	{
+		TextureRenderTarget *target = new TextureRenderTarget;
+		target->init();
+		textureRTList.push_back(target);
+	}
 }
 
 
