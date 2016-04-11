@@ -10,6 +10,11 @@ Texture::Texture(string name)
 	createTexture(name);
 }
 
+Texture::Texture(ID3D11ShaderResourceView *tex)
+{
+	texture = tex;
+}
+
 
 Texture::~Texture()
 {

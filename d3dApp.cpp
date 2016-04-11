@@ -114,6 +114,7 @@ bool D3DApp::Init()
 	RenderDevice *device = new RenderDevice;
 	device->init(mhMainWnd, mClientWidth, mClientHeight);
 	gRender = new Render(device);
+	gRender->init();
 
 	return true;
 }

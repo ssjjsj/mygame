@@ -12,8 +12,6 @@ Render::Render(RenderDevice *device)
 	sampleState = NULL;
 	rasterState = NULL;
 	depthState = NULL;
-	lightBuff = NULL;
-	materialBuffer = NULL;
 	oneSrcBlenderState = NULL;
 	addBlenderState = NULL;
 	camera = new Camera;
@@ -48,48 +46,6 @@ Render::Render(RenderDevice *device)
 	depthDesc.StencilWriteMask = 0xff;
 
 	renderDevice->d3dDevice->CreateDepthStencilState(&depthDesc, &depthState);
-
-
-	D3D11_BUFFER_DESC matrixBufferDesc;
-	ZeroMemory(&matrixBufferDesc, sizeof(D3D11_BUFFER_DESC));
-	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	matrixBufferDesc.ByteWidth = sizeof(XMFLOAT4X4);
-	matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-
-	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-	ID3D11Buffer *matrixBuffer = NULL;
-	ID3D11Buffer *invPosMatrixBuffer = NULL;
-	ID3D11Buffer *viewMatrixBuffer = NULL;
-	ID3D11Buffer *normalMatrixBuffer = NULL;
-	renderDevice->d3dDevice->CreateBuffer(&matrixBufferDesc, NULL, &matrixBuffer);
-	renderDevice->d3dDevice->CreateBuffer(&matrixBufferDesc, NULL, &invPosMatrixBuffer);
-	renderDevice->d3dDevice->CreateBuffer(&matrixBufferDesc, NULL, &viewMatrixBuffer);
-	renderDevice->d3dDevice->CreateBuffer(&matrixBufferDesc, NULL, &normalMatrixBuffer);
-
-	matrixBufferAry["gWorldViewProj"] = matrixBuffer;
-	matrixBufferAry["invViewPosition"] = invPosMatrixBuffer;
-	matrixBufferAry["viewMatrix"] = viewMatrixBuffer;
-	matrixBufferAry["normalMatrix"] = normalMatrixBuffer;
-
-
-	D3D11_BUFFER_DESC lightBufferDesc;
-	ZeroMemory(&lightBufferDesc, sizeof(D3D11_BUFFER_DESC));
-	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	lightBufferDesc.ByteWidth = sizeof(LightData);
-	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	lightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	renderDevice->d3dDevice->CreateBuffer(&lightBufferDesc, NULL, &lightBuff);
-
-
-	D3D11_BUFFER_DESC materialBufferDesc;
-	ZeroMemory(&materialBufferDesc, sizeof(D3D11_BUFFER_DESC));
-	materialBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	materialBufferDesc.ByteWidth = sizeof(SurfaceData);
-	materialBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	materialBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-
-	renderDevice->d3dDevice->CreateBuffer(&materialBufferDesc, NULL, &materialBuffer);
 
 	
 	D3D11_SAMPLER_DESC samplerDesc;
@@ -150,11 +106,6 @@ Render::~Render()
 {
 	delete renderDevice;
 
-	for (map<string, ID3D11Buffer*>::iterator it = matrixBufferAry.begin(); it != matrixBufferAry.end(); it++)
-	{
-		it->second->Release();
-	}
-
 	if (rasterState != NULL)
 		rasterState->Release();
 
@@ -185,242 +136,182 @@ Render::~Render()
 
 void Render::preDraw()
 {
-	bufferIndex = 0;
+	ID3D11Device* d3dDevice = renderDevice->d3dDevice;
+	ID3D11DeviceContext* immediateContext = renderDevice->immediateContext;
+	IDXGISwapChain* swapChain = renderDevice->swapChain;
+
+	vp = camera->ViewProj();
+
+	view = camera->View();
+	view._41 = 0.0f;
+	view._42 = 0.0f;
+	view._43 = 0.0f;
+	proj = camera->Proj();
+	invPosM = view * proj;
+	invPosM = XMMatrixTranspose(invPosM);
+	view = XMMatrixTranspose(view);
+
+	XMFLOAT4X4 data;
+	XMStoreFloat4x4(&data, invPosM);
+	((UpdateMatrixBufferCommand*)bufferCommandList["invViewPosition"])->updateData(data);
+
+	XMStoreFloat4x4(&data, view);
+	((UpdateMatrixBufferCommand*)bufferCommandList["viewMatrix"])->updateData(data);
+
+	XMStoreFloat4x4(&data, view);
+	((UpdateMatrixBufferCommand*)bufferCommandList["normalMatrix"])->updateData(data);
+
+	float color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	immediateContext->ClearRenderTargetView(renderTargetView, color);
+	immediateContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
-void Render::draw(vector<RenderAble*> renderAbles, vector<Light*> &lights)
+void Render::PostDraw()
+{
+	renderDevice->swapChain->Present(0, 0);
+}
+
+void Render::draw(RenderAble *renderAble)
 {
 	ID3D11Device* d3dDevice = renderDevice->d3dDevice;
 	ID3D11DeviceContext* immediateContext = renderDevice->immediateContext;
 	IDXGISwapChain* swapChain = renderDevice->swapChain;
 
-	XMMATRIX vp = camera->ViewProj();
-	
-	XMMATRIX view = camera->View();
-	view._41 = 0.0f;
-	view._42 = 0.0f;
-	view._43 = 0.0f;
-	XMMATRIX proj = camera->Proj();
-	XMMATRIX invPosM = view * proj;
-	invPosM = XMMatrixTranspose(invPosM);
+	Geometry *g = renderAble->getGeometry();
+	Material *m = renderAble->getMaterial();
 
-	view = XMMatrixTranspose(view);
 
-	float color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	immediateContext->ClearRenderTargetView(renderTargetView, color);
-	immediateContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	XMMATRIX local = XMLoadFloat4x4(&renderAble->localMatrix);
+	XMMATRIX matrix = local*vp;
+	matrix = XMMatrixTranspose(matrix);
 
-	for (int i = 0; i < renderAbles.size(); i++)
+	XMFLOAT4X4 data;
+	XMStoreFloat4x4(&data, matrix);
+	((UpdateMatrixBufferCommand*)bufferCommandList["gWorldViewProj"])->updateData(data);
+
+	vector<ShaderPropery>& properties = m->getShader()->getProperties();
+	for (int i = 0; i < properties.size(); i++)
 	{
-		immediateContext->OMSetBlendState(oneSrcBlenderState, NULL, 0xffffffff);
+		ShaderPropery &p = properties[i];
+		UpdateBufferCommand *c = bufferCommandList[p.variableName];
+		c->setSlot(p.slot);
+		c->update();
+	}
 
-		RenderAble *renderAble = renderAbles[i];
+	UINT stride = (UINT)Geometry::getVertexSize(g->getVertexType());
+	UINT offset = 0;
+	ID3D11Buffer *vertexBuffer = g->getVertexBuffer();
+	ID3D11Buffer *indexBuffer = g->getIndexBuffer();
+	immediateContext->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
+	immediateContext->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-		Geometry *g = renderAble->getGeometry();
-		Material *m = renderAble->getMaterial();
+	immediateContext->IASetInputLayout(m->getShader()->getInputLayout());
+	immediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+	Shader *shader = m->getShader();
+	RenderModes renderMode = shader->getRenderState().renderMode;
+	if (renderMode != renderState.renderMode)
+	{
+		renderState.renderMode = renderMode;
+		if (renderMode == RenderModes::Soild)
+			rasterDesc.FillMode = D3D11_FILL_SOLID;
+		else if (renderMode == RenderModes::Wire)
+			rasterDesc.FillMode = D3D11_FILL_WIREFRAME;
 
-		XMMATRIX local = XMLoadFloat4x4(&renderAble->localMatrix);
-		XMMATRIX matrix = local*vp;
-		matrix = XMMatrixTranspose(matrix);
-		
-		UINT stride = (UINT)Geometry::getVertexSize(g->getVertexType());
-		UINT offset = 0;
-		ID3D11Buffer *vertexBuffer = g->getVertexBuffer();
-		ID3D11Buffer *indexBuffer = g->getIndexBuffer();
-		immediateContext->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
-		immediateContext->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+		rasterState->Release();
+		d3dDevice->CreateRasterizerState(&rasterDesc, &rasterState);
+		immediateContext->RSSetState(rasterState);
+	}
 
-		immediateContext->IASetInputLayout(m->getShader()->getInputLayout());
-		immediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-		Shader *shader = m->getShader();
-		RenderModes renderMode = shader->getRenderState().renderMode;
-		if (renderMode != renderState.renderMode)
+	ZWrite zMode = shader->getRenderState().zWriteMode;
+	if (zMode != renderState.zWriteMode)
+	{
+		if (zMode == ZWrite::Off)
 		{
-			renderState.renderMode = renderMode;
-			if (renderMode == RenderModes::Soild)
-				rasterDesc.FillMode = D3D11_FILL_SOLID;
-			else if (renderMode == RenderModes::Wire)
-				rasterDesc.FillMode = D3D11_FILL_WIREFRAME;
-
-			rasterState->Release();
-			d3dDevice->CreateRasterizerState(&rasterDesc, &rasterState);
-			immediateContext->RSSetState(rasterState);
-		}
-
-		ZWrite zMode = shader->getRenderState().zWriteMode;
-		if (zMode != renderState.zWriteMode)
-		{
-			if (zMode == ZWrite::Off)
-			{
-				depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-			}
-			else
-			{
-				depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-			}
-			renderState.zWriteMode = zMode;
-
-			depthState->Release();
-			d3dDevice->CreateDepthStencilState(&depthDesc, &depthState);
-			immediateContext->OMSetDepthStencilState(depthState, 0);
-		}
-
-		CullModes cullMode = shader->getRenderState().cullMode;
-		if (cullMode != renderState.cullMode)
-		{
-			renderState.cullMode = cullMode;
-			if (cullMode == CullModes::Front)
-				rasterDesc.CullMode = D3D11_CULL_FRONT;
-			else if (cullMode == CullModes::Back)
-				rasterDesc.CullMode = D3D11_CULL_BACK;
-
-			rasterState->Release();
-			d3dDevice->CreateRasterizerState(&rasterDesc, &rasterState);
-			immediateContext->RSSetState(rasterState);
-		}
-
-		TestModes testMode = shader->getRenderState().testMode;
-		if (testMode != renderState.testMode)
-		{
-			renderState.testMode = testMode;
-			if (testMode == TestModes::Always)
-				depthDesc.DepthFunc = D3D11_COMPARISON_ALWAYS;
-			else if (testMode == TestModes::Less)
-				depthDesc.DepthFunc = D3D11_COMPARISON_LESS;
-
-			depthState->Release();
-			d3dDevice->CreateDepthStencilState(&depthDesc, &depthState);
-			immediateContext->OMSetDepthStencilState(depthState, 0);
-		}
-
-
-		immediateContext->VSSetShader(shader->getVsShader(), NULL, 0);
-		immediateContext->PSSetShader(shader->getPsShader(), NULL, 0);
-
-		if (shader->constainProperty("gWorldViewProj"))
-		{
-			XMFLOAT4X4 data;
-			XMStoreFloat4x4(&data, matrix);
-			setMatrixData("gWorldViewProj", shader->getPropertySlot("gWorldViewProj"), data);
-		}
-
-		if (shader->constainProperty("viewMatrix"))
-		{
-			XMFLOAT4X4 data;
-			XMStoreFloat4x4(&data, view);
-			setMatrixData("viewMatrix", shader->getPropertySlot("viewMatrix"), data);
-		}
-
-		if (shader->constainProperty("invViewPosition"))
-		{
-			XMFLOAT4X4 data;
-			XMStoreFloat4x4(&data, invPosM);
-			setMatrixData("invViewPosition", shader->getPropertySlot("invViewPosition"), data);
-		}
-
-		vector<Texture*> textures = m->getTextures();
-		int num = textures.size();
-		for (int i = 0; i < textures.size(); i++)
-		{
-			Texture *tex = textures[i];
-			ID3D11ShaderResourceView* texRes = tex->getTexture();
-			if (texRes != NULL)
-			{
-				immediateContext->PSSetShaderResources(i, 1, &texRes);
-				immediateContext->PSSetSamplers(i, 1, &sampleState);
-			}
-		}
-
-		immediateContext->DrawIndexed(g->getIndexCount(), 0, 0);
-		//immediateContext->OMSetDepthStencilState()
-
-		if (renderAble->lighted)
-		{
-			renderState.testMode = TestModes::LessEqual;
-			renderState.zWriteMode = ZWrite::Off;
 			depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-			depthDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
-			depthState->Release();
-			d3dDevice->CreateDepthStencilState(&depthDesc, &depthState);
-			immediateContext->OMSetDepthStencilState(depthState, 0);
-			
-			Shader *lightedShader = gpuResManager->lightShader;
-			immediateContext->VSSetShader(lightedShader->getVsShader(), NULL, 0);
-			immediateContext->PSSetShader(lightedShader->getPsShader(), NULL, 0);
+		}
+		else
+		{
+			depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+		}
+		renderState.zWriteMode = zMode;
 
-			XMFLOAT4X4 data;
-			XMStoreFloat4x4(&data, matrix);
-			setMatrixData("gWorldViewProj", lightedShader->getPropertySlot("gWorldViewProj"), data);
+		depthState->Release();
+		d3dDevice->CreateDepthStencilState(&depthDesc, &depthState);
+		immediateContext->OMSetDepthStencilState(depthState, 0);
+	}
 
-			XMStoreFloat4x4(&data, view);
-			setMatrixData("viewMatrix", lightedShader->getPropertySlot("viewMatrix"), data);
+	CullModes cullMode = shader->getRenderState().cullMode;
+	if (cullMode != renderState.cullMode)
+	{
+		renderState.cullMode = cullMode;
+		if (cullMode == CullModes::Front)
+			rasterDesc.CullMode = D3D11_CULL_FRONT;
+		else if (cullMode == CullModes::Back)
+			rasterDesc.CullMode = D3D11_CULL_BACK;
 
-			XMMATRIX normalMatrix = XMMatrixInverse(&XMMatrixDeterminant(view), view);
-			normalMatrix = XMMatrixTranspose(normalMatrix);
-			XMStoreFloat4x4(&data, normalMatrix);
-			setMatrixData("normalMatrix", lightedShader->getPropertySlot("normalMatrix"), data);
+		rasterState->Release();
+		d3dDevice->CreateRasterizerState(&rasterDesc, &rasterState);
+		immediateContext->RSSetState(rasterState);
+	}
 
-			immediateContext->OMSetBlendState(addBlenderState, NULL, 0xffffffff);
-			setSurfaceData(m, lightedShader->getPropertySlot("surface"));
-			for (int i = 0; i < lights.size(); i++)
-			{
-				setLightData(lights[i], lightedShader->getPropertySlot("light"));
-				immediateContext->DrawIndexed(g->getIndexCount(), 0, 0);
-			}
+	TestModes testMode = shader->getRenderState().testMode;
+	if (testMode != renderState.testMode)
+	{
+		renderState.testMode = testMode;
+		if (testMode == TestModes::Always)
+			depthDesc.DepthFunc = D3D11_COMPARISON_ALWAYS;
+		else if (testMode == TestModes::Less)
+			depthDesc.DepthFunc = D3D11_COMPARISON_LESS;
+
+		depthState->Release();
+		d3dDevice->CreateDepthStencilState(&depthDesc, &depthState);
+		immediateContext->OMSetDepthStencilState(depthState, 0);
+	}
+
+
+	immediateContext->VSSetShader(shader->getVsShader(), NULL, 0);
+	immediateContext->PSSetShader(shader->getPsShader(), NULL, 0);
+
+	vector<Texture*> textures = m->getTextures();
+	int num = textures.size();
+	for (int i = 0; i < textures.size(); i++)
+	{
+		Texture *tex = textures[i];
+		ID3D11ShaderResourceView* texRes = tex->getTexture();
+		if (texRes != NULL)
+		{
+			immediateContext->PSSetShaderResources(i, 1, &texRes);
+			immediateContext->PSSetSamplers(i, 1, &sampleState);
 		}
 	}
 
-	renderDevice->swapChain->Present(0, 0);
+	immediateContext->DrawIndexed(g->getIndexCount(), 0, 0);
 }
 
 
-void Render::setSurfaceData(Material *m, int slot)
+void Render::draw(vector<RenderAble*> renderAbles)
 {
-	ID3D11DeviceContext* immediateContext = renderDevice->immediateContext;
-
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	gRender->Device()->immediateContext->Map(materialBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	SurfaceData* dataPtr = (SurfaceData*)mappedResource.pData;
-	dataPtr->ambient = m->getAmbient();
-	dataPtr->diffuse = m->getDiffuse();
-	dataPtr->specular = m->getSpecular();
-	immediateContext->Unmap(materialBuffer, 0);
-	immediateContext->VSSetConstantBuffers(slot, 1, &materialBuffer);
+	for (int i = 0; i < renderAbles.size(); i++)
+	{
+		draw(renderAbles[i]);
+	}
 }
 
-
-void Render::setMatrixData(string name, int slot, XMFLOAT4X4 data)
+void Render::draw(vector<RenderAble*> renderAbles, vector<Light*> &lights)
 {
-	ID3D11DeviceContext* immediateContext = renderDevice->immediateContext;
+	for (int i = 0; i < renderAbles.size(); i++)
+	{
+		RenderAble *obj = renderAbles[i];
+		((UpdateSurfaceBufferCommand*)bufferCommandList["surface"])->updateSurfaceData(obj->getMaterial());
+		draw(obj);
+	}
 
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	ID3D11Buffer *viewMatrixBuffer = matrixBufferAry[name];
-	immediateContext->Map(viewMatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	XMFLOAT4X4* dataPtr = (XMFLOAT4X4*)mappedResource.pData;
-	memcpy(dataPtr, &data, sizeof(XMFLOAT4X4));
-	immediateContext->Unmap(viewMatrixBuffer, 0);
-	immediateContext->VSSetConstantBuffers(slot, 1, &viewMatrixBuffer);
-}
-
-
-
-void Render::setLightData(Light *l, int slot)
-{
-	ID3D11DeviceContext* immediateContext = renderDevice->immediateContext;
-
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	gRender->Device()->immediateContext->Map(lightBuff, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	LightData* dataPtr = (LightData*)mappedResource.pData;
-	dataPtr->pos = l->pos;
-	dataPtr->ambient = l->ambient;
-	dataPtr->diffuse = l->diffuse;
-	dataPtr->specular = l->specular;
-	dataPtr->k = l->k;
-	immediateContext->Unmap(lightBuff, 0);
-	immediateContext->VSSetConstantBuffers(slot, 1, &lightBuff);
-	bufferIndex++;
+	for (int lightIndex = 0; lightIndex < lights.size(); lightIndex++)
+	{
+		((UpdateLightBufferCommand*)bufferCommandList["light"])->updateLightData(lights[lightIndex]);
+		lightPostEffect->Render();
+	}
 }
 
 
@@ -497,13 +388,31 @@ void Render::onReset()
 	camera->SetLens(3.14, (float)width / (float)height, 1.0f, 1000.0f);
 
 	immediateContext->RSSetViewports(1, &screenViewport);
+}
 
+
+void Render::init()
+{
+	bufferCommandList["gWorldViewProj"] = new UpdateMatrixBufferCommand;
+	bufferCommandList["invViewPosition"] = new UpdateMatrixBufferCommand;
+	bufferCommandList["viewMatrix"] = new UpdateMatrixBufferCommand;
+	bufferCommandList["normalMatrix"] = new UpdateMatrixBufferCommand;
+	bufferCommandList["surface"] = new UpdateSurfaceBufferCommand;
+	bufferCommandList["light"] = new UpdateSurfaceBufferCommand;
 
 	for (int i = 0; i < 4; i++)
 	{
 		TextureRenderTarget *target = new TextureRenderTarget;
 		target->init();
 		textureRTList.push_back(target);
+	}
+
+	lightPostEffect = new PostEffect("lightPost.material.xml");
+	Material *m = lightPostEffect->getMaterial();
+	for (int i = 0; i < textureRTList.size(); i++)
+	{
+		TextureRenderTarget *t = textureRTList[i];
+		m->addTexture(new Texture(t->getResView()));
 	}
 }
 

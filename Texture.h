@@ -12,6 +12,7 @@ public:
 	Texture() {};
 	Texture(string texName);
 	~Texture();
+	Texture(ID3D11ShaderResourceView *tex);
 
 	ID3D11ShaderResourceView* getTexture() { return texture; }
 

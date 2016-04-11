@@ -7,35 +7,14 @@
 #include "gpuResManger.h"
 #include "light.h"
 #include <map>
+#include <string>
 #include "textureRenderTarget.h"
+#include "updateBufferCommand.h"
+#include "postEffect.h"
 //class RenderAble;
 
 class Render
 {
-	struct SurfaceData
-	{
-		XMFLOAT3 ambient;
-		int pad1;
-		XMFLOAT3 diffuse;
-		int pad2;
-		XMFLOAT3 specular;
-		int pad3;
-	};
-
-	struct LightData
-	{
-		XMFLOAT3 pos;
-		int pad1;
-		//XMFLOAT3 direction;
-		XMFLOAT3 ambient;
-		int pad2;
-		XMFLOAT3 diffuse;
-		int pad3;
-		XMFLOAT3 specular;
-		int pad4;
-		XMFLOAT3 k;
-		int pad5;
-	};
 public:
 	Render() {};
 	Render(RenderDevice *device);
@@ -46,25 +25,22 @@ private:
 	int bufferIndex;
 
 public:
+	void init();
 	void draw(vector<RenderAble*> renderAbles, vector<Light*> &lights);
+	void draw(RenderAble *obj);
+	void draw(vector<RenderAble*> renderAbles);
 	void preDraw();
+	void PostDraw();
 	RenderDevice* Device() { return renderDevice; }
 	void onReset();
 	Camera * getCamera() { return camera; }
 	GpuResManager *gpuResManager;
-
-	void setSurfaceData(Material *m, int slot);
-	void setLightData(Light *l, int slot);
-	void setMatrixData(string name, int slot, XMFLOAT4X4 matrix);
 
 private:
 	ID3D11Texture2D* depthStencilBuffer;
 	ID3D11RenderTargetView* renderTargetView;
 	ID3D11DepthStencilView* depthStencilView;
 	D3D11_VIEWPORT screenViewport;
-	map<string, ID3D11Buffer*> matrixBufferAry;
-	ID3D11Buffer *lightBuff;
-	ID3D11Buffer *materialBuffer;
 	ID3D11SamplerState* sampleState;
 	Camera *camera;
 	D3D11_RASTERIZER_DESC rasterDesc;
@@ -75,5 +51,11 @@ private:
 	ID3D11BlendState *addBlenderState;
 	ID3D11BlendState *oneSrcBlenderState;
 	vector<TextureRenderTarget*> textureRTList;
+	XMMATRIX view;
+	XMMATRIX vp;
+	XMMATRIX proj;
+	XMMATRIX invPosM;
+	map<string, UpdateBufferCommand*> bufferCommandList;
+	PostEffect *lightPostEffect;
 };
 #endif
