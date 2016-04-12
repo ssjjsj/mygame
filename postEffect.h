@@ -1,7 +1,5 @@
 #ifndef POSTEFFECT_H
 #define POSTEFFECT_H
-#include "global.h"
-#include "Render.h"
 #include "renderAble.h"
 
 

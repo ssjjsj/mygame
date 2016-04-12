@@ -111,19 +111,19 @@ bool SkullApp::Init()
 	gRender->getCamera()->LookAt(pos, target, up);
 	gRender->getCamera()->UpdateViewMatrix();
 
-	Mesh *m = new Mesh("sponza.obj");
-	m->lighted = true;
-	m->setMaterial("sponza.material.xml");
-	//m->playAnimation("Sinbad");
-	gSceneManager.addMesh(m);
+	//Mesh *m = new Mesh("sponza.obj");
+	//m->lighted = true;
+	//m->setMaterial("sponza.material.xml");
+	////m->playAnimation("Sinbad");
+	//gSceneManager.addMesh(m);
 
 	Mesh *sin = new Mesh("Sinbad.mesh.xml");
-	sin->lighted = false;
+	sin->lighted = true;
 	XMMATRIX t = XMMatrixTranslation(0.0f, 10.0f, 0.0f);
 	XMStoreFloat4x4(&sin->localMatrix, t);
 	sin->setMaterial("ogre.material.xml");
 	//m->playAnimation("Sinbad");
-	//gSceneManager.addMesh(sin);
+	gSceneManager.addMesh(sin);
 
 
 
@@ -135,10 +135,8 @@ bool SkullApp::Init()
 	l->diffuse = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	l->specular = XMFLOAT3(1.0f, 0.0f, 0.0f);
 	l->pos = XMFLOAT3(0.0f, 10.0f, -30.0f);
-	l->k = XMFLOAT3(range, 0.2, 0.02);
+	l->range = range;
 	gSceneManager.addLight(l);
-
-
 
 
 	l = new Light();
@@ -146,7 +144,7 @@ bool SkullApp::Init()
 	l->diffuse = XMFLOAT3(1.0f, 1.0f, 0.0f);
 	l->specular = XMFLOAT3(1.0f, 1.0f, 0.0f);
 	l->pos = XMFLOAT3(0.0f, 10.0f, 15.0f);
-	l->k = XMFLOAT3(range, 0.2, 0.02);
+	l->range = range;
 	gSceneManager.addLight(l);
 
 	l = new Light();
@@ -154,7 +152,7 @@ bool SkullApp::Init()
 	l->diffuse = XMFLOAT3(0.0f, 0.0f, 1.0f);
 	l->specular = XMFLOAT3(0.0f, 0.0f, 1.0f);
 	l->pos = XMFLOAT3(0.0f, 10.0f, 30.0f);
-	l->k = XMFLOAT3(range, 0.2, 0.02);
+	l->range = range;
 	gSceneManager.addLight(l);
 
 
@@ -163,7 +161,7 @@ bool SkullApp::Init()
 	l->diffuse = XMFLOAT3(0.0f, 1.0f, 0.0f);
 	l->specular = XMFLOAT3(0.0f, 1.0f, 0.0f);
 	l->pos = XMFLOAT3(0.0f, 10.0f, -15.0f);
-	l->k = XMFLOAT3(range, 0.2, 0.02);
+	l->range = range;
 	gSceneManager.addLight(l);
 
 	return true;

@@ -24,7 +24,7 @@ public:
 	XMFLOAT3 ambient;
 	XMFLOAT3 diffuse;
 	XMFLOAT3 specular;
-	XMFLOAT3 k;
+	float range;
 
 private:
 	Mesh *cube;

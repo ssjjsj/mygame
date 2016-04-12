@@ -98,8 +98,6 @@ Render::Render(RenderDevice *device)
 	blenderDesc.RenderTarget[0] = rendertargetBlenderDesc;
 
 	renderDevice->d3dDevice->CreateBlendState(&blenderDesc, &oneSrcBlenderState);
-
-	onReset();
 }
 
 Render::~Render()
@@ -140,6 +138,8 @@ void Render::preDraw()
 	ID3D11DeviceContext* immediateContext = renderDevice->immediateContext;
 	IDXGISwapChain* swapChain = renderDevice->swapChain;
 
+	XMMATRIX vp, view, invPosM, proj;
+
 	vp = camera->ViewProj();
 
 	view = camera->View();
@@ -160,6 +160,8 @@ void Render::preDraw()
 
 	XMStoreFloat4x4(&data, view);
 	((UpdateMatrixBufferCommand*)bufferCommandList["normalMatrix"])->updateData(data);
+
+	XMStoreFloat4x4(&vpData, vp);
 
 	float color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	immediateContext->ClearRenderTargetView(renderTargetView, color);
@@ -182,6 +184,8 @@ void Render::draw(RenderAble *renderAble)
 
 
 	XMMATRIX local = XMLoadFloat4x4(&renderAble->localMatrix);
+	XMMATRIX vp;
+	XMLoadFloat4x4(&vpData);
 	XMMATRIX matrix = local*vp;
 	matrix = XMMatrixTranspose(matrix);
 
@@ -196,6 +200,10 @@ void Render::draw(RenderAble *renderAble)
 		UpdateBufferCommand *c = bufferCommandList[p.variableName];
 		c->setSlot(p.slot);
 		c->update();
+		if (p.type == "VS")
+			c->bindToVs();
+		else if (p.type == "PS")
+			c->bindToPs();
 	}
 
 	UINT stride = (UINT)Geometry::getVertexSize(g->getVertexType());
@@ -300,6 +308,13 @@ void Render::draw(vector<RenderAble*> renderAbles)
 
 void Render::draw(vector<RenderAble*> renderAbles, vector<Light*> &lights)
 {
+	setMultipleRenderTarget();
+	float color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	for (int i = 0; i < textureRTList.size(); i++)
+	{
+		renderDevice->immediateContext->ClearRenderTargetView(textureRTList[i]->getTargetView(), color);
+	}
+
 	for (int i = 0; i < renderAbles.size(); i++)
 	{
 		RenderAble *obj = renderAbles[i];
@@ -307,11 +322,16 @@ void Render::draw(vector<RenderAble*> renderAbles, vector<Light*> &lights)
 		draw(obj);
 	}
 
+	setMainRenderTarget();
+
 	for (int lightIndex = 0; lightIndex < lights.size(); lightIndex++)
 	{
 		((UpdateLightBufferCommand*)bufferCommandList["light"])->updateLightData(lights[lightIndex]);
 		lightPostEffect->Render();
 	}
+
+	ID3D11ShaderResourceView*    pSRV[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+	renderDevice->immediateContext->PSSetShaderResources(0, 8, pSRV);
 }
 
 
@@ -348,19 +368,8 @@ void Render::onReset()
 	depthStencilDesc.MipLevels = 1;
 	depthStencilDesc.ArraySize = 1;
 	depthStencilDesc.Format    = DXGI_FORMAT_D24_UNORM_S8_UINT;
-
-	//// Use 4X MSAA? --must match swap chain MSAA values.
-	UINT m4xMsaaQuality = 0;
-	if( true )
-	{
-		depthStencilDesc.SampleDesc.Count   = 4;
-		depthStencilDesc.SampleDesc.Quality = 16;
-	}
-	else
-	{
-		depthStencilDesc.SampleDesc.Count   = 1;
-		depthStencilDesc.SampleDesc.Quality = 0;
-	}
+	depthStencilDesc.SampleDesc.Count   = 1;
+	depthStencilDesc.SampleDesc.Quality = 0;
 
 	depthStencilDesc.Usage          = D3D11_USAGE_DEFAULT;
 	depthStencilDesc.BindFlags      = D3D11_BIND_DEPTH_STENCIL;
@@ -369,12 +378,8 @@ void Render::onReset()
 
 	d3dDevice->CreateTexture2D(&depthStencilDesc, 0, &depthStencilBuffer);
 	d3dDevice->CreateDepthStencilView(depthStencilBuffer, 0, &depthStencilView);
-
-
-	// Bind the render target view and depth/stencil view to the pipeline.
-
-	immediateContext->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 	
+	setMainRenderTarget();
 
 	// Set the viewport transform.
 
@@ -398,7 +403,13 @@ void Render::init()
 	bufferCommandList["viewMatrix"] = new UpdateMatrixBufferCommand;
 	bufferCommandList["normalMatrix"] = new UpdateMatrixBufferCommand;
 	bufferCommandList["surface"] = new UpdateSurfaceBufferCommand;
-	bufferCommandList["light"] = new UpdateSurfaceBufferCommand;
+	bufferCommandList["light"] = new UpdateLightBufferCommand;
+
+	for (map<string, UpdateBufferCommand*>::iterator it = bufferCommandList.begin();
+		it != bufferCommandList.end(); it++)
+	{
+		it->second->init();
+	}
 
 	for (int i = 0; i < 4; i++)
 	{
@@ -414,6 +425,25 @@ void Render::init()
 		TextureRenderTarget *t = textureRTList[i];
 		m->addTexture(new Texture(t->getResView()));
 	}
+
+	onReset();
+}
+
+
+void Render::setMultipleRenderTarget()
+{
+	ID3D11RenderTargetView* renderTargets[4];
+	for (int i = 0; i < 4; i++)
+	{
+		renderTargets[i] = textureRTList[i]->getTargetView();
+	}
+	Device()->immediateContext->OMSetRenderTargets(4, renderTargets, depthStencilView);
+}
+
+void Render::setMainRenderTarget()
+{
+	ID3D11RenderTargetView* renderTargets[4] = { renderTargetView , NULL, NULL, NULL};
+	Device()->immediateContext->OMSetRenderTargets(4, renderTargets, depthStencilView);
 }
 
 

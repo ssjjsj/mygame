@@ -10,11 +10,8 @@ struct ShaderPropery
 {
 	enum PropertyType
 	{
-		Matrix = 0,
-		Vector4 = 1,
-		Color = 2,
-		Float = 3,
-		Texture = 4,
+		VS = 0,
+		PS = 1,
 	};
 
 	string type;

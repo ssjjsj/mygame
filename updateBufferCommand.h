@@ -3,8 +3,6 @@
 
 #include "MathHelp.h"
 #include "material.h"
-#include "Render.h"
-#include "global.h"
 #include "light.h"
 
 class UpdateBufferCommand
@@ -14,11 +12,13 @@ public:
 	virtual ~UpdateBufferCommand();
 
 	virtual void init() {};
-	virtual  void update() = 0;
+	virtual  void update() {};
 	void enable() { isEnable = true; };
 	void disable() { isEnable = false; };
 	bool IsEnable() { return isEnable; }
 	void setSlot(int slot) { this->slot = slot; };
+	void bindToVs();
+	void bindToPs();
 protected:
 	int slot;
 	ID3D11Buffer *buffer;
@@ -33,7 +33,7 @@ class UpdateMatrixBufferCommand : public UpdateBufferCommand
 {
 public:
 	UpdateMatrixBufferCommand(){};
-	~UpdateMatrixBufferCommand();
+	~UpdateMatrixBufferCommand(){};
 	void init();
 	void update();
 	void updateData(XMFLOAT4X4 data);
@@ -53,11 +53,11 @@ class UpdateLightBufferCommand : public UpdateBufferCommand
 		XMFLOAT3 diffuse;
 		int pad3;
 		XMFLOAT3 specular;
-		int pad4;
+		float range;
 	};
 public:
 	UpdateLightBufferCommand(){};
-	~UpdateLightBufferCommand();
+	~UpdateLightBufferCommand(){};
 	void init();
 	void update();
 	void updateLightData(Light *l);
@@ -76,8 +76,8 @@ class UpdateSurfaceBufferCommand : public UpdateBufferCommand
 		XMFLOAT4 specular;
 	};
 public:
-	UpdateSurfaceBufferCommand();
-	~UpdateSurfaceBufferCommand();
+	UpdateSurfaceBufferCommand(){};
+	~UpdateSurfaceBufferCommand(){};
 	void init();
 	void update();
 	void updateSurfaceData(Material *m);

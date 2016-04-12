@@ -23,6 +23,8 @@ public:
 private:
 	RenderDevice *renderDevice;
 	int bufferIndex;
+	void setMultipleRenderTarget();
+	void setMainRenderTarget();
 
 public:
 	void init();
@@ -51,11 +53,9 @@ private:
 	ID3D11BlendState *addBlenderState;
 	ID3D11BlendState *oneSrcBlenderState;
 	vector<TextureRenderTarget*> textureRTList;
-	XMMATRIX view;
-	XMMATRIX vp;
-	XMMATRIX proj;
-	XMMATRIX invPosM;
+	XMFLOAT4X4 vpData;
+	PostEffect* lightPostEffect;
+	int i;
 	map<string, UpdateBufferCommand*> bufferCommandList;
-	PostEffect *lightPostEffect;
 };
 #endif

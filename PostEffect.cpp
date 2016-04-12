@@ -1,4 +1,6 @@
 #include "postEffect.h"
+#include "global.h"
+#include "Render.h"
 
 PostEffect::~PostEffect()
 {
@@ -11,16 +13,20 @@ PostEffect::PostEffect(string name)
 
 	vector<MyVertex::Vertex> vList;
 	MyVertex::Vertex v;
-	v.Pos = XMFLOAT3(-0.5f, -0.5f, 1.0f);
+	v.Pos = XMFLOAT3(-1.0f, -1.0f, 0.001f);
+	v.UV = XMFLOAT2(0.0f, 0.0f);
 	vList.push_back(v);
 
-	v.Pos = XMFLOAT3(0.5f, -0.5f, 1.0f);
+	v.Pos = XMFLOAT3(1.0f, -1.0f, 0.001f);
+	v.UV = XMFLOAT2(1.0f, 0.0f);
 	vList.push_back(v);
 
-	v.Pos = XMFLOAT3(0.5f, 0.5f, 1.0f);
+	v.Pos = XMFLOAT3(1.0f, 1.0f, 0.001f);
+	v.UV = XMFLOAT2(1.0f, 1.0f);
 	vList.push_back(v);
 
-	v.Pos = XMFLOAT3(-0.5f, 0.5f, 1.0f);
+	v.Pos = XMFLOAT3(-1.0f, 1.0f, 0.001f);
+	v.UV = XMFLOAT2(0.0f, 1.0f);
 	vList.push_back(v);
 
 	vector<UINT> iList;

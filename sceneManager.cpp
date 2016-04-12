@@ -103,4 +103,5 @@ void SceneManager::render()
 	{
 		gRender->draw(renderAbleAry, lights);
 	}
+	gRender->PostDraw();
 }
