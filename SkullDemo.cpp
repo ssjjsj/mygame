@@ -111,19 +111,19 @@ bool SkullApp::Init()
 	gRender->getCamera()->LookAt(pos, target, up);
 	gRender->getCamera()->UpdateViewMatrix();
 
-	//Mesh *m = new Mesh("sponza.obj");
-	//m->lighted = true;
-	//m->setMaterial("sponza.material.xml");
-	////m->playAnimation("Sinbad");
-	//gSceneManager.addMesh(m);
-
-	Mesh *sin = new Mesh("Sinbad.mesh.xml");
-	sin->lighted = true;
-	XMMATRIX t = XMMatrixTranslation(0.0f, 10.0f, 0.0f);
-	XMStoreFloat4x4(&sin->localMatrix, t);
-	sin->setMaterial("ogre.material.xml");
+	Mesh *m = new Mesh("sponza.obj");
+	m->lighted = true;
+	m->setMaterial("sponza.material.xml");
 	//m->playAnimation("Sinbad");
-	gSceneManager.addMesh(sin);
+	gSceneManager.addMesh(m);
+
+	//Mesh *sin = new Mesh("Sinbad.mesh.xml");
+	//sin->lighted = true;
+	//XMMATRIX t = XMMatrixTranslation(0.0f, 10.0f, 0.0f);
+	//XMStoreFloat4x4(&sin->localMatrix, t);
+	//sin->setMaterial("ogre.material.xml");
+	//m->playAnimation("Sinbad");
+	//gSceneManager.addMesh(sin);
 
 
 

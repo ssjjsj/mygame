@@ -184,8 +184,7 @@ void Render::draw(RenderAble *renderAble)
 
 
 	XMMATRIX local = XMLoadFloat4x4(&renderAble->localMatrix);
-	XMMATRIX vp;
-	XMLoadFloat4x4(&vpData);
+	XMMATRIX vp = XMLoadFloat4x4(&vpData);
 	XMMATRIX matrix = local*vp;
 	matrix = XMMatrixTranspose(matrix);
 
