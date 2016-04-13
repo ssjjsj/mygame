@@ -286,6 +286,7 @@ namespace OrgeMeshPaser
 
 						vertexList.clear();
 						indexs.clear();
+						cache.clear();
 					}
 
 					materialName = line.substr(7, line.size() - 7);
@@ -363,9 +364,10 @@ namespace OrgeMeshPaser
 							char buf[100];
 							sprintf(buf, "pos%iuv%inor%i", posIndex, uvIndex, norIndex);
 							cacheString = string(buf);
-							if (cache.count(cacheString) > 0)
+							map<string, int>::iterator it = cache.find(cacheString);
+							if (it != cache.end())
 							{
-								int index = cache[cacheString];
+								int index = it->second;
 								indexs.push_back(index);
 							}
 							else

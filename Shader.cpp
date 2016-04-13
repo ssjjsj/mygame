@@ -10,11 +10,6 @@ Shader::Shader(ShaderResource *res)
 
 Shader::~Shader()
 {
-	//if (vsShader != NULL)
-	//	vsShader->Release();
-
-	//if (psShader != NULL)
-	//	psShader->Release();
 }
 
 

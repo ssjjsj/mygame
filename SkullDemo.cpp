@@ -91,7 +91,7 @@ SkullApp::SkullApp(HINSTANCE hInstance)
 
 SkullApp::~SkullApp()
 {
-	FreeImage_DeInitialise();
+	//FreeImage_DeInitialise();
 }
 
 bool SkullApp::Init()
@@ -99,7 +99,7 @@ bool SkullApp::Init()
 	if(!D3DApp::Init())
 		return false;
 
-	FreeImage_Initialise(TRUE);
+	//FreeImage_Initialise(TRUE);
 
 	gRender->gpuResManager->createLightShader();
 
@@ -122,7 +122,7 @@ bool SkullApp::Init()
 	//XMMATRIX t = XMMatrixTranslation(0.0f, 10.0f, 0.0f);
 	//XMStoreFloat4x4(&sin->localMatrix, t);
 	//sin->setMaterial("ogre.material.xml");
-	//m->playAnimation("Sinbad");
+	//sin->playAnimation("Sinbad");
 	//gSceneManager.addMesh(sin);
 
 
@@ -132,7 +132,7 @@ bool SkullApp::Init()
 	float range = 50.0f;
 	Light *l = new Light;
 	l->ambient = XMFLOAT3(1.0f, 0.0f, 0.0f);
-	l->diffuse = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	l->diffuse = XMFLOAT3(1.0f, 0.0f, 0.0f);
 	l->specular = XMFLOAT3(1.0f, 0.0f, 0.0f);
 	l->pos = XMFLOAT3(0.0f, 10.0f, -30.0f);
 	l->range = range;

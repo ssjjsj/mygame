@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shader vsMainFunction = "VS" psMainFunction = "PS">
+	
+	<properties>
+		<property type="VS" name = "gWorldViewProj" slot = "1" />
+		<property type="VS" name = "viewMatrix" slot = "2" />
+		<property type="VS" name = "normalMatrix" slot = "3" />
+		<property type="VS" name = "surface" slot = "0" />
+	</properties>
+	
+	<states>
+		<state type = "ZWrite" data = "On" />
+		<state type = "Light"  data = "On" />
+	</states>
+	
+	<vsShader program = 
+	
+	"
+	cbuffer surface
+	{
+		float3 surfaceAmbient;
+		float3 surfaceDiffuse;
+		float3 surfaceSpecular;
+		float  spePower;
+	}
+	
+	
+	cbuffer cbPerObject
+	{
+		float4x4 gWorldViewProj; 
+	}
+	
+	cbuffer viewMatrix
+	{
+		float4x4 viewMatrix;
+	}
+	
+	
+	cbuffer cbPerObject
+	{
+		float4x4 normalMatrix; 
+	}
+	
+	
+	struct VertexIn
+	{
+		float3 Pos   : POSITION;
+		float3 Nor :	NORMAL;
+		//float4 Color : COLOR;
+		float2 UV : TEXCOORD0;
+	};
+
+	struct VertexOut
+	{
+		float4 PosH  : SV_POSITION;
+		float2 UV : TEXCOORD0;
+		float3 diffuse : TEXCOORD1;
+		float4 specular : TEXCOORD2;
+		float3 normal : TEXCOORD3;
+		float3 pos : TEXCOORD4;
+	};
+
+	VertexOut VS(VertexIn vin)
+	{
+		VertexOut vout;
+		vout.PosH = mul(float4(vin.Pos, 1.0f), gWorldViewProj);
+		vout.UV = vin.UV;
+
+		float4 vPos = mul(float4(vin.Pos, 1.0f), viewMatrix);
+		vPos.xyz = vPos.xyz;
+		
+		vout.diffuse = surfaceDiffuse;
+		vout.pos = vPos.xyz;	
+		vout.normal = normalize(mul(float4(vin.Nor,0.0f), normalMatrix)).xyz;
+		vout.specular.xyz = surfaceSpecular.xyz;
+		vout.specular.w = spePower;
+		
+		vout.diffuse = float3(1.0, 0.0, 0.0);
+		
+		return vout;
+	}"
+	/>
+	
+	
+	
+	<psShader program = "
+	
+	Texture2D gDiffuseMap : register(t0);
+	SamplerState samLinear : register(s0);
+	
+	struct VertexOut
+	{
+		float4 PosH  : SV_POSITION;
+		float2 UV : TEXCOORD0;
+		float3 diffuse : TEXCOORD1;
+		float4 specular : TEXCOORD2;
+		float3 normal : TEXCOORD3;
+		float3 pos : TEXCOORD4;
+	};
+	
+	struct PSOutPut
+	{
+		float4 texCol  : SV_TARGET0;
+		float4 normal : SV_TARGET1;
+		float4 diffuse : SV_TARGET2;
+		float4 specular : SV_TARGET3;
+		float4 pos : SV_TARGET4;
+	};
+	
+	PSOutPut PS(VertexOut pin)
+	{
+		PSOutPut pOut;
+		
+		pOut.texCol = gDiffuseMap.Sample(samLinear, pin.UV);
+		pOut.diffuse = float4(pin.diffuse, 1.0);
+		pOut.normal = float4(normalize(pin.normal), 0.0);
+		pOut.specular = float4(pin.specular.xyz, 1.0);
+		pOut.pos = float4(pin.pos.xyz, 1.0);
+		
+		//pOut.normal = float4(1.0, 0.0, 0.0, 1.0);
+		//pOut.diffuse = float4(0.0, 1.0, 0.0, 1.0);
+		//pOut.specular = float4(0.0, 0.0, 0.0, 1.0);
+		//pOut.pos = float4(1.0, 1.0, 0.0, 1.0);
+		
+		return pOut;
+	}"
+	/>
+	
+</shader>
+	  

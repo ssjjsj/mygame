@@ -24,6 +24,11 @@ Mesh::~Mesh()
 	{
 		delete animations[i];
 	}
+
+	for (int i = 0; i < renderAbleList.size(); i++)
+	{
+		delete renderAbleList[i];
+	}
 }
 
 void Mesh::loadFile(string filename)

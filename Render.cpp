@@ -130,6 +130,14 @@ Render::~Render()
 
 	if (addBlenderState != NULL)
 		addBlenderState->Release();
+
+	for (map<string, UpdateBufferCommand*>::iterator it = bufferCommandList.begin();
+		it != bufferCommandList.end(); it++)
+	{
+		delete it->second;
+	}
+
+	delete lightPostEffect;
 }
 
 void Render::preDraw()
@@ -321,13 +329,16 @@ void Render::draw(vector<RenderAble*> renderAbles, vector<Light*> &lights)
 		draw(obj);
 	}
 
+	renderState.testMode = TestModes::Always;
+	renderState.zWriteMode = ZWrite::Off;
 	setMainRenderTarget();
-
+	renderDevice->immediateContext->OMSetBlendState(addBlenderState, NULL, 0xffffffff);
 	for (int lightIndex = 0; lightIndex < lights.size(); lightIndex++)
 	{
 		((UpdateLightBufferCommand*)bufferCommandList["light"])->updateLightData(lights[lightIndex]);
 		lightPostEffect->Render();
 	}
+	renderDevice->immediateContext->OMSetBlendState(oneSrcBlenderState, NULL, 0xffffffff);
 
 	ID3D11ShaderResourceView*    pSRV[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 	renderDevice->immediateContext->PSSetShaderResources(0, 8, pSRV);
@@ -431,18 +442,19 @@ void Render::init()
 
 void Render::setMultipleRenderTarget()
 {
-	ID3D11RenderTargetView* renderTargets[4];
-	for (int i = 0; i < 4; i++)
+	ID3D11RenderTargetView* renderTargets[5];
+	renderTargets[0] = renderTargetView;
+	for (int i = 1; i < 5; i++)
 	{
-		renderTargets[i] = textureRTList[i]->getTargetView();
+		renderTargets[i] = textureRTList[i-1]->getTargetView();
 	}
-	Device()->immediateContext->OMSetRenderTargets(4, renderTargets, depthStencilView);
+	Device()->immediateContext->OMSetRenderTargets(5, renderTargets, depthStencilView);
 }
 
 void Render::setMainRenderTarget()
 {
-	ID3D11RenderTargetView* renderTargets[4] = { renderTargetView , NULL, NULL, NULL};
-	Device()->immediateContext->OMSetRenderTargets(4, renderTargets, depthStencilView);
+	ID3D11RenderTargetView* renderTargets[5] = { renderTargetView , NULL, NULL, NULL, NULL};
+	Device()->immediateContext->OMSetRenderTargets(5, renderTargets, depthStencilView);
 }
 
 

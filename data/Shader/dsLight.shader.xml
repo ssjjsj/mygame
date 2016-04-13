@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shader vsMainFunction = "VS" psMainFunction = "PS">
+	
+	<properties>
+		<property type="PS" name = "light" slot = "0" />
+		<property type="PS" name = "viewMatrix" slot = "1" />
+	</properties>
+	
+	<states>
+	</states>
+	
+	<vsShader program = 
+	
+	"
+	#define NUM_LIGHT = 4;
+	
+	
+	struct VertexIn
+	{
+		float3 Pos   : POSITION;
+		float3 Nor :	NORMAL;
+		//float4 Color : COLOR;
+		float2 UV : TEXCOORD0;
+	};
+
+	struct VertexOut
+	{
+		float4 PosH  : SV_POSITION;
+		float2 UV : TEXCOORD0;
+	};
+
+	VertexOut VS(VertexIn vin)
+	{
+		VertexOut vout;
+		vout.PosH = float4(vin.Pos,1.0f);
+		vout.UV = vin.UV;
+		
+		return vout;
+	}"
+	/>
+	
+	
+	
+	<psShader program = "
+	
+	Texture2D normalTexture : register(t0);
+	Texture2D diffuseTexture : register(t1);
+	Texture2D specularTexture : register(t2);
+	Texture2D posTexture : register(t3);
+	
+	SamplerState samLinear0 : register(s0);
+	SamplerState samLinear1 : register(s1);
+	SamplerState samLinear2 : register(s2);
+	SamplerState samLinear3 : register(s3);
+	
+	cbuffer light
+	{
+		float3 lightPosition;
+		float3 lightAmbient;
+		float3 lightDiffuse;
+		float3 lightSpecular;
+		float range;
+	}
+	
+	cbuffer viewMatrix
+	{
+		float4x4 viewMatrix;
+	}
+	
+	struct VertexOut
+	{
+		float4 PosH  : SV_POSITION;
+		float2 UV : TEXCOORD0;
+	};
+	
+	float4 PS(VertexOut pin) : SV_TARGET
+	{
+		float3 nor = normalTexture.Sample(samLinear0, pin.UV).xyz;
+		float3 surfaceDiffuse = diffuseTexture.Sample(samLinear1, pin.UV).xyz;
+		float4 surfaceSpecular = specularTexture.Sample(samLinear2, pin.UV);
+		float3 vPos = posTexture.Sample(samLinear3, pin.UV).xyz;
+		
+		float3 diffuse = surfaceDiffuse * lightDiffuse;
+		
+		float4 lightPos = mul(float4(lightPosition, 1.0f), viewMatrix);
+		lightPos.xyz = lightPos.xyz;
+		
+		float3 dir = normalize(vPos.xyz - lightPos.xyz);
+		
+		float nDotL = max(0.0, dot(nor, dir));
+		diffuse = diffuse*float3(nDotL, nDotL, nDotL);
+		
+		float3 eyeDir = normalize(float3(-vPos.x, -vPos.y, -vPos.z));
+		float spePower = surfaceSpecular.w;
+		float speAtt = pow (max(dot(nor,(eyeDir + dir)/2), 0.0), spePower);
+		float3 specular = surfaceSpecular.xyz*lightSpecular*float3(speAtt, speAtt, speAtt);
+		
+		float d = distance(vPos, lightPos.xyz);
+		float att = max(0.0, 1-d/range);
+		
+
+		return float4((specular + diffuse)* float3(att, att, att),1.0f);
+		//return float4(diffuse, 1.0);
+		//return float4(att, nDotL, nDotL, 1.0f);
+	}"
+	/>
+	
+</shader>
+	  

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<materials>
+	<material name = "postEffect">
+		<ambient r = "0.59"  g="0.59"  b="0.59"/>
+		<diffuse r = "0.50"  g="0.50"  b="0.50"/>
+		<specular r = "0.18"  g="0.18"  b="0.18"/>
+		<shader name = "dsLight.shader.xml"/>
+		<textures> 
+		</textures>
+	</material>
+</materials>
