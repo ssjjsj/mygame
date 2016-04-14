@@ -54,6 +54,7 @@ private:
 	ID3D11BlendState *oneSrcBlenderState;
 	vector<TextureRenderTarget*> textureRTList;
 	XMFLOAT4X4 vpData;
+	XMFLOAT4X4 viewData;
 	PostEffect* lightPostEffect;
 	int i;
 	map<string, UpdateBufferCommand*> bufferCommandList;
