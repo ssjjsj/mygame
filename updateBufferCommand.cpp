@@ -109,9 +109,10 @@ void UpdateSurfaceBufferCommand::init()
 void UpdateSurfaceBufferCommand::updateSurfaceData(Material *m)
 {
 	data.ambient = m->getAmbient();
-	data.diffuse = m->getDiffuse();
-	XMFLOAT3 specular = m->getSpecular();
-	data.specular = XMFLOAT4(specular.x, specular.y, specular.z, 1.0);
+	//data.diffuse = m->getDiffuse();
+	data.diffuse = XMFLOAT3(1.0f, 1.0f, 1.0f);
+	//XMFLOAT3 specular = m->getSpecular();
+	data.specular = XMFLOAT4(1.0f, 1.0f, 1.0f, 20.0);
 }
 
 

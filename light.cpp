@@ -3,7 +3,7 @@
 Light::Light()
 {
 	cube = NULL;
-	createBox();
+	//createBox();
 }
 
 Light::~Light()

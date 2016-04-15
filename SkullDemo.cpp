@@ -128,9 +128,17 @@ bool SkullApp::Init()
 
 
 	//gSceneManager.createTerrain();
+	float range = 20;
 
-	float range = 50.0f;
 	Light *l = new Light;
+	l->ambient = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	l->diffuse = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	l->specular = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	l->pos = XMFLOAT3(0.0f, 10.0f, 30.0f);
+	l->range = range;
+	gSceneManager.addLight(l);
+
+	l = new Light();
 	l->ambient = XMFLOAT3(1.0f, 0.0f, 0.0f);
 	l->diffuse = XMFLOAT3(1.0f, 0.0f, 0.0f);
 	l->specular = XMFLOAT3(1.0f, 0.0f, 0.0f);
@@ -144,14 +152,6 @@ bool SkullApp::Init()
 	l->diffuse = XMFLOAT3(1.0f, 1.0f, 0.0f);
 	l->specular = XMFLOAT3(1.0f, 1.0f, 0.0f);
 	l->pos = XMFLOAT3(0.0f, 10.0f, 15.0f);
-	l->range = range;
-	gSceneManager.addLight(l);
-
-	l = new Light();
-	l->ambient = XMFLOAT3(0.0f, 0.0f, 1.0f);
-	l->diffuse = XMFLOAT3(0.0f, 0.0f, 1.0f);
-	l->specular = XMFLOAT3(0.0f, 0.0f, 1.0f);
-	l->pos = XMFLOAT3(0.0f, 10.0f, 30.0f);
 	l->range = range;
 	gSceneManager.addLight(l);
 

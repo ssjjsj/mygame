@@ -157,7 +157,6 @@ void Render::preDraw()
 	proj = camera->Proj();
 	invPosM = view * proj;
 	invPosM = XMMatrixTranspose(invPosM);
-	view = XMMatrixTranspose(view);
 
 	XMFLOAT4X4 data;
 	XMStoreFloat4x4(&data, invPosM);
@@ -166,10 +165,8 @@ void Render::preDraw()
 	XMStoreFloat4x4(&data, view);
 	((UpdateMatrixBufferCommand*)bufferCommandList["viewMatrix"])->updateData(data);
 
-	XMStoreFloat4x4(&data, view);
-	((UpdateMatrixBufferCommand*)bufferCommandList["normalMatrix"])->updateData(data);
-
 	XMStoreFloat4x4(&vpData, vp);
+	XMStoreFloat4x4(&viewData, view);
 
 	float color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	immediateContext->ClearRenderTargetView(renderTargetView, color);
@@ -199,6 +196,13 @@ void Render::draw(RenderAble *renderAble)
 	XMFLOAT4X4 data;
 	XMStoreFloat4x4(&data, matrix);
 	((UpdateMatrixBufferCommand*)bufferCommandList["gWorldViewProj"])->updateData(data);
+
+
+	XMMATRIX view = XMLoadFloat4x4(&viewData);
+	XMMATRIX modelView = local*view;
+	modelView = XMMatrixTranspose(modelView);
+	XMStoreFloat4x4(&data, modelView);
+	((UpdateMatrixBufferCommand*)bufferCommandList["modelViewMatrix"])->updateData(data);
 
 	vector<ShaderPropery>& properties = m->getShader()->getProperties();
 	for (int i = 0; i < properties.size(); i++)
@@ -316,7 +320,7 @@ void Render::draw(vector<RenderAble*> renderAbles)
 void Render::draw(vector<RenderAble*> renderAbles, vector<Light*> &lights)
 {
 	setMultipleRenderTarget();
-	float color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	float color[4] = { 1.0f, 1.0f, 1.0f, 0.0f };
 	for (int i = 0; i < textureRTList.size(); i++)
 	{
 		renderDevice->immediateContext->ClearRenderTargetView(textureRTList[i]->getTargetView(), color);
@@ -329,9 +333,9 @@ void Render::draw(vector<RenderAble*> renderAbles, vector<Light*> &lights)
 		draw(obj);
 	}
 
-	renderState.testMode = TestModes::Always;
-	renderState.zWriteMode = ZWrite::Off;
 	setMainRenderTarget();
+	//float color1[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	//renderDevice->immediateContext->ClearRenderTargetView(renderTargetView, color1);
 	renderDevice->immediateContext->OMSetBlendState(addBlenderState, NULL, 0xffffffff);
 	for (int lightIndex = 0; lightIndex < lights.size(); lightIndex++)
 	{
@@ -411,7 +415,8 @@ void Render::init()
 	bufferCommandList["gWorldViewProj"] = new UpdateMatrixBufferCommand;
 	bufferCommandList["invViewPosition"] = new UpdateMatrixBufferCommand;
 	bufferCommandList["viewMatrix"] = new UpdateMatrixBufferCommand;
-	bufferCommandList["normalMatrix"] = new UpdateMatrixBufferCommand;
+	bufferCommandList["normalMatrix"] = new UpdateMatrixBufferCommand; 
+	bufferCommandList["modelViewMatrix"] = new UpdateMatrixBufferCommand;
 	bufferCommandList["surface"] = new UpdateSurfaceBufferCommand;
 	bufferCommandList["light"] = new UpdateLightBufferCommand;
 
@@ -421,12 +426,21 @@ void Render::init()
 		it->second->init();
 	}
 
-	for (int i = 0; i < 4; i++)
-	{
-		TextureRenderTarget *target = new TextureRenderTarget;
-		target->init();
-		textureRTList.push_back(target);
-	}
+	TextureRenderTarget *target = new TextureRenderTarget;
+	target->init(DXGI_FORMAT_R8G8B8A8_UNORM);
+	textureRTList.push_back(target);
+
+	target = new TextureRenderTarget;
+	target->init(DXGI_FORMAT_R8G8B8A8_UNORM);
+	textureRTList.push_back(target);
+
+	target = new TextureRenderTarget;
+	target->init(DXGI_FORMAT_R32G32B32A32_FLOAT);
+	textureRTList.push_back(target);
+
+	target = new TextureRenderTarget;
+	target->init(DXGI_FORMAT_R32G32B32A32_FLOAT);
+	textureRTList.push_back(target);
 
 	lightPostEffect = new PostEffect("lightPost.material.xml");
 	Material *m = lightPostEffect->getMaterial();

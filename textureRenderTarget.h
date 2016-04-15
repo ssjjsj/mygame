@@ -8,7 +8,7 @@ public:
 	TextureRenderTarget();
 	~TextureRenderTarget();
 
-	void init();
+	void init(DXGI_FORMAT format);
 	ID3D11RenderTargetView *getTargetView() { return targetView; }
 	ID3D11ShaderResourceView *getResView() { return resView; }
 
