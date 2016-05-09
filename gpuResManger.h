@@ -3,20 +3,23 @@
 #include <D3D11.h>
 #include <map>
 #include <string>
-#include "shader.h"
+#include "shaderResource.h"
+#include "sharedPtr.h"
+#include "materialRes.h"
+#include "singleTon.h"
 using namespace std;
 
-class GpuResManager
+class ResManager : public Singleton<ResManager>
 {
 public:
-	GpuResManager();
-	~GpuResManager();
+	ResManager();
+	~ResManager();
 
-	map<string, ID3D11VertexShader*> vsShaderMap;
-	map<string, ID3D11PixelShader*> psShaderMap;
-	map<string, ID3D11ShaderResourceView*> textureMap;
-	Shader *lightShader;
-	void createLightShader();
+	Ptr<MaterialRes> createMatRes(string path);
+	Ptr<ShaderResource> createShaderRes(string path);
 
+private:
+	map<string, Ptr<ShaderResource>> shaderResMap;
+	map<string, Ptr<MaterialRes>> matResMap;
 };
 #endif

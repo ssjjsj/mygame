@@ -241,7 +241,7 @@ namespace OrgeMeshPaser
 					sscanf(line.c_str(), "vt %f %f", &u, &v);
 					XMFLOAT2 uv;
 					uv.x = u;
-					uv.y = v;
+					uv.y = 1-v;
 
 					uvList.push_back(uv);
 				}

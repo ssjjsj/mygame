@@ -4,9 +4,10 @@
 #include <string>
 #include "global.h"
 #include <D3D11.h>
+#include "RefCount.h"
 using namespace std;
 
-class Texture
+class Texture : public RefCount
 {
 public:
 	Texture() {};

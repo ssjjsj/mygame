@@ -39,8 +39,8 @@ PostEffect::PostEffect(string name)
 	g->setIndexData(iList);
 	g->setVertexData(vList);
 
-	MaterialRes res = MaterialRes(name);
-	Material *m = new Material(res.getMaterialData("postEffect"));
+	Ptr<MaterialRes> res = ResManager::Instance().createMatRes(name);
+	Material *m = new Material(res->getMaterialData("postEffect"));
 
 	obj = new RenderAble(g, m);
 }

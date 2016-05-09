@@ -5,6 +5,7 @@ using namespace std;
 #include <vector>
 #include <map>
 #include <D3D11.h>
+#include "RefCount.h"
 
 struct ShaderPropery
 {
@@ -77,7 +78,7 @@ struct RenderStates
 	ZWrite zWriteMode;
 };
 
-class ShaderResource
+class ShaderResource : RefCount
 {
 public:
 	ShaderResource(string name);

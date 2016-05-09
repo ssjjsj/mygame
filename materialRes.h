@@ -14,7 +14,7 @@ class MaterialRes
 public:
 	struct MaterialData
 	{
-		shared_ptr<ShaderResource> res;
+		ShaderResource *res;
 		vector<string> texName;
 		XMFLOAT3 ambient;
 		XMFLOAT3 diffuse;

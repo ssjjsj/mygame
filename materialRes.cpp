@@ -45,7 +45,7 @@ void MaterialRes::load(string name)
 		TiXmlElement *shaderNode = (TiXmlElement*)specularNode->NextSibling();
 		string shaderName = shaderNode->Attribute("name");
 
-		data.res = shared_ptr<ShaderResource>(new ShaderResource(shaderName));
+		data.res = new ShaderResource(shaderName);
 
 		TiXmlNode *texRootNode = shaderNode->NextSibling();
 		for (TiXmlNode *curTexNode = texRootNode->FirstChild(); curTexNode != NULL; curTexNode = curTexNode->NextSibling())

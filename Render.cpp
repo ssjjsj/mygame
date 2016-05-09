@@ -15,7 +15,7 @@ Render::Render(RenderDevice *device)
 	oneSrcBlenderState = NULL;
 	addBlenderState = NULL;
 	camera = new Camera;
-	gpuResManager = new GpuResManager();
+	gpuResManager = new ResManager();
 
 	renderState.blendMode = BlendModes::Replace;
 	renderState.cullMode = CullModes::Back;
@@ -335,14 +335,15 @@ void Render::draw(vector<RenderAble*> renderAbles, vector<Light*> &lights)
 
 	setMainRenderTarget();
 	//float color1[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	//renderDevice->immediateContext->ClearRenderTargetView(renderTargetView, color1);
-	renderDevice->immediateContext->OMSetBlendState(addBlenderState, NULL, 0xffffffff);
-	for (int lightIndex = 0; lightIndex < lights.size(); lightIndex++)
-	{
-		((UpdateLightBufferCommand*)bufferCommandList["light"])->updateLightData(lights[lightIndex]);
-		lightPostEffect->Render();
-	}
-	renderDevice->immediateContext->OMSetBlendState(oneSrcBlenderState, NULL, 0xffffffff);
+	renderDevice->immediateContext->ClearRenderTargetView(renderTargetView, color);
+	lightPostEffect->Render();
+	//renderDevice->immediateContext->OMSetBlendState(addBlenderState, NULL, 0xffffffff);
+	//for (int lightIndex = 0; lightIndex < lights.size(); lightIndex++)
+	//{
+	//	((UpdateLightBufferCommand*)bufferCommandList["light"])->updateLightData(lights[lightIndex]);
+	//	lightPostEffect->Render();
+	//}
+	//renderDevice->immediateContext->OMSetBlendState(oneSrcBlenderState, NULL, 0xffffffff);
 
 	ID3D11ShaderResourceView*    pSRV[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 	renderDevice->immediateContext->PSSetShaderResources(0, 8, pSRV);

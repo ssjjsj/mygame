@@ -2,31 +2,34 @@
 #include "shaderResource.h"
 
 
-GpuResManager::GpuResManager()
+ResManager::ResManager()
 {
 }
 
-GpuResManager::~GpuResManager()
+ResManager::~ResManager()
 {
-	for (map<string, ID3D11VertexShader*>::iterator it = vsShaderMap.begin(); it != vsShaderMap.end(); it++)
-	{
-		it->second->Release();
-	}
+}
 
-	for (map<string, ID3D11PixelShader*>::iterator it = psShaderMap.begin(); it != psShaderMap.end(); it++)
+Ptr<ShaderResource> ResManager::createShaderRes(string path)
+{
+	if (shaderResMap.count(path) > 0)
+		return shaderResMap[path];
+	else
 	{
-		it->second->Release();
-	}
-
-	for (map<string, ID3D11ShaderResourceView*>::iterator it = textureMap.begin(); it != textureMap.end(); it++)
-	{
-		it->second->Release();
+		Ptr<ShaderResource> res = Ptr<ShaderResource>(new ShaderResource(path));
+		shaderResMap[path] = res;
 	}
 }
 
-
-void GpuResManager::createLightShader()
+Ptr<MaterialRes> ResManager::createMatRes(string path)
 {
-	ShaderResource *res = new ShaderResource("light.shader.xml");
-	lightShader = new Shader(res);
+	if (matResMap.count(path) > 0)
+	{
+		return matResMap[path];
+	}
+	else
+	{
+		Ptr<MaterialRes> res = Ptr<MaterialRes>(new MaterialRes(path));
+		matResMap[path] = res;
+	}
 }

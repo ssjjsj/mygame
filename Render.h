@@ -36,7 +36,7 @@ public:
 	RenderDevice* Device() { return renderDevice; }
 	void onReset();
 	Camera * getCamera() { return camera; }
-	GpuResManager *gpuResManager;
+	ResManager *gpuResManager;
 
 private:
 	ID3D11Texture2D* depthStencilBuffer;

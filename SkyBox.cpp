@@ -1,9 +1,10 @@
 #include "SkyBox.h"
+#include "gpuResManger.h"
 
 
 void SkyBox::createSkyBox()
 {
-	MaterialRes res = MaterialRes("skyBox.material.xml");
+	Ptr<MaterialRes> res = ResManager::Instance().createMatRes("skyBox.material.xml");
 	MyVertex::ModelData frontModelData;
 	//1
 	MyVertex::Vertex v;
@@ -31,7 +32,7 @@ void SkyBox::createSkyBox()
 	frontModelData.indexs.push_back(0);
 
 	Geometry *g = new Geometry();
-	Material *m = new Material(res.getMaterialData("back"));
+	Material *m = new Material(res->getMaterialData("back"));
 	g->setVertexData(frontModelData.vertexs);
 	g->setIndexData(frontModelData.indexs);
 	RenderAble *renderAble = new RenderAble(g, m);
@@ -65,7 +66,7 @@ void SkyBox::createSkyBox()
 
 
 	g = new Geometry();
-	m = new Material(res.getMaterialData("front"));
+	m = new Material(res->getMaterialData("front"));
 	g->setVertexData(backModelData.vertexs);
 	g->setIndexData(backModelData.indexs);
 	renderAble = new RenderAble(g, m);
@@ -99,7 +100,7 @@ void SkyBox::createSkyBox()
 	leftModelData.indexs.push_back(0);
 
 	g = new Geometry();
-	m = new Material(res.getMaterialData("left"));
+	m = new Material(res->getMaterialData("left"));
 	g->setVertexData(leftModelData.vertexs);
 	g->setIndexData(leftModelData.indexs);
 	renderAble = new RenderAble(g, m);
@@ -133,7 +134,7 @@ void SkyBox::createSkyBox()
 	rightModelData.indexs.push_back(0);
 
 	g = new Geometry();
-	m = new Material(res.getMaterialData("right"));
+	m = new Material(res->getMaterialData("right"));
 	g->setVertexData(rightModelData.vertexs);
 	g->setIndexData(rightModelData.indexs);
 	renderAble = new RenderAble(g, m);
@@ -166,7 +167,7 @@ void SkyBox::createSkyBox()
 	topModelData.indexs.push_back(0);
 
 	g = new Geometry();
-	m = new Material(res.getMaterialData("top"));
+	m = new Material(res->getMaterialData("top"));
 	g->setVertexData(topModelData.vertexs);
 	g->setIndexData(topModelData.indexs);
 	renderAble = new RenderAble(g, m);
@@ -199,7 +200,7 @@ void SkyBox::createSkyBox()
 	buttomModelData.indexs.push_back(0);
 
 	g = new Geometry();
-	m = new Material(res.getMaterialData("buttom"));
+	m = new Material(res->getMaterialData("buttom"));
 	g->setVertexData(buttomModelData.vertexs);
 	g->setIndexData(buttomModelData.indexs);
 	renderAble = new RenderAble(g, m);

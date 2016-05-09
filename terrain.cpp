@@ -3,6 +3,7 @@
 #include "material.h"
 #include "global.h"
 #include "Render.h"
+#include "gpuResManger.h"
 
 Terrain::Terrain()
 {
@@ -62,14 +63,14 @@ void Terrain::generateRenderAbles()
 
 
 
-	MaterialRes res = MaterialRes("ogre.material.xml");
-	MaterialRes::MaterialData data = res.getMaterialData("terrain");
+	Ptr<MaterialRes> res = ResManager::Instance().createMatRes("ogre.material.xml");
+	MaterialRes::MaterialData data = res->getMaterialData("terrain");
 	Material *m = new Material(data);
 	
 	RenderAble *obj = new RenderAble(g, m);
 	renderAbleList.push_back(obj);
 
-	data = res.getMaterialData("terrainwire");
+	data = res->getMaterialData("terrainwire");
 	m = new Material(data);
 	obj = new RenderAble(g, m);
 	renderAbleList.push_back(obj);
