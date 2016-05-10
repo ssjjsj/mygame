@@ -4,7 +4,7 @@ template<class T> class Singleton
 {
 public:
 	Singleton() {};
-	~Singleton() {};
+	~Singleton() { delete instace; };
 	static T& Instance();
 private:
 	static T* instace;
