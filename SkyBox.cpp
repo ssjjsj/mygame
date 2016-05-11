@@ -4,7 +4,7 @@
 
 void SkyBox::createSkyBox()
 {
-	Ptr<MaterialRes> res = ResManager::Instance().createMatRes("skyBox.material.xml");
+	Ptr<MaterialRes> res = Singleton<ResManager>::Instance().createMatRes("skyBox.material.xml");
 	MyVertex::ModelData frontModelData;
 	//1
 	MyVertex::Vertex v;

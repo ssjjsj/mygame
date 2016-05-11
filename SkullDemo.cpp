@@ -101,21 +101,13 @@ bool SkullApp::Init()
 
 	//FreeImage_Initialise(TRUE);
 
-	gRender->gpuResManager->createLightShader();
+	//gRender->gpuResManager->createLightShader();
 
-	XMVECTOR pos = XMVectorSet(50.0f, 50.0f, 0.0f, 1.0f);
-	XMVECTOR target = XMVectorSet(50.0f, 0.0f, 50.0f, 1.0f);
-	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-
-	//XMMATRIX V = XMMatrixLookAtLH(pos, target, up);
-	gRender->getCamera()->LookAt(pos, target, up);
-	gRender->getCamera()->UpdateViewMatrix();
-
-	Mesh *m = new Mesh("sponza.obj");
-	m->lighted = true;
-	m->setMaterial("sponza.material.xml");
-	//m->playAnimation("Sinbad");
-	gSceneManager.addMesh(m);
+	//Mesh *m = new Mesh("sponza.obj");
+	//m->lighted = true;
+	//m->setMaterial("sponza.material.xml");
+	////m->playAnimation("Sinbad");
+	//gSceneManager.addMesh(m);
 
 	//Mesh *sin = new Mesh("Sinbad.mesh.xml");
 	//sin->lighted = true;
@@ -127,42 +119,61 @@ bool SkullApp::Init()
 
 
 
-	//gSceneManager.createTerrain();
-	float range = 20;
+	////gSceneManager.createTerrain();
+	//float range = 20;
 
-	Light *l = new Light;
-	l->ambient = XMFLOAT3(0.0f, 0.0f, 1.0f);
-	l->diffuse = XMFLOAT3(0.0f, 0.0f, 1.0f);
-	l->specular = XMFLOAT3(0.0f, 0.0f, 1.0f);
-	l->pos = XMFLOAT3(0.0f, 10.0f, 30.0f);
-	l->range = range;
-	gSceneManager.addLight(l);
+	//Light *l = new Light;
+	//l->ambient = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	//l->diffuse = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	//l->specular = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	//l->pos = XMFLOAT3(0.0f, 10.0f, 30.0f);
+	//l->range = range;
+	//gSceneManager.addLight(l);
 
-	l = new Light();
-	l->ambient = XMFLOAT3(1.0f, 0.0f, 0.0f);
-	l->diffuse = XMFLOAT3(1.0f, 0.0f, 0.0f);
-	l->specular = XMFLOAT3(1.0f, 0.0f, 0.0f);
-	l->pos = XMFLOAT3(0.0f, 10.0f, -30.0f);
-	l->range = range;
-	gSceneManager.addLight(l);
-
-
-	l = new Light();
-	l->ambient = XMFLOAT3(1.0f, 1.0f, 0.0f);
-	l->diffuse = XMFLOAT3(1.0f, 1.0f, 0.0f);
-	l->specular = XMFLOAT3(1.0f, 1.0f, 0.0f);
-	l->pos = XMFLOAT3(0.0f, 10.0f, 15.0f);
-	l->range = range;
-	gSceneManager.addLight(l);
+	//l = new Light();
+	//l->ambient = XMFLOAT3(1.0f, 0.0f, 0.0f);
+	//l->diffuse = XMFLOAT3(1.0f, 0.0f, 0.0f);
+	//l->specular = XMFLOAT3(1.0f, 0.0f, 0.0f);
+	//l->pos = XMFLOAT3(0.0f, 10.0f, -30.0f);
+	//l->range = range;
+	//gSceneManager.addLight(l);
 
 
-	l = new Light();
-	l->ambient = XMFLOAT3(0.0f, 1.0f, 0.0f);
-	l->diffuse = XMFLOAT3(0.0f, 1.0f, 0.0f);
-	l->specular = XMFLOAT3(0.0f, 1.0f, 0.0f);
-	l->pos = XMFLOAT3(0.0f, 10.0f, -15.0f);
-	l->range = range;
-	gSceneManager.addLight(l);
+	//l = new Light();
+	//l->ambient = XMFLOAT3(1.0f, 1.0f, 0.0f);
+	//l->diffuse = XMFLOAT3(1.0f, 1.0f, 0.0f);
+	//l->specular = XMFLOAT3(1.0f, 1.0f, 0.0f);
+	//l->pos = XMFLOAT3(0.0f, 10.0f, 15.0f);
+	//l->range = range;
+	//gSceneManager.addLight(l);
+
+
+	//l = new Light();
+	//l->ambient = XMFLOAT3(0.0f, 1.0f, 0.0f);
+	//l->diffuse = XMFLOAT3(0.0f, 1.0f, 0.0f);
+	//l->specular = XMFLOAT3(0.0f, 1.0f, 0.0f);
+	//l->pos = XMFLOAT3(0.0f, 10.0f, -15.0f);
+	//l->range = range;
+	//gSceneManager.addLight(l);
+
+
+	XMVECTOR pos = XMVectorSet(50.0f, 50.0f, 0.0f, 1.0f);
+	XMVECTOR target = XMVectorSet(50.0f, 0.0f, 50.0f, 1.0f);
+	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+
+	//XMMATRIX V = XMMatrixLookAtLH(pos, target, up);
+	gRender->getCamera()->LookAt(pos, target, up);
+	gRender->getCamera()->UpdateViewMatrix();
+
+	gSceneManager.createTerrain();
+
+	Mesh *sin = new Mesh("Sinbad.mesh.xml");
+	//sin->lighted = true;
+	sin->setMaterial("ogre.material.xml");
+	sin->SetPos(XMFLOAT3(50.0f, 50.0f, 0.0f));
+	//sin->playAnimation("Sinbad");
+	gSceneManager.addMesh(sin);
+
 
 	return true;
 }

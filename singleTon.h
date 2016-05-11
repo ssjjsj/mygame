@@ -9,4 +9,14 @@ public:
 private:
 	static T* instace;
 };
+
+template<typename T> T* Singleton<T>::instace = NULL;
+
+
+template<class T> T& Singleton<T>::Instance()
+{
+	if (instace == NULL)
+		instace = new T;
+	return *instace;
+}
 #endif

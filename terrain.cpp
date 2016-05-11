@@ -19,8 +19,8 @@ Terrain::~Terrain()
 
 void Terrain::loadData(string data)
 {
-	heightData.xSize = 65;
-	heightData.zSize = 65;
+	heightData.xSize = 513;
+	heightData.zSize = 513;
 
 	nodeLayout.resize((heightData.xSize - 1)*(heightData.zSize - 1));
 
@@ -33,7 +33,7 @@ void Terrain::loadData(string data)
 	}
 	scale = 1.0f;
 
-	fractal();
+	//fractal();
 	procedualTexture();
 	initQuadTree();
 }
@@ -63,17 +63,17 @@ void Terrain::generateRenderAbles()
 
 
 
-	Ptr<MaterialRes> res = ResManager::Instance().createMatRes("ogre.material.xml");
+	Ptr<MaterialRes> res = Singleton<ResManager>::Instance().createMatRes("ogre.material.xml");
 	MaterialRes::MaterialData data = res->getMaterialData("terrain");
 	Material *m = new Material(data);
 	
 	RenderAble *obj = new RenderAble(g, m);
 	renderAbleList.push_back(obj);
 
-	data = res->getMaterialData("terrainwire");
-	m = new Material(data);
-	obj = new RenderAble(g, m);
-	renderAbleList.push_back(obj);
+	//data = res->getMaterialData("terrainwire");
+	//m = new Material(data);
+	//obj = new RenderAble(g, m);
+	//renderAbleList.push_back(obj);
 }
 
 void Terrain::fractal()
@@ -555,10 +555,15 @@ void Terrain::procedualTexture()
 					precent = 0.0f;
 				}
 
+				//if (i == 0)
+				//	data.x = precent;
+				//else if (i == 1)
+				//	data.y = precent;
+
 				if (i == 0)
-					data.x = precent;
+					data.x = 0.0f;
 				else if (i == 1)
-					data.y = precent;
+					data.y = 1.0f;
 			}
 			heightData.precent.push_back(data);
 		}

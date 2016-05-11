@@ -76,6 +76,7 @@ void SceneManager::render()
 		vector<RenderAble*>& renderAbles = meshAry[i]->getRenderAble();
 		for (int j = 0; j < renderAbles.size(); j++)
 		{
+			renderAbles[j]->localMatrix = meshAry[i]->WorldMatrix();
 			renderAbleAry.push_back(renderAbles[j]);
 		}
 	}
@@ -102,6 +103,10 @@ void SceneManager::render()
 	if (lights.size() > 0)
 	{
 		gRender->draw(renderAbleAry, lights);
+	}
+	else
+	{
+		gRender->draw(renderAbleAry);
 	}
 	gRender->PostDraw();
 }

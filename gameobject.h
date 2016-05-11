@@ -19,14 +19,23 @@ public:
 	~GameObject();
 
 public:
-	XMFLOAT4X4 worldMatrix;
+	
 	AABB aabb;
 
 	void AttachBehaviour(Behaviour *obj);
 	void Update();
 
+	void SetPos(XMFLOAT3 pos);
+	void SetScale(XMFLOAT3 scale);
+	//void SetRotation();
+	XMFLOAT4X4 WorldMatrix();
+
 private:
 	vector<Behaviour*> behaviours;
+	bool dirty;
+	XMFLOAT3 pos;
+	XMFLOAT3 scale;
+	XMFLOAT4X4 worldMatrix;
 };
 
 #endif // !GameObject_H

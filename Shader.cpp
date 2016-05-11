@@ -20,38 +20,28 @@ bool Shader::createShader(ShaderResource *res)
 	properties = res->getProperties();
 	inputLayout = res->getInputLayout();
 
-	if (gRender->gpuResManager->psShaderMap.count(res->getShaderName()) > 0)
-	{
-		vsShader = gRender->gpuResManager->vsShaderMap[res->getShaderName()];
-		psShader = gRender->gpuResManager->psShaderMap[res->getShaderName()];
-	}
-	else
-	{
-		SourceCode& sourceCode = res->getVsShaderCode();
 
-		HRESULT hr = gRender->Device()->d3dDevice->CreateVertexShader(
-			sourceCode.data,
-			sourceCode.length,
-			nullptr,
-			&vsShader
-			);
+	SourceCode& sourceCode = res->getVsShaderCode();
 
-		if (FAILED(hr))
-			return false;
+	HRESULT hr = gRender->Device()->d3dDevice->CreateVertexShader(
+		sourceCode.data,
+		sourceCode.length,
+		nullptr,
+		&vsShader
+		);
 
-		sourceCode = res->getPsShaderCode();
-		hr = gRender->Device()->d3dDevice->CreatePixelShader(
-			sourceCode.data,
-			sourceCode.length,
-			nullptr,
-			&psShader
-			);
+	if (FAILED(hr))
+		return false;
 
-		gRender->gpuResManager->vsShaderMap[res->getShaderName()] = vsShader;
-		gRender->gpuResManager->psShaderMap[res->getShaderName()] = psShader;
+	sourceCode = res->getPsShaderCode();
+	hr = gRender->Device()->d3dDevice->CreatePixelShader(
+		sourceCode.data,
+		sourceCode.length,
+		nullptr,
+		&psShader
+		);
 
-		return !FAILED(hr);
-	}
+	return !FAILED(hr);
 }
 
 

@@ -13,7 +13,6 @@ Mesh::Mesh()
 
 Mesh::Mesh(string filename)
 {
-	XMStoreFloat4x4(&localMatrix, XMMatrixIdentity());
 	loadFile(filename);
 	curAnimation = NULL;
 }
@@ -57,8 +56,6 @@ void Mesh::setMaterial(string name)
 		MaterialRes::MaterialData data = res.getMaterialData(model.materialName);
 		Material *m = new Material(data);
 		RenderAble *obj = new RenderAble(g, m);
-		obj->lighted = lighted;
-		obj->localMatrix = localMatrix;
 		renderAbleList.push_back(obj);
 	}
 }

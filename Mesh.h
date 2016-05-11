@@ -8,6 +8,7 @@
 #include "Vertex.h"
 #include "Aniamtion.h"
 #include "renderAble.h"
+#include "gameobject.h"
 using namespace std;
 
 
@@ -18,7 +19,7 @@ public:
 	LPCWSTR texName;
 };
 
-class Mesh
+class Mesh : public GameObject
 {
 public:
 	Mesh();
@@ -49,10 +50,6 @@ private:
 	Animation *curAnimation;
 	vector<RenderAble*> renderAbleList;
 	string MatName;
-
-public:
-	XMFLOAT4X4 localMatrix;
-	bool lighted;
 };
 
 #endif

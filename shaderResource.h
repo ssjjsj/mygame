@@ -78,7 +78,7 @@ struct RenderStates
 	ZWrite zWriteMode;
 };
 
-class ShaderResource : RefCount
+class ShaderResource : public RefCount
 {
 public:
 	ShaderResource(string name);

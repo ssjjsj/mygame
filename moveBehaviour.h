@@ -2,16 +2,19 @@
 #define MOVEBEHAVIOUR_H
 
 #include <vector>
+#include "worldMap.h"
 using namespace std;
 
-class MoveBehaviour
+class MoveBehaviour : public Behaviour
 {
 public:
 	MoveBehaviour();
 	~MoveBehaviour();
 
+	void Update();
+
 private:
-	vector<XMFLOAT2> indexPath;
+	vector<PathNode> indexPath;
 	int curX, curY;
 
 private:

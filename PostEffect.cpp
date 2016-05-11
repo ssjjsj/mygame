@@ -1,6 +1,7 @@
 #include "postEffect.h"
 #include "global.h"
 #include "Render.h"
+#include "gpuResManger.h"
 
 PostEffect::~PostEffect()
 {

@@ -12,6 +12,8 @@ struct PathNode
 	int y;
 };
 
+
+
 class WorldMap : public Singleton<WorldMap>
 {
 public:

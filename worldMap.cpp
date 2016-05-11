@@ -9,7 +9,7 @@ WorldMap::~WorldMap()
 {
 }
 
-void WorldMap::createMap(XMFLOAT2 startPoint, float length, int width, int height)
+void WorldMap::createMap(XMFLOAT3 startPoint, float length, int width, int height)
 {
 	this->startPoint = startPoint;
 	this->width = width;
@@ -22,7 +22,7 @@ void WorldMap::createStaticBlocks()
 	for (int i = 0; i < staticGameObjects.size(); i++)
 	{
 		GameObject obj = staticGameObjects[i];
-		XMMATRIX m = XMLoadFloat4x4(&obj.worldMatrix);
+		XMMATRIX m = XMLoadFloat4x4(&obj.WorldMatrix());
 		XMVECTOR min = XMVector4Transform(XMLoadFloat4(&obj.aabb.min), m);
 		XMVECTOR max = XMVector4Transform(XMLoadFloat4(&obj.aabb.max), m);
 
@@ -91,7 +91,7 @@ vector<PathNode> WorldMap::findPath(int startIndex, int endIndex)
 		int index = path[i];
 		PathNode node;
 		node.x = path[i] % width;
-		node.y = path[j] / width;
+		node.y = path[i] / width;
 		result.push_back(node);
 	}
 

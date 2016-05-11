@@ -1,7 +1,7 @@
 #ifndef SharedPtr_H
 #define  SharedPtr_H
 
-template<class TYPE> class Ptr
+template<typename TYPE> class Ptr
 {
 public:
 	Ptr();
@@ -27,15 +27,87 @@ public:
 	TYPE* operator->() const;
 	/// safe dereference operator
 	TYPE& operator*() const;
-	/// safe pointer cast operator
-	operator TYPE*() const;
 
 	TYPE* get() const;
-	/// return direct pointer (returns null pointer)
-	TYPE* get_unsafe() const;
 
 private:
 	TYPE *ptr;
 };
+
+template<typename TYPE> Ptr<TYPE>::Ptr()
+{
+	ptr = NULL;
+}
+
+template<typename TYPE> Ptr<TYPE>::Ptr(TYPE* p)
+{
+	ptr = p;
+	if (ptr != NULL)
+		ptr->AddRef();
+}
+
+template<typename TYPE> Ptr<TYPE>::~Ptr()
+{
+	if (ptr != NULL)
+		ptr->Release();
+}
+
+template<typename TYPE> TYPE* Ptr<TYPE>::get() const
+{
+	return ptr;
+}
+
+template <typename TYPE> Ptr<TYPE>::Ptr(const Ptr<TYPE>& p)
+{
+	ptr = p.get();
+	if (ptr != NULL)
+		ptr->AddRef();
+}
+
+template <typename TYPE> void Ptr<TYPE>::operator=(const Ptr<TYPE>& p)
+{
+	if (ptr != p.get())
+	{
+		if (ptr != NULL)
+			ptr->Release();
+		ptr = p.get();
+		if (ptr != NULL)
+			ptr->AddRef();
+	}
+}
+
+
+template <typename TYPE> bool Ptr<TYPE>::operator==(const Ptr<TYPE>& p) const
+{
+	return ptr == p.get();
+}
+
+template <typename TYPE> bool Ptr<TYPE>::operator!=(const Ptr<TYPE>& p) const
+{
+	return ptr != p.get();
+}
+
+template <typename TYPE> void Ptr<TYPE>::operator=(TYPE *p)
+{
+	if (p != ptr)
+	{
+		if (ptr != NULL)
+			ptr->Release();
+		ptr = p;
+		if (ptr != NULL)
+			ptr->AddRef();
+	}
+}
+
+template<typename TYPE> TYPE* Ptr<TYPE>::operator->() const
+{
+	return ptr;
+}
+
+
+template<typename TYPE> TYPE& Ptr<TYPE>::operator*() const
+{
+	return *ptr;
+}
 
 #endif
