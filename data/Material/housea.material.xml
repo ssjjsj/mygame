@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<materials>
+	<material name = "trims">
+		<ambient r = "0.0"  g="0.0"  b="0.0"/>
+		<diffuse r = "0.0"  g="0.0"  b="0.0"/>
+		<specular r = "0.0"  g="0.0"  b="0.0"/>
+		<shader name = "basic.shader.xml"/>
+		<texture name = "fishing_houses_wood_trims_diff.dds"/>
+	</material>
+	
+	
+	<material name = "roof_beams">
+		<ambient r = "0.0"  g="0.0"  b="0.0"/>
+		<diffuse r = "0.0"  g="0.0"  b="0.0"/>
+		<specular r = "0.0"  g="0.0"  b="0.0"/>
+		<shader name = "basic.shader.xml"/>
+		<textures> 
+			<texture name = "fishing_houses_beam.dds"/>
+		</textures>
+	</material>
+	
+	<material name = "chemney">
+		<ambient r = "0.0"  g="0.0"  b="0.0"/>
+		<diffuse r = "0.0"  g="0.0"  b="0.0"/>
+		<specular r = "0.0"  g="0.0"  b="0.0"/>
+		<shader name = "basic.shader.xml" />
+		<textures> 
+			<texture name = "fishing_houses_cheminee.dds"/>
+		</textures>
+	</material>
+	
+	<material name = "roof">
+		<ambient r = "0.0"  g="0.0"  b="0.0"/>
+		<diffuse r = "0.0"  g="0.0"  b="0.0"/>
+		<specular r = "0.0"  g="0.0"  b="0.0"/>
+		<shader name = "basic.shader.xml" />
+		<textures> 
+			<texture name = "fishing_houses_roof_b_diff.dds"/>
+		</textures>
+	</material>
+	
+	<material name = "curtains">
+		<ambient r = "0.0"  g="0.0"  b="0.0"/>
+		<diffuse r = "0.0"  g="0.0"  b="0.0"/>
+		<specular r = "0.0"  g="0.0"  b="0.0"/>
+		<shader name = "basic.shader.xml" />
+		<textures> 
+			<texture name = "fishing_houses_curtains_diff.dds"/>
+		</textures>
+	</material>
+	
+	<material name = "wood_dirt">
+		<ambient r = "0.0"  g="0.0"  b="0.0"/>
+		<diffuse r = "0.0"  g="0.0"  b="0.0"/>
+		<specular r = "0.0"  g="0.0"  b="0.0"/>
+		<shader name = "basic.shader.xml" />
+		<textures> 
+			<texture name = "fishing_houses_wood_planks_b_diff.dds"/>
+		</textures>
+	</material>
+	
+	<material name = "door">
+		<ambient r = "0.0"  g="0.0"  b="0.0"/>
+		<diffuse r = "0.0"  g="0.0"  b="0.0"/>
+		<specular r = "0.0"  g="0.0"  b="0.0"/>
+		<shader name = "basic.shader.xml"/>
+		<textures> 
+			<texture name = "lighthouse_door.dds"/>
+		</textures>
+	</material>
+</materials>

@@ -11,14 +11,17 @@ public:
 	MoveBehaviour();
 	~MoveBehaviour();
 
-	void Update();
+	void Update(float deltaTime);
+	void SetPos(int x, int y);
+	void moveTo(int x, int y);
 
 private:
 	vector<PathNode> indexPath;
 	int curX, curY;
+	float totalDelta;
 
 private:
 	void clearPath();
-	void moveTo(int x, int y);
+	void changeDirection(int x, int y);
 };
 #endif // !MOVEBEHAVIOUR_H

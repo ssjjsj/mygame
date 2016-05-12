@@ -14,7 +14,6 @@ Mesh::Mesh()
 Mesh::Mesh(string filename)
 {
 	loadFile(filename);
-	curAnimation = NULL;
 }
 
 Mesh::~Mesh()
@@ -34,9 +33,9 @@ void Mesh::loadFile(string filename)
 {
 	string format = filename.substr(filename.size() - 3, 3);
 	if (format == "xml")
-		subMeshAry = OrgeMeshPaser::parseMesh(filename);
+		subMeshAry = OrgeMeshPaser::parseMesh(ModelPath+filename);
 	else if (format == "obj")
-		subMeshAry = OrgeMeshPaser::parseObjMesh(filename);
+		subMeshAry = OrgeMeshPaser::parseObjMesh(ModelPath + filename);
 }
 
 void Mesh::setMaterial(string name) 
@@ -60,6 +59,26 @@ void Mesh::setMaterial(string name)
 	}
 }
 
+void Mesh::attachAnimation(string fileName)
+{
+	fileName = ModelPath + fileName + ".skeleton.xml";
+	TiXmlDocument doc = TiXmlDocument(fileName.c_str());
+	doc.LoadFile();
+
+	TiXmlElement *skeletonRoot = doc.RootElement();
+	TiXmlNode* animationRootNode = skeleton.loadFile(skeletonRoot->FirstChild());
+
+	TiXmlNode *curAnimationNode;
+	for (curAnimationNode = animationRootNode->FirstChild(); curAnimationNode != NULL; curAnimationNode = curAnimationNode->NextSibling())
+	{
+		TiXmlElement *animationElement = (TiXmlElement*)curAnimationNode;
+		Animation *a = new Animation();
+		a->SetSkeleton(&skeleton);
+		a->loadAnimation(animationElement);
+		animations.push_back(a);
+	}
+}
+
 void Mesh::playAnimation(string animationName)
 {
 	Animation *animation = NULL;
@@ -68,24 +87,24 @@ void Mesh::playAnimation(string animationName)
 		if (animations[i]->GetName() == animationName)
 		{
 			animation = animations[i];
+			break;
 		}
 	}
 
-	if (animation == NULL)
-	{
-		Animation *a = new Animation(animationName);
-		animations.push_back(a);
-		curAnimation = a;
-	}
+	curAnimations.push_back(animation);
 }
 
-void Mesh::update(float deltaTime)
+void Mesh::Update(float deltaTime)
 {
-	if (curAnimation != NULL)
+	if (curAnimations.size() != 0)
 	{
-		curAnimation->update(deltaTime);
-		skin();
+		for (int i = 0; i < curAnimations.size(); i++)
+		{
+			curAnimations[i]->update(deltaTime);
+		}
 	}
+
+	skin();
 
 	for (int i = 0; i < skinedMeshAry.size(); i++)
 	{
@@ -94,6 +113,8 @@ void Mesh::update(float deltaTime)
 
 		obj->getGeometry()->updateVertexData(data.vertexs);
 	}
+
+	GameObject::Update(deltaTime);
 
 
 	//for (int i = 0; i < renderAbleList.size(); i++)
@@ -125,52 +146,46 @@ void Mesh::update(float deltaTime)
 
 void Mesh::skin()
 {
-	map<string, XMFLOAT4X4> matrixMap = curAnimation->GetPosMatrix();
 	skinedMeshAry = subMeshAry;
-
-	for (int indexSubMesh = 0; indexSubMesh < subMeshAry.size(); indexSubMesh++)
+	for (int indexAnimation = 0; indexAnimation < curAnimations.size(); indexAnimation++)
 	{
-		ModelData &modelData = subMeshAry[indexSubMesh];
-		int curVertexIndex = -1;
-		XMFLOAT3 curPos;
-		for (int indexBoneAssign = 0; indexBoneAssign < modelData.boneVertexAssigns.size(); indexBoneAssign++)
+		Animation *curAnimation = curAnimations[indexAnimation];
+
+		map<string, XMFLOAT4X4> matrixMap = curAnimation->GetPosMatrix();
+
+		for (int indexSubMesh = 0; indexSubMesh < subMeshAry.size(); indexSubMesh++)
 		{
-			BoneVertexAssignment &ass = modelData.boneVertexAssigns[indexBoneAssign];
-			
-			if (ass.vertexIndex != curVertexIndex)
+			ModelData &modelData = subMeshAry[indexSubMesh];
+			int curVertexIndex = -1;
+			XMFLOAT3 curPos;
+			for (int indexBoneAssign = 0; indexBoneAssign < modelData.boneVertexAssigns.size(); indexBoneAssign++)
 			{
-				if (curVertexIndex != -1)
+				BoneVertexAssignment &ass = modelData.boneVertexAssigns[indexBoneAssign];
+
+				if (ass.vertexIndex != curVertexIndex)
 				{
-					skinedMeshAry[indexSubMesh].vertexs[curVertexIndex].Pos = curPos;
+					if (curVertexIndex != -1)
+					{
+						skinedMeshAry[indexSubMesh].vertexs[curVertexIndex].Pos = curPos;
+					}
+
+					curVertexIndex = ass.vertexIndex;
+					curPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
 				}
-				
-				curVertexIndex = ass.vertexIndex;
-				curPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
+
+
+				Vertex &v = subMeshAry[indexSubMesh].vertexs[ass.vertexIndex];
+				Skeleton::Bone *bone = curAnimation->GetSkeleton()->GetBone(ass.boneIndex);
+
+				XMFLOAT4 posTranslate;
+				XMFLOAT4 vPos = XMFLOAT4(v.Pos.x, v.Pos.y, v.Pos.z, 1.0f);
+				XMVECTOR vector = XMVector4Transform(XMLoadFloat4(&vPos), XMLoadFloat4x4(&bone->poseMatrix));
+				XMStoreFloat4(&posTranslate, vector);
+				curPos.x += posTranslate.x*ass.weight;
+				curPos.y += posTranslate.y*ass.weight;
+				curPos.z += posTranslate.z*ass.weight;
 			}
-			
-			
-			Vertex &v = subMeshAry[indexSubMesh].vertexs[ass.vertexIndex];
-			Skeleton::Bone *bone = curAnimation->GetSkeleton()->GetBone(ass.boneIndex);
-
-			XMFLOAT4 posTranslate;
-			XMFLOAT4 vPos = XMFLOAT4(v.Pos.x, v.Pos.y, v.Pos.z, 1.0f);
-			XMVECTOR vector = XMVector4Transform(XMLoadFloat4(&vPos), XMLoadFloat4x4(&bone->poseMatrix));
-			XMStoreFloat4(&posTranslate, vector);
-			curPos.x += posTranslate.x*ass.weight;
-			curPos.y += posTranslate.y*ass.weight;
-			curPos.z += posTranslate.z*ass.weight;
-
-			//XMMATRIX m = XMMatrixRotationY(3.14f);
-			//XMFLOAT4X4 mdata;
-			//XMStoreFloat4x4(&mdata, m);
-			//int ffjif = 0;
 		}
-
-		//for (map<int, XMFLOAT3>::iterator it = posMap.begin(); it != posMap.end(); it++)
-		//{
-		//	XMFLOAT3 pos = it->second;
-		//	skinedMeshAry[indexSubMesh].vertexs[it->first].Pos = pos;
-		//}
 	}
 }
 
@@ -178,62 +193,4 @@ void Mesh::skin()
 void DrawSubMesh()
 {
 
-}
-
-
-vector<MyVertex::ModelData>& Mesh::getModelData()
-{
-	if (curAnimation != NULL)
-	{
-		if (curAnimation->HasDataChanged())
-			return skinedMeshAry;
-		else
-		{
-			vector < MyVertex::ModelData > m;
-			return m;
-		}
-	}
-	else
-		return subMeshAry;
-}
-
-
-vector<MyVertex::ModelData> Mesh::getSkeletonModelData()
-{
-	vector < MyVertex::ModelData > modelAry;
-	MyVertex::ModelData data;
-
-	//if (!IsPlayAnimation() || !curAnimation->HasDataChanged())
-	//	modelAry;
-
-	for (int i = 0; i < curAnimation->GetSkeleton()->GetBones().size(); i++)
-	{
-		Skeleton::Bone* b = curAnimation->GetSkeleton()->GetBone(i);
-		XMFLOAT4 v = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-
-		MyVertex::Vertex vertex;
-		XMVECTOR vector = XMVector4Transform(XMLoadFloat4(&v), XMLoadFloat4x4(&b->globalMatrix));
-		XMFLOAT4 fdata;
-		XMStoreFloat4(&fdata, vector);
-		//vertex.Pos = XMFLOAT3(fdata.x, fdata.y, fdata.z);
-		data.vertexs.push_back(vertex);
-
-		//if (b->name == "Waist")
-		//	vertex.Color = XMFLOAT4(1.0f, 0.0f, 0.0f, 0.0f);
-
-		Skeleton::Bone *root = curAnimation->GetSkeleton()->GetBone("root");
-		if (b == root || b->parent == root || true)
-		{
-			for (int j = 0; j < b->children.size(); j++)
-			{
-				Skeleton::Bone *c = b->children[j];
-				data.indexs.push_back(b->id);
-				data.indexs.push_back(c->id);
-			}
-		}
-	}
-
-	modelAry.push_back(data);
-
-	return modelAry;
 }

@@ -15,7 +15,7 @@ void Behaviour::Start()
 
 }
 
-void Behaviour::Update()
+void Behaviour::Update(float deltaTime)
 {
 
 }

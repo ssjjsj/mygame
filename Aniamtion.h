@@ -35,6 +35,7 @@ class Animation
 public:
 	Animation();
 	Animation(string fileName);
+	void loadAnimation(TiXmlNode *rootNode);
 	void loadFile(string fileName);
 	void update(float time);
 	void updateAllMatrix();
@@ -42,7 +43,17 @@ public:
 	map<string, XMFLOAT4X4>& GetPosMatrix();
 	Skeleton* GetSkeleton()
 	{
-		return &skeleton;
+		return skeleton;
+	}
+
+	void SetSkeleton(Skeleton *s)
+	{
+		skeleton = s;
+	}
+
+	void SetName(string name)
+	{
+		animationName = name;
 	}
 
 	string GetName()
@@ -60,12 +71,11 @@ public:
 		return dataChanged;
 	}
 private:
-	void loadAnimations(TiXmlNode *rootNode);
 	vector<KeyFrame*> findTwoKeyframes(float time, Track &t);
 	void computePosMatrix(float time, KeyFrame *leftFrame, KeyFrame *rightFrame, Skeleton::Bone *b);
 	void computePosMatrix(KeyFrame *frame, Skeleton::Bone *b);
 private:
-	Skeleton skeleton;
+	Skeleton *skeleton;
 	string animationName;
 	float timeLength;
 	vector<Track> tracks;

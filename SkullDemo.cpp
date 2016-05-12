@@ -17,6 +17,7 @@
 #include "global.h"
 #include "Render.h"
 #include "FreeImage.h"
+#include "moveBehaviour.h"
  
 
 
@@ -167,13 +168,33 @@ bool SkullApp::Init()
 
 	gSceneManager.createTerrain();
 
-	Mesh *sin = new Mesh("Sinbad.mesh.xml");
-	//sin->lighted = true;
-	sin->setMaterial("ogre.material.xml");
-	sin->SetPos(XMFLOAT3(50.0f, 50.0f, 0.0f));
-	//sin->playAnimation("Sinbad");
-	gSceneManager.addMesh(sin);
+	//Mesh *sin = new Mesh("Sinbad.mesh.xml");
+	////sin->lighted = true;
+	//sin->setMaterial("ogre.material.xml");
+	//sin->SetPos(XMFLOAT3(50.0f, 10.0f, 50.0f));
+	//sin->SetScale(2.0f, 2.0f, 2.0f);
+	//sin->attachAnimation("Sinbad");
+	//MoveBehaviour *b = new MoveBehaviour;
+	//sin->AttachBehaviour(b);
+	//b->SetPos(50, 50);
+	//b->moveTo(150, 150);
+	//gSceneManager.addMesh(sin);
 
+
+	Mesh *houseA = new Mesh("b_fish_house_a.obj");
+	houseA->setMaterial("housea.material.xml");
+	houseA->SetPos(XMFLOAT3(200, 0, 400));
+	houseA->SetScale(10.0f, 10.0f, 10.0f);
+	houseA->RotateX(-3.14 / 2);
+	gSceneManager.addMesh(houseA);
+
+
+	Mesh *houseB = new Mesh("b_fish_house_b.obj");
+	houseB->setMaterial("houseb.material.xml");
+	houseB->SetPos(XMFLOAT3(300, 0, 80));
+	houseB->SetScale(10.0f, 10.0f, 10.0f);
+	houseB->RotateX(-3.14 / 2);
+	gSceneManager.addMesh(houseB);
 
 	return true;
 }

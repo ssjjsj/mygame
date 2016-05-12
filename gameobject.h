@@ -23,11 +23,12 @@ public:
 	AABB aabb;
 
 	void AttachBehaviour(Behaviour *obj);
-	void Update();
+	void Update(float deltaTime);
 
 	void SetPos(XMFLOAT3 pos);
-	void SetScale(XMFLOAT3 scale);
-	//void SetRotation();
+	void SetScale(float x, float y, float z);
+	void RotateY(float angle);
+	void RotateX(float angle);
 	XMFLOAT4X4 WorldMatrix();
 
 private:
@@ -36,6 +37,8 @@ private:
 	XMFLOAT3 pos;
 	XMFLOAT3 scale;
 	XMFLOAT4X4 worldMatrix;
+	float angleY;
+	float angleX;
 };
 
 #endif // !GameObject_H

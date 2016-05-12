@@ -12,7 +12,7 @@ public:
 	GameObject *gameObject;
 
 	virtual void Start();
-	virtual void Update();
+	virtual void Update(float deltaTime);
 	virtual void Destroy();
 };
 #endif // !Behaviour_H

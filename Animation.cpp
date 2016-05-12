@@ -8,7 +8,10 @@ using namespace std;
 
 Animation::Animation()
 {
-
+	curTime = 0.0f;
+	curLeftFrame = NULL;
+	curRightFrame = NULL;
+	dataChanged = false;
 }
 
 
@@ -23,10 +26,7 @@ Animation::Animation(string animationName)
 	//TiXmlNode *skeletonRoot = doc.RootElement()->FirstChild();
 	//skeleton.loadFile(skeletonRoot);
 
-	curTime = 0.0f;
-	curLeftFrame = NULL;
-	curRightFrame = NULL;
-	dataChanged = false;
+
 }
 
 
@@ -38,19 +38,12 @@ map<string, XMFLOAT4X4>& Animation::GetPosMatrix()
 
 void Animation::loadFile(string fileName)
 {
-	TiXmlDocument doc = TiXmlDocument(fileName.c_str());
-	doc.LoadFile();
 
-	TiXmlElement *skeletonRoot = doc.RootElement();
-	TiXmlNode* animationRootNode = skeleton.loadFile(skeletonRoot->FirstChild());
-
-	loadAnimations(animationRootNode);
 }
 
 
-void Animation::loadAnimations(TiXmlNode *rootNode)
+void Animation::loadAnimation(TiXmlNode *curAnimationNode)
 {
-	TiXmlNode *curAnimationNode = rootNode->FirstChild();
 	TiXmlElement *curAnimationElement = (TiXmlElement*)(curAnimationNode);
 	animationName = curAnimationElement->Attribute("name");
 	timeLength = atof(curAnimationElement->Attribute("length"));
@@ -86,7 +79,7 @@ void Animation::loadAnimations(TiXmlNode *rootNode)
 			XMVECTOR qv = XMQuaternionRotationAxis(XMLoadFloat3(&axis), angle);
 			XMStoreFloat4(&k.quaternion, qv);
 
-			Skeleton::Bone *b = skeleton.GetBone(t.BoneName);
+			Skeleton::Bone *b = skeleton->GetBone(t.BoneName);
 			XMMATRIX m0 = XMMatrixRotationQuaternion(XMLoadFloat4(&b->initQuaternion));
 			XMMATRIX m1 = XMMatrixTranslation(b->initTranslate.x, b->initTranslate.y, b->initTranslate.z);
 			
@@ -125,7 +118,7 @@ void Animation::update(float deltaTime)
  	curTime += deltaTime;
  	if (curTime > timeLength)
 		curTime = 0.0f;
-	Skeleton::Bone *rootBone = skeleton.GetBone("root");
+	Skeleton::Bone *rootBone = skeleton->GetBone("root");
 
 	for (int i = 0; i < tracks.size(); i++)
 	{
@@ -142,9 +135,9 @@ void Animation::update(float deltaTime)
 			if (leftFrame != curLeftFrame || rightFrame != curLeftFrame)
 			{
 				if (leftFrame == rightFrame)
-					computePosMatrix(leftFrame, skeleton.GetBone(t.BoneName));
+					computePosMatrix(leftFrame, skeleton->GetBone(t.BoneName));
 				else
-					computePosMatrix(curTime, leftFrame, rightFrame, skeleton.GetBone(t.BoneName));
+					computePosMatrix(curTime, leftFrame, rightFrame, skeleton->GetBone(t.BoneName));
 
 				curLeftFrame = leftFrame;
 				curRightFrame = rightFrame;
@@ -157,9 +150,9 @@ void Animation::update(float deltaTime)
 	
 
 	printDataList.clear();
-	for (int i = 0; i < skeleton.GetBones().size(); i++)
+	for (int i = 0; i < skeleton->GetBones().size(); i++)
 	{
-		Skeleton::Bone *b = skeleton.GetBone(i);
+		Skeleton::Bone *b = skeleton->GetBone(i);
 
 		PrintData data;
 		data.name = b->name;
@@ -190,15 +183,15 @@ void Animation::update(float deltaTime)
 
 void Animation::updateAllMatrix()
 {
-	Skeleton::Bone *rootBone = skeleton.GetBone("root");
+	Skeleton::Bone *rootBone = skeleton->GetBone("root");
 	FILE *fp = fopen("a.txt", "w");
 	rootBone->updateTransform(fp);
 
 
-	for (int i = 0; i < skeleton.GetBones().size(); i++)
+	for (int i = 0; i < skeleton->GetBones().size(); i++)
 	{
-		fprintf(fp, "%s\n", skeleton.GetBone(i)->name.c_str());
-		MathUntil::printfMatrix(skeleton.GetBone(i)->inverseMatrix, fp);
+		fprintf(fp, "%s\n", skeleton->GetBone(i)->name.c_str());
+		MathUntil::printfMatrix(skeleton->GetBone(i)->inverseMatrix, fp);
 	}
 	fclose(fp);
 	rootBone->computePosMatrix();

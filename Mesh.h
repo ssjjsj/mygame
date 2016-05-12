@@ -30,13 +30,12 @@ private:
 
 public:
 	vector<RenderAble*>& getRenderAble() { return renderAbleList; }
-	void update(float deltaTime);
-	vector<MyVertex::ModelData>& getModelData();
-	vector<MyVertex::ModelData> getSkeletonModelData();
+	void Update(float deltaTime);
+	void attachAnimation(string animationName);
 	void playAnimation(string animationName);
 	bool IsPlayAnimation()
 	{
-		return curAnimation != NULL;
+		return curAnimations.size() != 0;
 	}
 	void setMaterial(string name);
 private:
@@ -47,9 +46,10 @@ private:
 	vector<MyVertex::ModelData> subMeshAry;
 	vector<MyVertex::ModelData> skinedMeshAry;
 	vector<Animation*> animations;
-	Animation *curAnimation;
+	vector<Animation*> curAnimations;
 	vector<RenderAble*> renderAbleList;
 	string MatName;
+	Skeleton skeleton;
 };
 
 #endif

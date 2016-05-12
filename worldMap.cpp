@@ -61,38 +61,49 @@ int WorldMap::worldPosToIndex(XMFLOAT4 &pos)
 vector<PathNode> WorldMap::findPath(int startIndex, int endIndex)
 {
 	int curIndex = startIndex;
-	vector<int> roundIndex = getRoundIndex(curIndex);
-	vector<int> bfsQueue;
-	for (int i = 0; i < roundIndex.size(); i++)
-		bfsQueue.push_back(roundIndex[i]);
+
 
 	vector<int> path;
 	path.push_back(startIndex);
 
-	while (bfsQueue.size() != 0 && curIndex != endIndex)
+	vector<int> roundIndex = getRoundIndex(curIndex);
+
+	while (curIndex != endIndex)
 	{
 		if (roundIndex.size() == 0)
+			break;
+		else
 		{
-			int lastNode = path[path.size() - 1];
-			path.pop_back();
-			if (lastNode == startIndex)
-				break;
+			int min = abs(endIndex - roundIndex[0]);
+			int nextNode = roundIndex[0];
+			for (int i = 0; i < roundIndex.size(); i++)
+			{
+				int distance = abs(endIndex - roundIndex[i]);
+				if (distance < min)
+				{
+					min = distance;
+					nextNode = roundIndex[i];
+				}
+			}
+
+			curIndex = nextNode;
+			path.push_back(nextNode);
+			roundIndex = getRoundIndex(nextNode);
 		}
-		int nextNode = bfsQueue[bfsQueue.size() - 1];
-		bfsQueue.pop_back();
-		path.push_back(nextNode);
-		roundIndex = getRoundIndex(nextNode);
 	}
 
 	vector<PathNode> result;
 
-	for (int i = 0; i < path.size(); i++)
+	if (curIndex == endIndex)
 	{
-		int index = path[i];
-		PathNode node;
-		node.x = path[i] % width;
-		node.y = path[i] / width;
-		result.push_back(node);
+		for (int i = 0; i < path.size(); i++)
+		{
+			int index = path[i];
+			PathNode node;
+			node.x = path[i] % width;
+			node.y = path[i] / width;
+			result.push_back(node);
+		}
 	}
 
 	return result;
@@ -106,12 +117,14 @@ vector<int> WorldMap::getRoundIndex(int index)
 
 	if (row != 0)
 		result.push_back(index - 1);
-	else if (row != width - 1)
+
+	if (row != width - 1)
 		result.push_back(index + 1);
 
 	if (col != 0)
 		result.push_back(index - width);
-	else if (col != height)
+	
+	if (col != height)
 		result.push_back(index + width);
 
 	return result;
@@ -130,8 +143,8 @@ XMFLOAT3 WorldMap::ToWorldPos(int x, int y)
 {
 	XMFLOAT3 pos;
 	pos.x = startPoint.x + x*lenght;
-	pos.y = startPoint.y + y*lenght;
-	pos.z = startPoint.z;
+	pos.z = startPoint.z + y*lenght;
+	pos.y = 10.0;
 
 	return pos;
 }

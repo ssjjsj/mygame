@@ -1,6 +1,7 @@
 #include "sceneManager.h"
 #include "global.h"
 #include "Render.h"
+#include "worldMap.h"
 
 SceneManager::SceneManager()
 {
@@ -41,6 +42,8 @@ void SceneManager::createTerrain()
 	terrain->loadData("");
 	terrain->generateRenderAbles();
 
+	WorldMap::Instance().createMap(XMFLOAT3(0.0f, 0.0f, 0.0f), 1.0f, 512, 512);
+
 	skyBox = new SkyBox;
 	skyBox->createSkyBox();
 }
@@ -49,7 +52,7 @@ void SceneManager::update(float delta)
 {
 	for (int i = 0; i < meshAry.size(); i++)
 	{
-		meshAry[i]->update(delta);
+		meshAry[i]->Update(delta);
 	}
 
 	//if (terrain)
