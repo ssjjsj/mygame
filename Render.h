@@ -31,11 +31,13 @@ public:
 	void draw(vector<RenderAble*> renderAbles, vector<Light*> &lights);
 	void draw(RenderAble *obj);
 	void draw(vector<RenderAble*> renderAbles);
+	void drawShadow(vector<RenderAble*> renderAbles, Camera *lightCamera, Camera *mainCamera);
 	void preDraw();
 	void PostDraw();
 	RenderDevice* Device() { return renderDevice; }
 	void onReset();
 	Camera * getCamera() { return camera; }
+	void SetCamera(Camera *camera) { this->camera = camera; }
 	ResManager *gpuResManager;
 
 private:
@@ -53,6 +55,7 @@ private:
 	ID3D11BlendState *addBlenderState;
 	ID3D11BlendState *oneSrcBlenderState;
 	vector<TextureRenderTarget*> textureRTList;
+	DepthTexture *depthTexture;
 	XMFLOAT4X4 vpData;
 	XMFLOAT4X4 viewData;
 	PostEffect* lightPostEffect;

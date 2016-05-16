@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shader vsMainFunction = "VS" psMainFunction = "PS">
+<effect>
+<shaders>
+<shader name="depth", vsMainFunction = "VS" psMainFunction = "PS">
 	
 	<properties>
-		<property type="Matrix" name = "gWorldViewProj" slot = "0" />
-		<property type="Texture" name = "gDiffuseMap"  slot = "0"/>
+		<property type="VS" name = "gWorldViewProj" slot = "0" />
 	</properties>
 	
 	<states>
@@ -30,8 +31,7 @@
 	struct VertexOut
 	{
 		float4 PosH  : SV_POSITION;
-		//float4 Color : COLOR;
-		float2 UV : TEXCOORD0;
+		float depth : TEXCOORD0;
 	};
 
 	VertexOut VS(VertexIn vin)
@@ -39,33 +39,75 @@
 		VertexOut vout;
 	
 		// Transform to homogeneous clip space.
-		float4x4 vp;
-		vp[0][0] = 0.0750597417;
-		vp[0][1] = 0.0;
-		vp[0][2] = 0.0;
-		vp[0][3] = 0.0;
-		
-		vp[1][0] = 0.0;
-		vp[1][1] = 0.100079656;
-		vp[1][2] =  0.0;
-		vp[1][3] = 0.0;
-		
-		vp[2][0] = 0.0;
-		vp[2][1] = 0.0;
-		vp[2][2] = 0.101010099;
-		vp[2][3] = 0.0;
-		
-		vp[3][0] = 0.0;
-		vp[3][1] = 0.0;
-		vp[3][2] = -1.01010096;
-		vp[3][3] = 0.0;
 		
 		vout.PosH = mul(float4(vin.Pos, 1.0f), gWorldViewProj);
-		//vout.PosH = float4(vin.Pos, 1.0f);
-		//vout.PosH = vin.Pos;
+		vout.depth = vout.PosH.z;
+    
+		return vout;
+	}"
+	/>
 	
-		// Just pass vertex color into the pixel shader.
-		//vout.Color = vin.Color;
+	
+	
+	<psShader program = "
+	
+	struct VertexOut
+	{
+		float4 PosH  : SV_POSITION;
+		float depth : TEXCOORD0;
+	};
+	
+	float PS(VertexOut pin) : SV_TARGET
+	{
+		return pin.depth;
+	}"
+	/>
+	
+</shader>
+
+<shader name="shadow", vsMainFunction = "VS" psMainFunction = "PS">
+	
+	<properties>
+		<property type="VS" name = "gWorldViewProj" slot = "0" />
+		<property type="VS" name = "lightWorldProj" slot = "1" />
+	</properties>
+	
+	<states>
+		<state type = "ZWrite" data = "On" />
+	</states>
+	
+	<vsShader program = 
+	
+	"
+	cbuffer cbPerObject
+	{
+		float4x4 gWorldViewProj; 
+	};
+	
+	
+	struct VertexIn
+	{
+		float3 Pos   : POSITION;
+		float3 Nor :	NORMAL;
+		//float4 Color : COLOR;
+		float2 UV : TEXCOORD0;
+	};
+
+	struct VertexOut
+	{
+		float4 PosH  : SV_POSITION;
+		float2 UV : TEXCOORD0;
+		float2 DepthUV : TEXCOORD1;
+		float depth : TEXCOORD2;
+	};
+
+	VertexOut VS(VertexIn vin)
+	{
+		VertexOut vout;
+	
+		// Transform to homogeneous clip space.
+		
+		vout.PosH = mul(float4(vin.Pos, 1.0f), gWorldViewProj);
 		vout.UV = vin.UV;
     
 		return vout;
@@ -77,6 +119,7 @@
 	<psShader program = "
 	
 	Texture2D gDiffuseMap : register(t0);
+	Texture2D depthMap : rigister(t10);
 	SamplerState samLinear : register(s0);
 	
 	struct VertexOut
@@ -84,15 +127,28 @@
 		float4 PosH  : SV_POSITION;
 		//float4 Color : COLOR;
 		float2 UV : TEXCOORD0;
+		float2 DepthUV : TEXCOORD1;
+		float depth : TEXCOORD2;
 	};
 	
 	float4 PS(VertexOut pin) : SV_TARGET
 	{
-		//return gDiffuseMap.Sample(samLinear, pin.UV);
-		//textureColor = gDiffuseMap.Sample(SampleType, pin.UV);
-		return float4(0.5, 0.5, 0.5, 1.0);
+		float4 diffuse = gDiffuseMap.Sample(samLinear, pin.UV);
+		float depth = depthMap.Sample(samLinear, pin.DepthUV);
+		
+		float color = float4(0.5, 0.5, 0.5, 1.0);
+		if (pin.depth < depth)
+		  color = diffuse;
+		  
+		return color;
 	}"
 	/>
 	
 </shader>
+
+
+</shaders>
+</effect>
+
+
 	  

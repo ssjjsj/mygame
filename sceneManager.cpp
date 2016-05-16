@@ -7,6 +7,11 @@ SceneManager::SceneManager()
 {
 	terrain = NULL;
 	skyBox = NULL;
+	mainCamera = new Camera;
+	lightCamera = new Camera;
+
+	mainCamera->SetLens(3.14, (float)800 / (float)600, 1.0f, 1000.0f);
+	lightCamera->SetLens(3.14, (float)800 / (float)600, 1.0f, 1000.0f);
 }
 
 SceneManager::~SceneManager()
@@ -74,21 +79,21 @@ void SceneManager::render()
 		}
 	}
 
+	if (terrain != NULL)
+	{
+		vector<RenderAble*>& renderAbles = terrain->getRenderAbles();
+		for (int j = 0; j < renderAbles.size(); j++)
+		{
+			renderAbleAry.push_back(renderAbles[j]);
+		}
+	}
+
 	for (int i = 0; i < meshAry.size(); i++)
 	{
 		vector<RenderAble*>& renderAbles = meshAry[i]->getRenderAble();
 		for (int j = 0; j < renderAbles.size(); j++)
 		{
 			renderAbles[j]->localMatrix = meshAry[i]->WorldMatrix();
-			renderAbleAry.push_back(renderAbles[j]);
-		}
-	}
-
-	if (terrain != NULL)
-	{
-		vector<RenderAble*>& renderAbles = terrain->getRenderAbles();
-		for (int j = 0; j < renderAbles.size(); j++)
-		{
 			renderAbleAry.push_back(renderAbles[j]);
 		}
 	}

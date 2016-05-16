@@ -14,7 +14,6 @@ Render::Render(RenderDevice *device)
 	depthState = NULL;
 	oneSrcBlenderState = NULL;
 	addBlenderState = NULL;
-	camera = new Camera;
 	gpuResManager = new ResManager();
 
 	renderState.blendMode = BlendModes::Replace;
@@ -350,6 +349,27 @@ void Render::draw(vector<RenderAble*> renderAbles, vector<Light*> &lights)
 }
 
 
+void Render::drawShadow(vector<RenderAble*> renderAbles, Camera *lightCamera, Camera *mainCamera)
+{
+	SetCamera(lightCamera);
+	preDraw();
+
+	renderDevice->immediateContext->OMSetRenderTargets(1, &renderTargetView, depthTexture->getDepthView());
+	for (int i = 0; i < renderAbles.size(); i++)
+	{
+		draw(renderAbles[i]);
+	}
+
+	SetCamera(mainCamera);
+	preDraw();
+	ID3D11ShaderResourceView* texRes = depthTexture->getResView();
+	//renderDevice->immediateContext->PSSetShaderResources(10, 1, &texRes);
+
+	for (int i = 0; i < renderAbles.size(); i++)
+		draw(renderAbles[i]);
+}
+
+
 
 void Render::onReset()
 {
@@ -405,8 +425,6 @@ void Render::onReset()
 	screenViewport.MinDepth = 0.0f;
 	screenViewport.MaxDepth = 1.0f;
 
-	camera->SetLens(3.14, (float)width / (float)height, 1.0f, 1000.0f);
-
 	immediateContext->RSSetViewports(1, &screenViewport);
 }
 
@@ -442,6 +460,9 @@ void Render::init()
 	target = new TextureRenderTarget;
 	target->init(DXGI_FORMAT_R32G32B32A32_FLOAT);
 	textureRTList.push_back(target);
+
+	depthTexture = new DepthTexture();
+	depthTexture->init(DXGI_FORMAT_D24_UNORM_S8_UINT);
 
 	lightPostEffect = new PostEffect("lightPost.material.xml");
 	Material *m = lightPostEffect->getMaterial();

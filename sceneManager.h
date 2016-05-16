@@ -8,6 +8,7 @@ using namespace std;
 #include "terrain.h"
 #include "SkyBox.h"
 #include "light.h"
+#include "Camera.h"
 
 class SceneManager
 {
@@ -28,5 +29,7 @@ private:
 	Terrain *terrain;
 	SkyBox *skyBox;
 	vector<Light*> lights;
+	Camera *mainCamera;
+	Camera *lightCamera;
 };
 #endif

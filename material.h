@@ -17,16 +17,16 @@ public:
 	~Material();
 
 private:
-	Shader *shader;
+	vector<Shader*> shaders;
 	vector<Texture*> textures;
 	XMFLOAT3 ambient;
 	XMFLOAT3 diffuse;
 	XMFLOAT3 specular;
 
 public:
-	void setShader(Shader *shader);
+	void addShader(Shader *shader);
 	void addTexture(Texture *tex);
-	Shader* getShader() { return shader; };
+	Shader* getShader(int i) { return shaders[i]; };
 	vector<Texture*>& getTextures() { return textures; };
 	XMFLOAT3 getAmbient() { return ambient; }
 	XMFLOAT3 getDiffuse() { return diffuse; }
