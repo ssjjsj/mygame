@@ -4,6 +4,7 @@
 #include "global.h"
 #include "Render.h"
 #include "gpuResManger.h"
+#include "sceneManager.h"
 
 Terrain::Terrain()
 {
@@ -63,7 +64,7 @@ void Terrain::generateRenderAbles()
 
 
 
-	Ptr<MaterialRes> res = Singleton<ResManager>::Instance().createMatRes("ogre.material.xml");
+	Ptr<MaterialRes> res = Singleton<ResManager>::Instance().createMatRes("terrain.material.xml");
 	MaterialRes::MaterialData data = res->getMaterialData("terrain");
 	Material *m = new Material(data);
 	
@@ -500,7 +501,7 @@ bool Terrain::IsSubdivided(std::pair<int, int> center, float length)
 		return false;
 
 	float constant = 10.0f;
-	Camera *c = gRender->getCamera();
+	Camera *c = SceneManager::Instance().getMainCamera();
 	XMFLOAT3 camPos = c->GetPosition();
 	XMFLOAT3 nodePos = XMFLOAT3(center.first, getHeight(center.first, center.second), center.second);
 	float distance = fabsf(camPos.x - nodePos.x) + fabsf(camPos.y - nodePos.y) + fabsf(camPos.z - nodePos.z);

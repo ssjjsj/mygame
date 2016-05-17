@@ -9,6 +9,7 @@
 #include <memory>
 #include "sharedPtr.h"
 #include "RefCount.h"
+#include "effect.h"
 using namespace std;
 
 class MaterialRes : public RefCount
@@ -16,7 +17,7 @@ class MaterialRes : public RefCount
 public:
 	struct MaterialData
 	{
-		Ptr<ShaderResource> res;
+		Ptr<EffectRes> res;
 		vector<string> texName;
 		XMFLOAT3 ambient;
 		XMFLOAT3 diffuse;

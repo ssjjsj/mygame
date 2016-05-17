@@ -6,6 +6,10 @@ using namespace std;
 #include <map>
 #include <D3D11.h>
 #include "RefCount.h"
+#include "tinyxml\tinyxml.h"
+#include "tinyxml\tinystr.h"
+
+class  Shader;
 
 struct ShaderPropery
 {
@@ -81,7 +85,6 @@ struct RenderStates
 class ShaderResource : public RefCount
 {
 public:
-	ShaderResource(string name);
 	ShaderResource();
 	~ShaderResource();
 private:
@@ -96,7 +99,7 @@ private:
 	ID3D11InputLayout* inputLayout;
 
 	string shaderName;
-	void loadShader(string name);
+	Shader *shaderInstance;
 
 public:
 	string getShaderName() { return shaderName; }
@@ -108,6 +111,8 @@ public:
 	RenderStates getRenderStates() { return renderStates; }
 	ID3D11InputLayout* getInputLayout() { return inputLayout; }
 	bool IsLighted() { return isLightOn; }
+	void loadShader(TiXmlElement *shaderElement);
+	Shader *createInstance();
 };
 
 #endif

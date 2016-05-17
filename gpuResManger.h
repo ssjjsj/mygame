@@ -16,10 +16,10 @@ public:
 	~ResManager();
 
 	Ptr<MaterialRes> createMatRes(string path);
-	Ptr<ShaderResource> createShaderRes(string path);
+	Ptr<EffectRes> createEffectRes(string path);
 
 private:
-	map<string, Ptr<ShaderResource>> shaderResMap;
+	map<string, Ptr<EffectRes>> effectResMap;
 	map<string, Ptr<MaterialRes>> matResMap;
 };
 #endif

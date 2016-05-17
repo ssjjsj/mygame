@@ -6,20 +6,17 @@
 #include "global.h"
 #include "shaderResource.h"
 #include "Render.h"
+#include "shader.h"
 
-ShaderResource::ShaderResource(string name)
+ShaderResource::ShaderResource()
 {
 	renderStates.renderMode = RenderModes::Soild;
 	renderStates.cullMode = CullModes::None;
 	renderStates.blendMode = BlendModes::Replace;
 	renderStates.testMode = TestModes::Less;
 	renderStates.zWriteMode = ZWrite::On;
-	loadShader(ShaderPath + name);
 	isLightOn = false;
-}
-
-ShaderResource::ShaderResource()
-{
+	shaderInstance = NULL;
 }
 
 ShaderResource::~ShaderResource()
@@ -28,13 +25,8 @@ ShaderResource::~ShaderResource()
 	//delete[] psShaderCode.data;
 }
 
-void ShaderResource::loadShader(string name)
+void ShaderResource::loadShader(TiXmlElement *shaderElement)
 {
-	shaderName = name;
-	TiXmlDocument doc = TiXmlDocument(name.c_str());
-	doc.LoadFile();
-
-	TiXmlElement *shaderElement = doc.RootElement();
 	vsMainFunction = shaderElement->Attribute("vsMainFunction");
 	psMainFunction = shaderElement->Attribute("psMainFunction");
 
@@ -169,5 +161,14 @@ void ShaderResource::loadShader(string name)
 	psShaderCode.data = new char[psShaderCode.length];
 	memcpy(psShaderCode.data, shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize());
 	shaderBuffer->Release();
+}
+
+
+Shader* ShaderResource::createInstance()
+{
+	if (shaderInstance == NULL)
+		shaderInstance = new Shader(this);
+
+	return shaderInstance;
 }
 

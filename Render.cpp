@@ -136,7 +136,7 @@ Render::~Render()
 		delete it->second;
 	}
 
-	delete lightPostEffect;
+	//delete lightPostEffect;
 }
 
 void Render::preDraw()
@@ -177,7 +177,7 @@ void Render::PostDraw()
 	renderDevice->swapChain->Present(0, 0);
 }
 
-void Render::draw(RenderAble *renderAble)
+void Render::draw(RenderAble *renderAble, int passIndex)
 {
 	ID3D11Device* d3dDevice = renderDevice->d3dDevice;
 	ID3D11DeviceContext* immediateContext = renderDevice->immediateContext;
@@ -203,7 +203,7 @@ void Render::draw(RenderAble *renderAble)
 	XMStoreFloat4x4(&data, modelView);
 	((UpdateMatrixBufferCommand*)bufferCommandList["modelViewMatrix"])->updateData(data);
 
-	vector<ShaderPropery>& properties = m->getShader()->getProperties();
+	vector<ShaderPropery>& properties = m->getShader(passIndex)->getProperties();
 	for (int i = 0; i < properties.size(); i++)
 	{
 		ShaderPropery &p = properties[i];
@@ -223,10 +223,10 @@ void Render::draw(RenderAble *renderAble)
 	immediateContext->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
 	immediateContext->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-	immediateContext->IASetInputLayout(m->getShader()->getInputLayout());
+	immediateContext->IASetInputLayout(m->getShader(passIndex)->getInputLayout());
 	immediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	Shader *shader = m->getShader();
+	Shader *shader = m->getShader(passIndex);
 	RenderModes renderMode = shader->getRenderState().renderMode;
 	if (renderMode != renderState.renderMode)
 	{
@@ -312,7 +312,7 @@ void Render::draw(vector<RenderAble*> renderAbles)
 {
 	for (int i = 0; i < renderAbles.size(); i++)
 	{
-		draw(renderAbles[i]);
+		draw(renderAbles[i], 0);
 	}
 }
 
@@ -329,7 +329,7 @@ void Render::draw(vector<RenderAble*> renderAbles, vector<Light*> &lights)
 	{
 		RenderAble *obj = renderAbles[i];
 		((UpdateSurfaceBufferCommand*)bufferCommandList["surface"])->updateSurfaceData(obj->getMaterial());
-		draw(obj);
+		draw(obj,0);
 	}
 
 	setMainRenderTarget();
@@ -354,19 +354,31 @@ void Render::drawShadow(vector<RenderAble*> renderAbles, Camera *lightCamera, Ca
 	SetCamera(lightCamera);
 	preDraw();
 
-	renderDevice->immediateContext->OMSetRenderTargets(1, &renderTargetView, depthTexture->getDepthView());
+	ID3D11RenderTargetView *renderTarget = depthTexture->getTargetView();
+	renderDevice->immediateContext->OMSetRenderTargets(1, &renderTarget, NULL);
 	for (int i = 0; i < renderAbles.size(); i++)
 	{
-		draw(renderAbles[i]);
+		draw(renderAbles[i], 0);
 	}
 
+	renderDevice->immediateContext->OMSetRenderTargets(1, &renderTargetView, NULL);
+	XMMATRIX m1 = lightCamera->ViewProj();
+	XMMATRIX m2 = mainCamera->ViewProj();
+	XMMATRIX m3 = XMMatrixInverse(&XMMatrixDeterminant(m2), m1);
+	XMMATRIX m = m3*m1;
+	XMFLOAT4X4 data;
+	XMStoreFloat4x4(&data, m);
+	((UpdateMatrixBufferCommand*)bufferCommandList["lightWorldProj"])->updateData(data);
 	SetCamera(mainCamera);
 	preDraw();
 	ID3D11ShaderResourceView* texRes = depthTexture->getResView();
-	//renderDevice->immediateContext->PSSetShaderResources(10, 1, &texRes);
+	renderDevice->immediateContext->PSSetShaderResources(1, 1, &texRes);
 
 	for (int i = 0; i < renderAbles.size(); i++)
-		draw(renderAbles[i]);
+		draw(renderAbles[i], 1);
+
+	ID3D11ShaderResourceView*    pSRV[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+	renderDevice->immediateContext->PSSetShaderResources(0, 8, pSRV);
 }
 
 
@@ -438,6 +450,7 @@ void Render::init()
 	bufferCommandList["modelViewMatrix"] = new UpdateMatrixBufferCommand;
 	bufferCommandList["surface"] = new UpdateSurfaceBufferCommand;
 	bufferCommandList["light"] = new UpdateLightBufferCommand;
+	bufferCommandList["lightWorldProj"] = new UpdateMatrixBufferCommand;
 
 	for (map<string, UpdateBufferCommand*>::iterator it = bufferCommandList.begin();
 		it != bufferCommandList.end(); it++)
@@ -461,16 +474,16 @@ void Render::init()
 	target->init(DXGI_FORMAT_R32G32B32A32_FLOAT);
 	textureRTList.push_back(target);
 
-	depthTexture = new DepthTexture();
-	depthTexture->init(DXGI_FORMAT_D24_UNORM_S8_UINT);
+	depthTexture = new TextureRenderTarget;
+	depthTexture->init(DXGI_FORMAT_R32G32B32A32_FLOAT);
 
-	lightPostEffect = new PostEffect("lightPost.material.xml");
-	Material *m = lightPostEffect->getMaterial();
-	for (int i = 0; i < textureRTList.size(); i++)
-	{
-		TextureRenderTarget *t = textureRTList[i];
-		m->addTexture(new Texture(t->getResView()));
-	}
+	//lightPostEffect = new PostEffect("lightPost.material.xml");
+	//Material *m = lightPostEffect->getMaterial();
+	//for (int i = 0; i < textureRTList.size(); i++)
+	//{
+	//	TextureRenderTarget *t = textureRTList[i];
+	//	m->addTexture(new Texture(t->getResView()));
+	//}
 
 	onReset();
 }

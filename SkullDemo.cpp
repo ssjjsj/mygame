@@ -47,9 +47,6 @@ private:
 	float mRadius;
 	float mWheel;
 
-	SceneManager gSceneManager;
-
-
 
 	POINT mLastMousePos;
 };
@@ -163,10 +160,10 @@ bool SkullApp::Init()
 	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
 	//XMMATRIX V = XMMatrixLookAtLH(pos, target, up);
-	gRender->getCamera()->LookAt(pos, target, up);
-	gRender->getCamera()->UpdateViewMatrix();
+	SceneManager::Instance().getMainCamera()->LookAt(pos, target, up);
+	SceneManager::Instance().getMainCamera()->UpdateViewMatrix();
 
-	gSceneManager.createTerrain();
+	SceneManager::Instance().createTerrain();
 
 	//Mesh *sin = new Mesh("Sinbad.mesh.xml");
 	////sin->lighted = true;
@@ -186,7 +183,7 @@ bool SkullApp::Init()
 	houseA->SetPos(XMFLOAT3(200, 0, 400));
 	houseA->SetScale(10.0f, 10.0f, 10.0f);
 	houseA->RotateX(-3.14 / 2);
-	gSceneManager.addMesh(houseA);
+	SceneManager::Instance().addMesh(houseA);
 
 
 	Mesh *houseB = new Mesh("b_fish_house_b.obj");
@@ -194,7 +191,7 @@ bool SkullApp::Init()
 	houseB->SetPos(XMFLOAT3(300, 0, 80));
 	houseB->SetScale(10.0f, 10.0f, 10.0f);
 	houseB->RotateX(-3.14 / 2);
-	gSceneManager.addMesh(houseB);
+	SceneManager::Instance().addMesh(houseB);
 
 	return true;
 }
@@ -209,9 +206,9 @@ void SkullApp::OnResize()
 
 void SkullApp::UpdateScene(float dt)
 {
-	gRender->getCamera()->UpdateViewMatrix();
-	gSceneManager.update(dt);
-	gSceneManager.render();
+	SceneManager::Instance().getMainCamera()->UpdateViewMatrix();
+	SceneManager::Instance().update(dt);
+	SceneManager::Instance().render();
 }
 
 void SkullApp::DrawScene()
@@ -233,7 +230,7 @@ void SkullApp::OnMouseUp(WPARAM btnState, int x, int y)
 
 void SkullApp::OnKeyDown(WPARAM key)
 {
-	Camera *c = gRender->getCamera();
+	Camera *c = SceneManager::Instance().getMainCamera();
 	XMFLOAT3 pos = c->GetPosition();
 	XMFLOAT3 d = c->GetLook();
 	XMFLOAT3 right = c->GetRight();
@@ -265,7 +262,7 @@ void SkullApp::OnMouseWheel(int delta)
 		mWheel = delta / 1200000;
 	else
 		mWheel = delta / 1200000;
-	Camera *c = gRender->getCamera();
+	Camera *c = SceneManager::Instance().getMainCamera();
 	XMFLOAT3 pos = c->GetPosition();
 	XMFLOAT3 look = c->GetLook();
 	XMFLOAT3 newPos;
@@ -277,7 +274,7 @@ void SkullApp::OnMouseWheel(int delta)
 
 void SkullApp::OnMouseMove(WPARAM btnState, int x, int y)
 {
-	Camera *c = gRender->getCamera();
+	Camera *c = SceneManager::Instance().getMainCamera();
 	if( (btnState & MK_LBUTTON) != 0 )
 	{
 		// Make each pixel correspond to a quarter of a degree.

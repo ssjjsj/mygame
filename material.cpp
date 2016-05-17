@@ -12,7 +12,9 @@ Material::Material(MaterialRes::MaterialData &data)
 	specular = data.specular;
 	diffuse = data.diffuse;
 	
-	shader = new Shader(data.res.get());
+	Ptr<EffectRes> res = data.res;
+	for (int i = 0; i < res->getShaderResCount(); i++)
+		shaders.push_back(res->getShaderRes(i)->createInstance());
 
 	if (!data.texName.empty())
 	{
@@ -27,7 +29,8 @@ Material::Material(MaterialRes::MaterialData &data)
 
 Material::~Material()
 {
-	delete shader;
+	for (int i = 0; i < shaders.size(); i++)
+		delete shaders[i];
 	for (int i = 0; i < textures.size(); i++)
 	{
 		Texture *tex = textures[i];
@@ -42,8 +45,8 @@ void Material::addTexture(Texture *tex)
 }
 
 
-void Material::setShader(Shader *s)
+void Material::addShader(Shader *s)
 {
-	shader = s;
+	shaders.push_back(s);
 }
 

@@ -4,6 +4,7 @@ using namespace MyVertex;
 #include "MathHelp.h"
 #include "global.h"
 #include "Render.h"
+#include "gpuResManger.h"
 using namespace std;
 
 Mesh::Mesh()
@@ -40,7 +41,7 @@ void Mesh::loadFile(string filename)
 
 void Mesh::setMaterial(string name) 
 { 
-	MaterialRes res = MaterialRes(name);
+	Ptr<MaterialRes> res = ResManager::Instance().createMatRes(name);
 
 	for (int i = 0; i < subMeshAry.size(); i++)
 	{
@@ -52,7 +53,7 @@ void Mesh::setMaterial(string name)
 		g->setVertexData(model.vertexs);
 
 
-		MaterialRes::MaterialData data = res.getMaterialData(model.materialName);
+		MaterialRes::MaterialData data = res->getMaterialData(model.materialName);
 		Material *m = new Material(data);
 		RenderAble *obj = new RenderAble(g, m);
 		renderAbleList.push_back(obj);

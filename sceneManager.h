@@ -5,12 +5,15 @@ using namespace std;
 #include "Mesh.h"
 #include "renderAble.h"
 #include <vector>
-#include "terrain.h"
+#include <map>
 #include "SkyBox.h"
 #include "light.h"
 #include "Camera.h"
+#include "singleTon.h"
 
-class SceneManager
+class Terrain;
+
+class SceneManager : public Singleton<SceneManager> 
 {
 public:
 	SceneManager();
@@ -22,10 +25,11 @@ public:
 	void addMesh(Mesh *m) { meshAry.push_back(m); }
 	void createTerrain();
 	void addLight(Light *l);
+	Camera * getMainCamera() { return mainCamera; }
 
 private:
 	vector<Mesh*> meshAry;
-	vector<RenderAble*> renderAbleAry;
+	map<string, vector<RenderAble*>> renderAbleAry;
 	Terrain *terrain;
 	SkyBox *skyBox;
 	vector<Light*> lights;

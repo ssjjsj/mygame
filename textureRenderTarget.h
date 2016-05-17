@@ -37,13 +37,4 @@ private:
 private:
 
 };
-
-DepthTexture::DepthTexture()
-{
-}
-
-DepthTexture::~DepthTexture()
-{
-}
-
 #endif

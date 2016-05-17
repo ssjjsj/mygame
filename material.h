@@ -26,6 +26,7 @@ private:
 public:
 	void addShader(Shader *shader);
 	void addTexture(Texture *tex);
+	int getShaderCount() { return shaders.size(); }
 	Shader* getShader(int i) { return shaders[i]; };
 	vector<Texture*>& getTextures() { return textures; };
 	XMFLOAT3 getAmbient() { return ambient; }

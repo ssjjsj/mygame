@@ -48,5 +48,5 @@ PostEffect::PostEffect(string name)
 
 void PostEffect::Render()
 {
-	gRender->draw(obj);
+	gRender->draw(obj, 0);
 }

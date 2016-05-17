@@ -9,17 +9,17 @@ ResManager::~ResManager()
 {
 }
 
-Ptr<ShaderResource> ResManager::createShaderRes(string path)
+Ptr<EffectRes> ResManager::createEffectRes(string path)
 {
-	Ptr<ShaderResource> result;
-	if (shaderResMap.count(path) > 0)
+	Ptr<EffectRes> result;
+	if (effectResMap.count(path) > 0)
 	{
-		result = shaderResMap[path];
+		result = effectResMap[path];
 	}
 	else
 	{
-		Ptr<ShaderResource> res = Ptr<ShaderResource>(new ShaderResource(path));
-		shaderResMap[path] = res;
+		Ptr<EffectRes> res = Ptr<EffectRes>(new EffectRes(path));
+		effectResMap[path] = res;
 		result = res;
 	}
 
