@@ -1,0 +1,12 @@
+<materials>
+	<material name = "terrain">
+		<ambient r = "0.0"  g="0.0"  b="0.0"/>
+		<diffuse r = "0.0"  g="0.0"  b="0.0"/>
+		<specular r = "0.0"  g="0.0"  b="0.0"/>
+		<shader name = "basic.shader.xml"/>
+		<textures> 
+			<texture name = "ground.dds"/>
+			<texture name = "grass.dds"/>
+		</textures>
+	</material>
+</materials>

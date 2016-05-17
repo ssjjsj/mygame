@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<effect>
+<shaders>
 <shader vsMainFunction = "VS" psMainFunction = "PS">
 	
 	<properties>
-		<property type="Matrix" name = "gWorldViewProj" slot = "0" />
-		<property type="Texture" name = "Diffuse1" slot = "0" />
-		<property type="Texture" name = "Diffuse2" slot = "1" />
+		<property type="VS" name = "gWorldViewProj" slot = "0" />
 	</properties>
 	
 	<states>
@@ -77,4 +77,14 @@
 	/>
 	
 </shader>
+</shaders>
+<techniques>
+<technique>
+<passes>
+<pass shaderName="depth" />
+</passes>
+</technique>
+</techniques>
+</effect>
+
 	  

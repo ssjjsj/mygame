@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <effect>
 <shaders>
-<shader name="depth", vsMainFunction = "VS" psMainFunction = "PS">
+<shader vsMainFunction = "VS" psMainFunction = "PS">
 	
 	<properties>
 		<property type="VS" name = "gWorldViewProj" slot = "0" />
@@ -41,7 +41,7 @@
 		// Transform to homogeneous clip space.
 		
 		vout.PosH = mul(float4(vin.Pos, 1.0f), gWorldViewProj);
-		vout.depth = vout.PosH.z;
+		vout.depth = vout.PosH.z/vout.PosH.w;
     
 		return vout;
 	}"
@@ -57,15 +57,15 @@
 		float depth : TEXCOORD0;
 	};
 	
-	float PS(VertexOut pin) : SV_TARGET
+	float4 PS(VertexOut pin) : SV_TARGET
 	{
-		return pin.depth;
+		return float4(pin.depth, 0.0, 0.0, 1.0);
 	}"
 	/>
 	
 </shader>
 
-<shader name="shadow", vsMainFunction = "VS" psMainFunction = "PS">
+<shader vsMainFunction = "VS" psMainFunction = "PS">
 	
 	<properties>
 		<property type="VS" name = "gWorldViewProj" slot = "0" />
@@ -82,6 +82,11 @@
 	cbuffer cbPerObject
 	{
 		float4x4 gWorldViewProj; 
+	};
+	
+	cbuffer cbPerObject
+	{
+		float4x4 lightViewProj; 
 	};
 	
 	
@@ -109,6 +114,10 @@
 		
 		vout.PosH = mul(float4(vin.Pos, 1.0f), gWorldViewProj);
 		vout.UV = vin.UV;
+		
+		float4 pos = mul(float4(vin.Pos, 1.0f), gWorldViewProj*lightViewProj);
+		vout.DepthUV = float2(pos.x/pos.w, pos.y/pos.w);
+		vout.depth = pos.z/pos.w;
     
 		return vout;
 	}"
@@ -119,7 +128,7 @@
 	<psShader program = "
 	
 	Texture2D gDiffuseMap : register(t0);
-	Texture2D depthMap : rigister(t10);
+	Texture2D depthMap : register(t1);
 	SamplerState samLinear : register(s0);
 	
 	struct VertexOut
@@ -134,20 +143,28 @@
 	float4 PS(VertexOut pin) : SV_TARGET
 	{
 		float4 diffuse = gDiffuseMap.Sample(samLinear, pin.UV);
-		float depth = depthMap.Sample(samLinear, pin.DepthUV);
+		float4 depthColor = depthMap.Sample(samLinear, pin.DepthUV);
 		
-		float color = float4(0.5, 0.5, 0.5, 1.0);
+		float depth = depthColor.x;
+		float4 color = float4(0.5, 0.5, 0.5, 1.0);
 		if (pin.depth < depth)
 		  color = diffuse;
 		  
-		return color;
+		return float4(depthColor.x, depthColor.x, depthColor.x, 1.0);
 	}"
 	/>
 	
 </shader>
-
-
 </shaders>
+
+<techniques>
+<technique>
+<passes>
+<pass shaderName="depth" />
+<pass shaderName="shadow" />
+</passes>
+</technique>
+</techniques>
 </effect>
 
 
