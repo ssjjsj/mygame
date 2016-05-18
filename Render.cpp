@@ -66,6 +66,11 @@ Render::Render(RenderDevice *device)
 	renderDevice->d3dDevice->CreateSamplerState(&samplerDesc, &sampleState);
 
 
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	renderDevice->d3dDevice->CreateSamplerState(&samplerDesc, &pointSampleState);
+
+
 	D3D11_RENDER_TARGET_BLEND_DESC rendertargetBlenderDesc;
 	rendertargetBlenderDesc.BlendEnable = true;
 	rendertargetBlenderDesc.BlendOp = D3D11_BLEND_OP_ADD;
@@ -195,6 +200,13 @@ void Render::draw(RenderAble *renderAble, int passIndex)
 	XMFLOAT4X4 data;
 	XMStoreFloat4x4(&data, matrix);
 	((UpdateMatrixBufferCommand*)bufferCommandList["gWorldViewProj"])->updateData(data);
+
+	
+	XMMATRIX lightViewPoj = XMLoadFloat4x4(&lightViewPojData);
+	XMMATRIX lightMVP = local*lightViewPoj;
+	lightMVP = XMMatrixTranspose(lightMVP);
+	XMStoreFloat4x4(&data, lightMVP);
+	((UpdateMatrixBufferCommand*)bufferCommandList["lightWorldProj"])->updateData(data);
 
 
 	XMMATRIX view = XMLoadFloat4x4(&viewData);
@@ -354,25 +366,24 @@ void Render::drawShadow(vector<RenderAble*> renderAbles, Camera *lightCamera, Ca
 	SetCamera(lightCamera);
 	preDraw();
 
-	ID3D11RenderTargetView *renderTarget = depthTexture->getTargetView();
-	renderDevice->immediateContext->OMSetRenderTargets(1, &renderTarget, NULL);
+	 ID3D11DepthStencilView *depthView = depthTexture->getDepthView();
+	ID3D11RenderTargetView * targetView = textureRTList[2]->getTargetView();
+	renderDevice->immediateContext->ClearDepthStencilView(depthView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	//renderDevice->immediateContext->ClearRenderTargetView(targetView, float[4]{0.0, 0.0, 0.0, 1.0});
+	renderDevice->immediateContext->OMSetRenderTargets(1, &targetView, depthView);
 	for (int i = 0; i < renderAbles.size(); i++)
 	{
 		draw(renderAbles[i], 0);
 	}
 
-	renderDevice->immediateContext->OMSetRenderTargets(1, &renderTargetView, NULL);
-	XMMATRIX m1 = lightCamera->ViewProj();
-	XMMATRIX m2 = mainCamera->ViewProj();
-	XMMATRIX m3 = XMMatrixInverse(&XMMatrixDeterminant(m2), m1);
-	XMMATRIX m = m3*m1;
-	XMFLOAT4X4 data;
-	XMStoreFloat4x4(&data, m);
-	((UpdateMatrixBufferCommand*)bufferCommandList["lightWorldProj"])->updateData(data);
+	renderDevice->immediateContext->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 	SetCamera(mainCamera);
+	XMMATRIX m1 = lightCamera->ViewProj();
+	XMStoreFloat4x4(&lightViewPojData, m1);
 	preDraw();
 	ID3D11ShaderResourceView* texRes = depthTexture->getResView();
 	renderDevice->immediateContext->PSSetShaderResources(1, 1, &texRes);
+	//renderDevice->immediateContext->PSSetSamplers(1, 1, &pointSampleState);
 
 	for (int i = 0; i < renderAbles.size(); i++)
 		draw(renderAbles[i], 1);
@@ -474,8 +485,8 @@ void Render::init()
 	target->init(DXGI_FORMAT_R32G32B32A32_FLOAT);
 	textureRTList.push_back(target);
 
-	depthTexture = new TextureRenderTarget;
-	depthTexture->init(DXGI_FORMAT_R32G32B32A32_FLOAT);
+	depthTexture = new DepthTexture;
+	depthTexture->init(DXGI_FORMAT_D16_UNORM);
 
 	//lightPostEffect = new PostEffect("lightPost.material.xml");
 	//Material *m = lightPostEffect->getMaterial();

@@ -12,10 +12,10 @@ SceneManager::SceneManager()
 	lightCamera = new Camera;
 
 	mainCamera->SetLens(3.14, (float)800 / (float)600, 1.0f, 1000.0f);
-	lightCamera->SetLens(3.14, (float)800 / (float)600, 1.0f, 1000.0f);
+	lightCamera->SetLens(3.14, (float)800 / (float)600, 1.0f, 1000.0);
 	
-	XMVECTOR pos = XMVectorSet(300.0f, 150.0f, 300.0f, 1.0f);
-	XMVECTOR target = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+	XMVECTOR pos = XMVectorSet(0.0f, 250.0f, 200.0f, 1.0f);
+	XMVECTOR target = XMVectorSet(200.0f, 0.0f, 200.0f, 1.0f);
 	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
 	lightCamera->LookAt(pos, target, up);
@@ -100,6 +100,9 @@ void SceneManager::render()
 		vector<RenderAble*>& renderAbles = terrain->getRenderAbles();
 		for (int j = 0; j < renderAbles.size(); j++)
 		{
+			XMFLOAT4X4 data;
+			XMStoreFloat4x4(&data, XMMatrixIdentity());
+			renderAbles[j]->localMatrix = data;
 			renderAbleAry["shadowMesh"].push_back(renderAbles[j]);
 		}
 	}

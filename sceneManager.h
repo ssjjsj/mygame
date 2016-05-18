@@ -26,6 +26,7 @@ public:
 	void createTerrain();
 	void addLight(Light *l);
 	Camera * getMainCamera() { return mainCamera; }
+	Camera * getLightCamera() { return lightCamera; }
 
 private:
 	vector<Mesh*> meshAry;

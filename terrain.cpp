@@ -58,6 +58,18 @@ void Terrain::generateRenderAbles()
 	renderAbleList.clear();
 	generateRenderAblesOnQuadTree();
 
+	//vector<float> depth;
+	//Camera *c = SceneManager::Instance().getLightCamera();
+	//XMMATRIX vp = c->ViewProj();
+	//for (int i = 0; i < modelData.vertexs.size(); i++)
+	//{
+	//	XMVECTOR v = XMLoadFloat4(&XMFLOAT4(modelData.vertexs[i].Pos.x, modelData.vertexs[i].Pos.y, modelData.vertexs[i].Pos.z, 1.0f));
+	//	XMVECTOR v1 = XMVector4Transform(v, vp);
+	//	XMFLOAT4 data;
+	//	XMStoreFloat4(&data, v1);
+	//	depth.push_back(data.z / data.w);
+	//}
+
 	Geometry *g = new Geometry();
 	g->setIndexData(modelData.indexs);
 	g->setVertexData(modelData.vertexs);

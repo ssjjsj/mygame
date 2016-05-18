@@ -45,6 +45,7 @@ private:
 	ID3D11DepthStencilView* depthStencilView;
 	D3D11_VIEWPORT screenViewport;
 	ID3D11SamplerState* sampleState;
+	ID3D11SamplerState* pointSampleState;
 	Camera *camera;
 	D3D11_RASTERIZER_DESC rasterDesc;
 	ID3D11RasterizerState* rasterState;
@@ -53,9 +54,10 @@ private:
 	RenderStates renderState;
 	ID3D11BlendState *addBlenderState;
 	ID3D11BlendState *oneSrcBlenderState;
-	TextureRenderTarget* depthTexture;
+	DepthTexture* depthTexture;
 	vector<TextureRenderTarget*> textureRTList;
 	XMFLOAT4X4 vpData;
+	XMFLOAT4X4 lightViewPojData;
 	XMFLOAT4X4 viewData;
 	PostEffect* lightPostEffect;
 	map<string, UpdateBufferCommand*> bufferCommandList;

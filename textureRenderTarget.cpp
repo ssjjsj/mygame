@@ -82,18 +82,18 @@ void DepthTexture::init(DXGI_FORMAT format)
 	desc.Height = gRender->Device()->height;
 	desc.MipLevels = 1;
 	desc.ArraySize = 1;
-	desc.Format = format;
+	desc.Format = DXGI_FORMAT_R32_TYPELESS;
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
 	desc.Usage = D3D11_USAGE_DEFAULT;
-	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_DEPTH_STENCIL;
 	desc.CPUAccessFlags = 0;
 	desc.MiscFlags = 0;
 	gRender->Device()->d3dDevice->CreateTexture2D(&desc, NULL, &tex);
 
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC SRVDesc;
-	SRVDesc.Format = format;
+	SRVDesc.Format = DXGI_FORMAT_R32_FLOAT;
 	SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	SRVDesc.Texture2D.MipLevels = 1;
 	SRVDesc.Texture2D.MostDetailedMip = 0;
@@ -102,8 +102,9 @@ void DepthTexture::init(DXGI_FORMAT format)
 
 
 	D3D11_DEPTH_STENCIL_VIEW_DESC  depthViewDes;
-	depthViewDes.Format = format;
+	depthViewDes.Format = DXGI_FORMAT_D32_FLOAT;
 	depthViewDes.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	depthViewDes.Texture2D.MipSlice = 0;
+	depthViewDes.Flags = 0;
 	gRender->Device()->d3dDevice->CreateDepthStencilView(tex, &depthViewDes, &depthView);
 }

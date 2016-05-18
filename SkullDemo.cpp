@@ -180,7 +180,7 @@ bool SkullApp::Init()
 
 	Mesh *houseA = new Mesh("b_fish_house_a.obj");
 	houseA->setMaterial("housea.material.xml");
-	houseA->SetPos(XMFLOAT3(200, 0, 400));
+	houseA->SetPos(XMFLOAT3(200, 0, 200));
 	houseA->SetScale(10.0f, 10.0f, 10.0f);
 	houseA->RotateX(-3.14 / 2);
 	SceneManager::Instance().addMesh(houseA);
