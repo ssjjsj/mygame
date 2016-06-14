@@ -127,3 +127,37 @@ void UpdateSurfaceBufferCommand::update()
 	immediateContext->Unmap(buffer, 0);
 	immediateContext->VSSetConstantBuffers(slot, 1, &buffer);
 }
+
+
+void UpdateSkinMatrixsBufferCommand::update()
+{
+	ID3D11DeviceContext* immediateContext = gRender->Device()->immediateContext;
+
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	gRender->Device()->immediateContext->Map(buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	XMFLOAT4X4* dataPtr = (XMFLOAT4X4*)mappedResource.pData;
+	for (int i = 0; i < data.size(); i++)
+	{
+		dataPtr[0] = data[i];
+	}
+	immediateContext->Unmap(buffer, 0);
+	immediateContext->VSSetConstantBuffers(slot, 1, &buffer);
+}
+
+
+void UpdateSkinMatrixsBufferCommand::updateMatrix(vector<XMFLOAT4X4> &data)
+{
+	this->data = data;
+}
+
+
+void UpdateSkinMatrixsBufferCommand::init()
+{
+	D3D11_BUFFER_DESC skinMatrixsBufferDesc;
+	ZeroMemory(&skinMatrixsBufferDesc, sizeof(D3D11_BUFFER_DESC));
+	skinMatrixsBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	skinMatrixsBufferDesc.ByteWidth = sizeof(XMFLOAT4X4)*maxBones;
+	skinMatrixsBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	skinMatrixsBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	gRender->Device()->d3dDevice->CreateBuffer(&skinMatrixsBufferDesc, NULL, &buffer);
+}

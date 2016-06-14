@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<effect>
+<shaders>
+<shader vsMainFunction = "VS" psMainFunction = "PS">
+	
+	<properties>
+		<property type="VS" name = "gWorldViewProj" slot = "0" />
+	</properties>
+	
+	<states>
+		<state type = "ZWrite" data = "On" />
+	</states>
+	
+	<vsShader program = 
+	
+	"
+	cbuffer cbPerObject
+	{
+		float4x4 gWorldViewProj; 
+	};
+	
+	
+	
+	struct VertexIn
+	{
+		float3 Pos   : POSITION;
+		float3 Nor :	NORMAL;
+		//float4 Color : COLOR;
+		float2 UV : TEXCOORD0;
+	};
+
+	struct VertexOut
+	{
+		float4 PosH  : SV_POSITION;
+		float4 LightPos : TEXCOORD0;
+	};
+
+	VertexOut VS(VertexIn vin)
+	{
+		VertexOut vout;
+	
+		// Transform to homogeneous clip space.
+		
+		vout.PosH = mul(float4(vin.Pos, 1.0f), gWorldViewProj);
+		vout.LightPos = vout.PosH;
+    
+		return vout;
+	}"
+	/>
+	
+	
+	
+	<psShader program = "
+	
+	struct VertexOut
+	{
+		float4 PosH  : SV_POSITION;
+		float4 LightPos : TEXCOORD0;
+	};
+	
+	float4 PS(VertexOut pin) : SV_TARGET
+	{
+		//return float4(pin.LightPos.z/pin.LightPos.w, 0.0, 0.0, 1.0);
+		return float4(1.0, 0.0, 0.0, 1.0);
+	}"
+	/>
+	
+</shader>
+
+<shader vsMainFunction = "VS" psMainFunction = "PS">
+	
+	<properties>
+		<property type="VS" name = "gWorldViewProj" slot = "0" />
+		<property type="VS" name = "lightWorldProj" slot = "1" />
+		<property type="VS" name = "skinMatrix" slot = "2" />
+	</properties>
+	
+	<states>
+		<state type = "ZWrite" data = "On" />
+	</states>
+	
+	<vsShader program = 
+	
+	"
+	cbuffer cbPerObject
+	{
+		float4x4 gWorldViewProj; 
+	};
+	
+	cbuffer cbPerObject
+	{
+		float4x4 lightViewProj; 
+	};
+	
+	
+	cbuffer cbSkinMatrixs
+	{
+	    float4x4 skinMatrix;
+	};
+	
+	
+	struct VertexIn
+	{
+		float3 Pos   : POSITION;
+		float3 Nor :	NORMAL;
+		//float4 Color : COLOR;
+		float2 UV : TEXCOORD0;
+		float4 Index : TEXCOORD1;
+		float4 Weight : TEXCOORD2;
+	};
+
+	struct VertexOut
+	{
+		float4 PosH  : SV_POSITION;
+		float2 UV : TEXCOORD0;
+		float4 LightPos : TEXCOORD1;
+	};
+
+	VertexOut VS(VertexIn vin)
+	{
+		VertexOut vout;
+	
+		// Transform to homogeneous clip space.
+		
+		
+		float4 posX = mul(float4(vin.Pos, 1.0), skinMatrix[vin.Index.x]);
+		float4 posY = mul(float4(vin.Pos, 1.0), skinMatrix[vin.Index.y]);
+		float4 posZ = mul(float4(vin.Pos, 1.0), skinMatrix[vin.Index.z]);
+		float4 posW = mul(float4(vin.Pos, 1.0), skinMatrix[vin.Index.w]);
+		
+		float3 pos = posX.xyz*float3(vin.Weight.x, vin.Weight.x, vin.Weight.x) + posY.xyz*float3(vin.Weight.y, vin.Weight.y, vin.Weight.y) + 
+		             posZ.xyz*float3(vin.Weight.z, vin.Weight.z, vin.Weight.z) + posW.xyz*float3(vin.Weight.w, vin.Weight.w, vin.Weight.w);
+		vout.PosH = mul(float4(pos, 1.0), gWorldViewProj);
+		vout.UV = vin.UV;
+		
+		
+		vout.LightPos = mul(float4(vin.Pos, 1.0f), lightViewProj);
+
+    
+		return vout;
+	}"
+	/>
+	
+	
+	
+	<psShader program = "
+	
+	Texture2D gDiffuseMap : register(t0);
+	Texture2D depthMap : register(t1);
+	SamplerState samLinear : register(s0);
+	SamplerState samPoint : register(s1);
+	
+	struct VertexOut
+	{
+		float4 PosH  : SV_POSITION;
+		//float4 Color : COLOR;
+		float2 UV : TEXCOORD0;
+		float4 LightPos : TEXCOORD1;
+	};
+	
+	float4 PS(VertexOut pin) : SV_TARGET
+	{
+		float4 pos = pin.LightPos;
+		float2 DepthUV = float2(pos.x/pos.w, pos.y/pos.w);
+		DepthUV.x = (DepthUV.x + 1)/2;
+		DepthUV.y = (DepthUV.y + 1)/2;
+		DepthUV.y = 1.0 - DepthUV.y;
+		
+		float lightDepth = pos.z/pos.w;
+		
+		float4 diffuse = gDiffuseMap.Sample(samLinear, pin.UV);
+		float4 Depth = depthMap.Sample(samLinear, DepthUV);
+		
+		float minDepth = Depth.x;
+		
+		
+		
+		float4 color = float4(0.5, 0.5, 0.5, 1.0);
+		if (lightDepth < minDepth+0.0005)
+		  color = diffuse;
+		else
+		  color = color*diffuse;
+		
+		if (lightDepth > 1.0 || lightDepth < 0.0)
+			color = diffuse;
+		  
+		//return float4(depth, 0.0, 0.0, 1.0);
+		//return float4(lightDepth, 0.0, 0.0, 1.0);
+		return color;
+	}"
+	/>
+	
+</shader>
+</shaders>
+
+<techniques>
+<technique>
+<passes>
+<pass shaderName="depth" />
+<pass shaderName="shadow" />
+</passes>
+</technique>
+</techniques>
+</effect>
+
+
+	  

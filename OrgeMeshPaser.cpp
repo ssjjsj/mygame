@@ -193,6 +193,37 @@ namespace OrgeMeshPaser
 				}
 			}
 
+			int lastVertexIndex = -1;
+			int subIndex = 0;
+			for (i = 0; i < model.boneVertexAssigns.size(); i++)
+			{
+				BoneVertexAssignment &ass = model.boneVertexAssigns[i];
+				float index = ass.boneIndex;
+				float weight = ass.weight;
+				if (ass.vertexIndex == lastVertexIndex)
+					subIndex++;
+				if (subIndex == 0)
+				{
+					model.vertexs[ass.vertexIndex].boneIndexs.x = index;
+					model.vertexs[ass.vertexIndex].weight.x = weight;
+				}
+				else if (subIndex == 1)
+				{
+					model.vertexs[ass.vertexIndex].boneIndexs.y = index;
+					model.vertexs[ass.vertexIndex].weight.y = weight;
+				}
+				else if (subIndex == 2)
+				{
+					model.vertexs[ass.vertexIndex].boneIndexs.z = index;
+					model.vertexs[ass.vertexIndex].weight.z = weight;
+				}
+				else
+				{
+					model.vertexs[ass.vertexIndex].boneIndexs.w = index;
+					model.vertexs[ass.vertexIndex].weight.w = weight;
+				}
+			}
+
 			modelDatas.push_back(model);
 		}
 

@@ -29,13 +29,13 @@ public:
 	ID3D11Buffer* getVertexBuffer() { return vb; }
 	ID3D11Buffer* getIndexBuffer() { return ib; }
 	UINT getIndexCount() { return tcount; }
-	VertexType getVertexType() { return vertexType; }
-	static int getVertexSize(VertexType type);
+	MyVertex::VertexType getVertexType() { return vertexType; }
+	static int getVertexSize(MyVertex::VertexType type);
 private:
 	ID3D11Buffer* vb;
 	ID3D11Buffer* ib;
 	UINT tcount;
-	VertexType vertexType;
+	MyVertex::VertexType vertexType;
 };
 
 #endif

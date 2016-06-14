@@ -86,4 +86,19 @@ private:
 	SurfaceData data;
 };
 
+
+class UpdateSkinMatrixsBufferCommand : public UpdateBufferCommand
+{
+public:
+	UpdateSkinMatrixsBufferCommand(){};
+	~UpdateSkinMatrixsBufferCommand(){};
+	void init();
+	void update();
+	void updateMatrix(vector<XMFLOAT4X4> &data);
+	const int maxBones = 128;
+
+private:
+	vector<XMFLOAT4X4> data;
+};
+
 #endif

@@ -462,6 +462,7 @@ void Render::init()
 	bufferCommandList["surface"] = new UpdateSurfaceBufferCommand;
 	bufferCommandList["light"] = new UpdateLightBufferCommand;
 	bufferCommandList["lightWorldProj"] = new UpdateMatrixBufferCommand;
+	bufferCommandList["skinMatrix"] = new UpdateSkinMatrixsBufferCommand;
 
 	for (map<string, UpdateBufferCommand*>::iterator it = bufferCommandList.begin();
 		it != bufferCommandList.end(); it++)

@@ -116,7 +116,9 @@ void ShaderResource::loadShader(TiXmlElement *shaderElement)
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 1, DXGI_FORMAT_R32G32_FLOAT, 0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 2, DXGI_FORMAT_R32G32_FLOAT, 0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
 	if (errorMessage != NULL)
@@ -128,7 +130,7 @@ void ShaderResource::loadShader(TiXmlElement *shaderElement)
 
 
 	ID3D11VertexShader *shader;
-	HRESULT hr = gRender->Device()->d3dDevice->CreateInputLayout(vertexDesc, 3, shaderBuffer->GetBufferPointer(),
+	HRESULT hr = gRender->Device()->d3dDevice->CreateInputLayout(vertexDesc, 5, shaderBuffer->GetBufferPointer(),
 		shaderBuffer->GetBufferSize(), &inputLayout);
 
 

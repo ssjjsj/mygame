@@ -17,6 +17,8 @@ namespace MyVertex
 		XMFLOAT3 Pos;
 		XMFLOAT3 Nor;
 		XMFLOAT2 UV;
+		XMFLOAT4 weight;
+		XMFLOAT4 boneIndexs;
 
 		Vertex()
 		{

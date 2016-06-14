@@ -14,7 +14,7 @@ SceneManager::SceneManager()
 	mainCamera->SetLens(3.14, (float)800 / (float)600, 1.0f, 1000.0f);
 	lightCamera->SetLens(3.14, (float)800 / (float)600, 1.0f, 1000.0);
 	
-	XMVECTOR pos = XMVectorSet(0.0f, 250.0f, 200.0f, 1.0f);
+	XMVECTOR pos = XMVectorSet(0.0f, 150.0f, 200.0f, 1.0f);
 	XMVECTOR target = XMVectorSet(200.0f, 0.0f, 200.0f, 1.0f);
 	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 

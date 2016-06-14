@@ -39,6 +39,11 @@ public:
 	void SetCamera(Camera *camera) { this->camera = camera; }
 	ResManager *gpuResManager;
 
+	UpdateBufferCommand *getBufferCommand(string name)
+	{
+		return bufferCommandList[name];
+	}
+
 private:
 	ID3D11Texture2D* depthStencilBuffer;
 	ID3D11RenderTargetView* renderTargetView;

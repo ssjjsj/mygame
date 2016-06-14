@@ -70,7 +70,7 @@ void Geometry::setIndexData(vector<UINT> &indices)
 }
 
 
-int Geometry::getVertexSize(VertexType type)
+int Geometry::getVertexSize(MyVertex::VertexType type)
 {
 	int size = 0; 
 
