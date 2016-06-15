@@ -138,7 +138,7 @@ void UpdateSkinMatrixsBufferCommand::update()
 	XMFLOAT4X4* dataPtr = (XMFLOAT4X4*)mappedResource.pData;
 	for (int i = 0; i < data.size(); i++)
 	{
-		dataPtr[0] = data[i];
+		dataPtr[i] = data[i];
 	}
 	immediateContext->Unmap(buffer, 0);
 	immediateContext->VSSetConstantBuffers(slot, 1, &buffer);

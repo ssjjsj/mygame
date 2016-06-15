@@ -17,8 +17,8 @@ namespace MyVertex
 		XMFLOAT3 Pos;
 		XMFLOAT3 Nor;
 		XMFLOAT2 UV;
-		XMFLOAT4 weight;
 		XMFLOAT4 boneIndexs;
+		XMFLOAT4 weight;
 
 		Vertex()
 		{
@@ -30,6 +30,14 @@ namespace MyVertex
 			Nor.z = 0.0f;
 			UV.x = 0.0f;
 			UV.y = 0.0f;
+			weight.x = 0.0f;
+			weight.y = 0.0f;
+			weight.z = 0.0f;
+			weight.w = 0.0f;
+			boneIndexs.x = 0.0f;
+			boneIndexs.y = 0.0f;
+			boneIndexs.z = 0.0f;
+			boneIndexs.w = 0.0f;
 		}
 	};
 

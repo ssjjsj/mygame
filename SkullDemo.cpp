@@ -165,17 +165,30 @@ bool SkullApp::Init()
 
 	SceneManager::Instance().createTerrain();
 
-	//Mesh *sin = new Mesh("Sinbad.mesh.xml");
-	////sin->lighted = true;
-	//sin->setMaterial("ogre.material.xml");
-	//sin->SetPos(XMFLOAT3(50.0f, 10.0f, 50.0f));
-	//sin->SetScale(2.0f, 2.0f, 2.0f);
-	//sin->attachAnimation("Sinbad");
-	//MoveBehaviour *b = new MoveBehaviour;
-	//sin->AttachBehaviour(b);
-	//b->SetPos(50, 50);
-	//b->moveTo(150, 150);
-	//gSceneManager.addMesh(sin);
+	Mesh *sin = new Mesh("Sinbad.mesh.xml");
+	//sin->lighted = true;
+	sin->setMaterial("ogre.material.xml");
+	sin->SetPos(XMFLOAT3(50.0f, 10.0f, 50.0f));
+	sin->SetScale(2.0f, 2.0f, 2.0f);
+	sin->attachAnimation("Sinbad");
+	MoveBehaviour *b = new MoveBehaviour;
+	sin->AttachBehaviour(b);
+	b->SetPos(50, 50);
+	b->moveTo(150, 150);
+	SceneManager::Instance().addMesh(sin);
+
+
+	sin = new Mesh("Sinbad.mesh.xml");
+	//sin->lighted = true;
+	sin->setMaterial("ogre.material.xml");
+	sin->SetPos(XMFLOAT3(50.0f, 10.0f, 50.0f));
+	sin->SetScale(2.0f, 2.0f, 2.0f);
+	sin->attachAnimation("Sinbad");
+	b = new MoveBehaviour;
+	sin->AttachBehaviour(b);
+	b->SetPos(150, 150);
+	b->moveTo(250, 250);
+	SceneManager::Instance().addMesh(sin);
 
 
 	Mesh *houseA = new Mesh("b_fish_house_a.obj");

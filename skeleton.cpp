@@ -153,11 +153,6 @@ void Skeleton::Bone::computePosMatrix()
 	XMMATRIX m = XMLoadFloat4x4(&inverseMatrix)*XMLoadFloat4x4(&globalMatrix);
 	XMStoreFloat4x4(&poseMatrix, m);
 
-	if (name == "Clavicle.R")
-	{
-		int i = 0;
-	}
-
 	for (int i = 0; i < children.size(); i++)
 	{
 		Bone *b = children[i];

@@ -5,6 +5,7 @@ using namespace MyVertex;
 #include "global.h"
 #include "Render.h"
 #include "gpuResManger.h"
+#include <algorithm>
 using namespace std;
 
 Mesh::Mesh()
@@ -94,8 +95,17 @@ void Mesh::playAnimation(string animationName)
 		}
 	}
 
-	curAnimations.push_back(animation);
+	if (std::find(curAnimations.cbegin(), curAnimations.cend(), animation) == curAnimations.end())
+		curAnimations.push_back(animation);
 }
+
+
+void Mesh::stopAnimation(string animationName)
+{
+	curAnimations.erase(std::remove_if(curAnimations.begin(), curAnimations.end(), [animationName](Animation* it) {return it->GetName() == animationName; }), curAnimations.end());
+}
+
+
 
 void Mesh::Update(float deltaTime)
 {
@@ -105,45 +115,11 @@ void Mesh::Update(float deltaTime)
 		{
 			curAnimations[i]->update(deltaTime);
 		}
-	}
 
-	skin();
-
-	for (int i = 0; i < skinedMeshAry.size(); i++)
-	{
-		ModelData &data = skinedMeshAry[i];
-		RenderAble *obj = renderAbleList[i];
-
-		obj->getGeometry()->updateVertexData(data.vertexs);
+		skin();
 	}
 
 	GameObject::Update(deltaTime);
-
-
-	//for (int i = 0; i < renderAbleList.size(); i++)
-	//{
-	//	RenderAble *obj = renderAbleList[i];
-
-	//	ModelData &model = subMeshAry[i];
-	//	vector<Vertex> newVertexs;
-	//	for (int j = 0; j < model.vertexs.size(); j++)
-	//	{
-	//		Vertex v = model.vertexs[j];
-	//		
-	//		XMMATRIX vp = gRender->getCamera()->ViewProj();
-	//		XMMATRIX s = XMMatrixScaling(0.1f, 0.1f, 0.1f);
-	//		vp = s*vp;
-	//		XMFLOAT4 newPos = XMFLOAT4(v.Pos.x, v.Pos.y, v.Pos.z, 1.0f);
-	//		XMVECTOR vector = XMVector4Transform(XMLoadFloat4(&newPos), vp);
-	//		XMStoreFloat4(&newPos, vector);
-	//		Vertex newVertex;
-	//		newVertex.Pos = newPos;
-	//		newVertex.UV = v.UV;
-	//		newVertexs.push_back(newVertex);
-	//	}
-
-	//	obj->getGeometry()->updateVertexData(newVertexs);
-	//}
 }
 
 
@@ -197,11 +173,10 @@ void Mesh::skin()
 	for (int indexAnimation = 0; indexAnimation < curAnimations.size(); indexAnimation++)
 	{
 		Animation *curAnimation = curAnimations[indexAnimation];
-		map<string, XMFLOAT4X4> matrixMap = curAnimation->GetPosMatrix();
 		std::vector<Skeleton::Bone*> bones = curAnimation->GetSkeleton()->GetBones();
 		for (int i = 0; i < bones.size(); i++)
 		{
-			XMFLOAT4X4 &m = matrixMap[bones[i]->name];
+			XMFLOAT4X4 &m = bones[i]->poseMatrix;
 			if (firstAnimation)
 				matrixs.push_back(m);
 			else

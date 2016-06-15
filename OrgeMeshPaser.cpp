@@ -202,6 +202,8 @@ namespace OrgeMeshPaser
 				float weight = ass.weight;
 				if (ass.vertexIndex == lastVertexIndex)
 					subIndex++;
+				else
+					subIndex = 0;
 				if (subIndex == 0)
 				{
 					model.vertexs[ass.vertexIndex].boneIndexs.x = index;
@@ -222,6 +224,8 @@ namespace OrgeMeshPaser
 					model.vertexs[ass.vertexIndex].boneIndexs.w = index;
 					model.vertexs[ass.vertexIndex].weight.w = weight;
 				}
+
+				lastVertexIndex = ass.vertexIndex;
 			}
 
 			modelDatas.push_back(model);

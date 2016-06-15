@@ -33,6 +33,7 @@ public:
 	void Update(float deltaTime);
 	void attachAnimation(string animationName);
 	void playAnimation(string animationName);
+	void stopAnimation(string animationName);
 	bool IsPlayAnimation()
 	{
 		return curAnimations.size() != 0;

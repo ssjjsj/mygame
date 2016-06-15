@@ -24,7 +24,7 @@ void MoveBehaviour::moveTo(int x, int y)
 	clearPath();
 	indexPath = WorldMap::Instance().move(curX, curY, x, y);
 
-	((Mesh*)gameObject)->playAnimation("RunBase");
+	//((Mesh*)gameObject)->playAnimation("RunBase");
 	((Mesh*)gameObject)->playAnimation("RunTop");
 }
 
@@ -57,6 +57,8 @@ void MoveBehaviour::Update(float delta)
 	}
 	else
 	{
+		((Mesh*)gameObject)->stopAnimation("RunBase");
+		((Mesh*)gameObject)->stopAnimation("RunTop");
 		((Mesh*)gameObject)->playAnimation("IdleBase");
 		((Mesh*)gameObject)->playAnimation("IdleTop");
 	}

@@ -146,38 +146,6 @@ void Animation::update(float deltaTime)
 		}
 	}
 	updateAllMatrix();
-
-	
-
-	printDataList.clear();
-	for (int i = 0; i < skeleton->GetBones().size(); i++)
-	{
-		Skeleton::Bone *b = skeleton->GetBone(i);
-
-		PrintData data;
-		data.name = b->name;
-		data.inverseMatrix = b->inverseMatrix;
-		data.globalMatrix = b->globalMatrix;
-		data.result = b->poseMatrix;
-		printDataList.push_back(data);
-	}
-
-	//std::sort(printDataList.begin(), printDataList.end(), PrintData::cmp);
-
-	if (!hasPrintData)
-	{
-		FILE *fp = fopen("data.txt", "w");
-		hasPrintData = true;
-		for (int i = 0; i < printDataList.size(); i++)
-		{
-			PrintData data = printDataList[i];
-			fprintf(fp, "%s\n", data.name.c_str());
-			MathUntil::printfMatrix(data.inverseMatrix, fp);
-			MathUntil::printfMatrix(data.globalMatrix, fp);
-			MathUntil::printfMatrix(data.result, fp);
-		}
-		fclose(fp);
-	}
 }
 
 
@@ -186,14 +154,6 @@ void Animation::updateAllMatrix()
 	Skeleton::Bone *rootBone = skeleton->GetBone("root");
 	FILE *fp = fopen("a.txt", "w");
 	rootBone->updateTransform(fp);
-
-
-	for (int i = 0; i < skeleton->GetBones().size(); i++)
-	{
-		fprintf(fp, "%s\n", skeleton->GetBone(i)->name.c_str());
-		MathUntil::printfMatrix(skeleton->GetBone(i)->inverseMatrix, fp);
-	}
-	fclose(fp);
 	rootBone->computePosMatrix();
 }
 
