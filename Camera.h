@@ -12,12 +12,17 @@
 #define CAMERA_H
 
 #include "MathHelp.h"
+#include "gameobject.h"
 
 class Camera
 {
 public:
 	Camera();
 	~Camera();
+
+	void followTarget(GameObject *obj) { this->target = obj; }
+
+	void update();
 
 	// Get/Set world camera position.
 	XMVECTOR GetPositionXM()const;
@@ -91,6 +96,8 @@ private:
 	// Cache View/Proj matrices.
 	XMFLOAT4X4 mView;
 	XMFLOAT4X4 mProj;
+
+	GameObject *target;
 };
 
 #endif // CAMERA_H

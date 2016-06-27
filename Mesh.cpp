@@ -125,72 +125,97 @@ void Mesh::Update(float deltaTime)
 
 void Mesh::skin()
 {
-	//skinedMeshAry = subMeshAry;
-	//for (int indexAnimation = 0; indexAnimation < curAnimations.size(); indexAnimation++)
-	//{
-	//	Animation *curAnimation = curAnimations[indexAnimation];
-
-	//	map<string, XMFLOAT4X4> matrixMap = curAnimation->GetPosMatrix();
-
-	//	for (int indexSubMesh = 0; indexSubMesh < subMeshAry.size(); indexSubMesh++)
-	//	{
-	//		ModelData &modelData = subMeshAry[indexSubMesh];
-	//		int curVertexIndex = -1;
-	//		XMFLOAT3 curPos;
-	//		for (int indexBoneAssign = 0; indexBoneAssign < modelData.boneVertexAssigns.size(); indexBoneAssign++)
-	//		{
-	//			BoneVertexAssignment &ass = modelData.boneVertexAssigns[indexBoneAssign];
-
-	//			if (ass.vertexIndex != curVertexIndex)
-	//			{
-	//				if (curVertexIndex != -1)
-	//				{
-	//					skinedMeshAry[indexSubMesh].vertexs[curVertexIndex].Pos = curPos;
-	//				}
-
-	//				curVertexIndex = ass.vertexIndex;
-	//				curPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	//			}
-
-
-	//			Vertex &v = subMeshAry[indexSubMesh].vertexs[ass.vertexIndex];
-	//			Skeleton::Bone *bone = curAnimation->GetSkeleton()->GetBone(ass.boneIndex);
-
-	//			XMFLOAT4 posTranslate;
-	//			XMFLOAT4 vPos = XMFLOAT4(v.Pos.x, v.Pos.y, v.Pos.z, 1.0f);
-	//			XMVECTOR vector = XMVector4Transform(XMLoadFloat4(&vPos), XMLoadFloat4x4(&bone->poseMatrix));
-	//			XMStoreFloat4(&posTranslate, vector);
-	//			curPos.x += posTranslate.x*ass.weight;
-	//			curPos.y += posTranslate.y*ass.weight;
-	//			curPos.z += posTranslate.z*ass.weight;
-	//		}
-		//}
-	//}
-
-
-	std::vector<XMFLOAT4X4> matrixs;
-	bool firstAnimation = true;
+	skinedMeshAry = subMeshAry;
 	for (int indexAnimation = 0; indexAnimation < curAnimations.size(); indexAnimation++)
 	{
 		Animation *curAnimation = curAnimations[indexAnimation];
-		std::vector<Skeleton::Bone*> bones = curAnimation->GetSkeleton()->GetBones();
-		for (int i = 0; i < bones.size(); i++)
+
+		map<string, XMFLOAT4X4> matrixMap = curAnimation->GetPosMatrix();
+
+		for (int indexSubMesh = 0; indexSubMesh < subMeshAry.size(); indexSubMesh++)
 		{
-			XMFLOAT4X4 &m = bones[i]->poseMatrix;
-			if (firstAnimation)
-				matrixs.push_back(m);
-			else
+			ModelData &modelData = subMeshAry[indexSubMesh];
+			int curVertexIndex = -1;
+			XMFLOAT3 curPos;
+			for (int indexBoneAssign = 0; indexBoneAssign < modelData.boneVertexAssigns.size(); indexBoneAssign++)
 			{
-				XMFLOAT4X4 &m1 = matrixs[i];
-				XMMATRIX matrix = XMLoadFloat4x4(&m)*XMLoadFloat4x4(&m1);
-				XMStoreFloat4x4(&matrixs[i], matrix);
+				BoneVertexAssignment &ass = modelData.boneVertexAssigns[indexBoneAssign];
+
+				if (ass.vertexIndex != curVertexIndex)
+				{
+					if (curVertexIndex != -1)
+					{
+						skinedMeshAry[indexSubMesh].vertexs[curVertexIndex].Pos = curPos;
+					}
+
+					curVertexIndex = ass.vertexIndex;
+					curPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
+				}
+
+
+				Vertex &v = subMeshAry[indexSubMesh].vertexs[ass.vertexIndex];
+				Skeleton::Bone *bone = curAnimation->GetSkeleton()->GetBone(ass.boneIndex);
+
+				//XMFLOAT4 posTranslate = MathUntil::vectorMupilyMatrix(XMFLOAT4(v.Pos.x, v.Pos.y, v.Pos.z, 1.0f), bone->poseMatrix);
+				XMFLOAT4 posTranslate;
+				XMFLOAT4 vPos = XMFLOAT4(v.Pos.x, v.Pos.y, v.Pos.z, 1.0f);
+				XMVECTOR vector = XMVector4Transform(XMLoadFloat4(&vPos), XMLoadFloat4x4(&bone->poseMatrix));
+				XMStoreFloat4(&posTranslate, vector);
+				curPos.x += posTranslate.x*ass.weight;
+				curPos.y += posTranslate.y*ass.weight;
+				curPos.z += posTranslate.z*ass.weight;
 			}
 		}
-		firstAnimation = false;
 	}
 
-	UpdateSkinMatrixsBufferCommand *c = (UpdateSkinMatrixsBufferCommand*)(gRender->getBufferCommand("skinMatrix"));
-	c->updateMatrix(matrixs);
+	//skinedMeshAry = subMeshAry;
+	//std::vector<XMFLOAT4X4> matrixs;
+	//bool firstAnimation = true;
+	//for (int indexAnimation = 0; indexAnimation < curAnimations.size(); indexAnimation++)
+	//{
+	//	Animation *curAnimation = curAnimations[indexAnimation];
+	//	std::vector<Skeleton::Bone*> bones = curAnimation->GetSkeleton()->GetBones();
+	//	for (int i = 0; i < bones.size(); i++)
+	//	{
+	//		XMFLOAT4X4 &m = bones[i]->poseMatrix;
+	//		if (firstAnimation)
+	//			matrixs.push_back(m);
+	//		else
+	//		{
+	//			XMFLOAT4X4 &m1 = matrixs[i];
+	//			XMMATRIX matrix = XMLoadFloat4x4(&m)*XMLoadFloat4x4(&m1);
+	//			XMStoreFloat4x4(&matrixs[i], matrix);
+	//		}
+	//	}
+	//	firstAnimation = false;
+	//}
+
+	//for (int i = 0; i < skinedMeshAry.size(); i++)
+	//{
+	//	ModelData &modelData = skinedMeshAry[i];
+
+	//	for (int j = 0; j < modelData.vertexs.size(); j++)
+	//	{
+	//		MyVertex::Vertex &v = modelData.vertexs[j];
+
+	//		XMFLOAT4 posX = MathUntil::vectorMupilyMatrix(XMFLOAT4(v.Pos.x, v.Pos.y, v.Pos.z, 1.0f), matrixs[v.boneIndexs.x]);
+	//		XMFLOAT4 posY = MathUntil::vectorMupilyMatrix(XMFLOAT4(v.Pos.x, v.Pos.y, v.Pos.z, 1.0f), matrixs[v.boneIndexs.y]);
+	//		XMFLOAT4 posZ = MathUntil::vectorMupilyMatrix(XMFLOAT4(v.Pos.x, v.Pos.y, v.Pos.z, 1.0f), matrixs[v.boneIndexs.z]);
+	//		XMFLOAT4 posW = MathUntil::vectorMupilyMatrix(XMFLOAT4(v.Pos.x, v.Pos.y, v.Pos.z, 1.0f), matrixs[v.boneIndexs.w]);
+
+	//		v.Pos = XMFLOAT3(posX.x*v.weight.x + posY.x*v.weight.y + posZ.x*v.weight.z + posW.x*v.weight.w,
+	//			posX.y*v.weight.x + posY.y*v.weight.y + posZ.y*v.weight.z + posW.y*v.weight.w,
+	//			posX.z*v.weight.x + posY.z*v.weight.y + posZ.z*v.weight.z + posW.z*v.weight.w);
+	//	}
+	//}
+
+	for (int i = 0; i < renderAbleList.size(); i++)
+	{
+		renderAbleList[i]->getGeometry()->updateVertexData(skinedMeshAry[i].vertexs);
+	}
+
+	//UpdateSkinMatrixsBufferCommand *c = (UpdateSkinMatrixsBufferCommand*)(gRender->getBufferCommand("skinMatrix"));
+	//c->updateMatrix(matrixs);
 }
 
 

@@ -24,7 +24,7 @@ void MoveBehaviour::moveTo(int x, int y)
 	clearPath();
 	indexPath = WorldMap::Instance().move(curX, curY, x, y);
 
-	//((Mesh*)gameObject)->playAnimation("RunBase");
+	((Mesh*)gameObject)->playAnimation("RunBase");
 	((Mesh*)gameObject)->playAnimation("RunTop");
 }
 

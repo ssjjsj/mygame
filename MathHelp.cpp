@@ -97,11 +97,8 @@ namespace MathUntil
 	XMFLOAT4 vectorMupilyMatrix(XMFLOAT4 v, XMFLOAT4X4 m)
 	{
 		XMFLOAT4 result;
-
-		result.x = m._11*v.x + m._12*v.y + m._13*v.z + m._14*v.w;
-		result.y = m._21*v.x + m._22*v.y + m._23*v.z + m._24*v.w;
-		result.z = m._31*v.x + m._32*v.y + m._33*v.z + m._34*v.w;
-		result.w = m._41*v.x + m._42*v.y + m._43*v.z + m._44*v.w;
+		XMVECTOR vector = XMVector4Transform(XMLoadFloat4(&v), XMLoadFloat4x4(&m));
+		XMStoreFloat4(&result, vector);
 
 		return result;
 	}

@@ -68,6 +68,8 @@ void SceneManager::createTerrain()
 
 void SceneManager::update(float delta)
 {
+	mainCamera->update();
+
 	for (int i = 0; i < meshAry.size(); i++)
 	{
 		meshAry[i]->Update(delta);

@@ -178,6 +178,9 @@ bool SkullApp::Init()
 	SceneManager::Instance().addMesh(sin);
 
 
+	SceneManager::Instance().getMainCamera()->followTarget(sin);
+
+
 	sin = new Mesh("Sinbad.mesh.xml");
 	//sin->lighted = true;
 	sin->setMaterial("ogre.material.xml");

@@ -25,6 +25,7 @@ public:
 	void AttachBehaviour(Behaviour *obj);
 	void Update(float deltaTime);
 
+	XMFLOAT3 GetPos();
 	void SetPos(XMFLOAT3 pos);
 	void SetScale(float x, float y, float z);
 	void RotateY(float angle);

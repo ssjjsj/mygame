@@ -8,7 +8,8 @@ Camera::Camera()
 	: mPosition(0.0f, 0.0f, 0.0f), 
 	  mRight(1.0f, 0.0f, 0.0f),
 	  mUp(0.0f, 1.0f, 0.0f),
-	  mLook(0.0f, 0.0f, 1.0f)
+	  mLook(0.0f, 0.0f, 1.0f),
+	  target(NULL)
 {
 	//SetLens(0.25f*3.14f, 1.0f, 1.0f, 1000.0f);
 }
@@ -112,6 +113,17 @@ float Camera::GetAspect()const
 //{
 //	return mFarWindowHeight;
 //}
+
+void Camera::update()
+{
+	if (target != NULL)
+	{
+		XMFLOAT3 targetPos = target->GetPos();
+
+		XMFLOAT3 cameraPos = XMFLOAT3(targetPos.x - 40.0f, targetPos.y + 30.0f, targetPos.z - 40.0f);
+		LookAt(cameraPos, targetPos, XMFLOAT3(0.0f, 1.0f, 0.0f));
+	}
+}
 
 void Camera::SetLens(float fovY, float aspect, float zn, float zf)
 {

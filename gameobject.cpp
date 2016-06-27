@@ -36,6 +36,11 @@ void GameObject::SetPos(XMFLOAT3 pos)
 	this->pos = pos;
 }
 
+XMFLOAT3 GameObject::GetPos()
+{
+	return pos;
+}
+
 void GameObject::SetScale(float x, float y, float z)
 {
 	dirty = true;
